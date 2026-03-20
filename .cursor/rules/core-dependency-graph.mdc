@@ -1,0 +1,26 @@
+---
+description: Dependencias permitidas entre módulos del monorepo core
+alwaysApply: true
+---
+
+# Grafo de dependencias
+
+## Regla general
+
+- Sin ciclos entre módulos
+- No importar internals de otro módulo
+- Cada módulo debe ser autocontenido por defecto
+
+## Reglas fuertes
+
+- `backend` no depende de otros módulos
+- `postgres` debe intentar mantenerse independiente
+- `saas` puede depender de `backend`
+- `serverless` puede depender de `backend` solo para piezas técnicas realmente genéricas
+- `governance`, `artifact` y `ai` deben intentar mantenerse independientes
+
+## Si necesitás una excepción
+
+- documentar primero la razón;
+- mantener la dependencia en una sola dirección;
+- no esconder acoplamiento vía helpers o packages "temporales".

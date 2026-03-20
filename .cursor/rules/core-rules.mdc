@@ -1,0 +1,41 @@
+---
+description: Reglas base del monorepo core
+alwaysApply: true
+---
+
+# Reglas base
+
+## Contexto
+
+Este repo contiene capacidades reutilizables, no productos.
+
+Módulos raíz esperados:
+- `saas/`
+- `backend/`
+- `postgres/`
+- `serverless/`
+- `governance/`
+- `artifact/`
+- `ai/`
+
+## Principios
+
+- DRY, YAGNI, SOLID, KISS, fail fast
+- cambios quirúrgicos
+- ideal primero, luego recomendación práctica si difieren
+- verificar antes de afirmar
+
+## Idioma
+
+- código en inglés
+- comentarios en español
+- respuestas en español
+
+## Prohibiciones
+
+- NUNCA valores hardcodeados salvo autorización explícita
+- NUNCA meter dominio específico de producto en `core`
+- NUNCA crear `common/`, `shared/`, `utils/`, `libs/` en la raíz
+- NUNCA duplicar una capacidad en dos módulos
+- NUNCA carpetas `go/`, `rust/`, `python/` si solo hay una implementación
+- NUNCA decir "listo" sin evidencia de verificación

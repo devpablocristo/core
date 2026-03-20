@@ -1,0 +1,32 @@
+---
+description: Qué va en cada módulo y qué queda fuera de core
+alwaysApply: true
+---
+
+# Fronteras por módulo
+
+## Test de pertenencia
+
+Pregunta:
+
+`¿esto lo pueden consumir al menos dos productos sin reescribirlo ni meterle negocio/copy específico?`
+
+- Si sí: probablemente pertenece a `core`
+- Si no: no pertenece a `core`
+
+## Módulos
+
+- `saas/`: orgs, users, identity, authz multi-tenant, billing, entitlements, usage metering
+- `backend/`: http server, auth transport, api keys, pagination, validation, retry y observability
+- `postgres/`: pool PostgreSQL, healthcheck, config y migraciones PostgreSQL
+- `serverless/`: Lambda, API Gateway, SQS, S3, DynamoDB, bootstraps y envelopes
+- `governance/`: policies, risk, approvals, evidence, audit contracts, state machines de decisión
+- `artifact/`: PDF, Excel, CSV, QR, report generation, naming y metadata de artefactos
+- `ai/`: orchestration, providers, auth/rate limit AI, runtime helpers, resilience
+
+## No pertenece a `core`
+
+- dominio específico de Nexus, Pymes, Ponti, Fixguard o KMA/AlphaCoding
+- apps, UIs, dashboards
+- copy o mensajes de producto
+- features que todavía solo sirven a un repo y no tienen frontera estable

@@ -1,0 +1,46 @@
+---
+description: Estructura y naming del monorepo core
+alwaysApply: true
+---
+
+# Estructura del monorepo
+
+El repo se llama `core`, así que adentro NO usamos sufijos `-core`.
+
+Correcto:
+
+```text
+saas/
+backend/
+postgres/
+serverless/
+governance/
+artifact/
+ai/
+```
+
+Incorrecto:
+
+```text
+saas-core/
+backend-core/
+```
+
+## Multi-lenguaje
+
+- Si un módulo tiene una sola implementación, no crear carpetas por lenguaje
+- Si tiene múltiples implementaciones, usar:
+
+```text
+{modulo}/
+  spec/
+  go/
+  rust/
+  python/
+```
+
+## Reglas de raíz
+
+- `shared/` solo puede existir dentro de un módulo con ownership claro
+- No crear `common/`, `utils/`, `libs/` ni equivalentes en la raíz
+- `docs/`, `scripts/` y `examples/` son válidos como soporte transversal del repo
