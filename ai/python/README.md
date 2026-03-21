@@ -11,6 +11,8 @@ Implementación Python de la capacidad `ai`.
 
 - orchestrator
 - provider factory
+- JSON completion clients
+- LLM settings helpers
 - auth
 - rate limit
 - logging
