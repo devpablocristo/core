@@ -33,12 +33,15 @@ Capacidad reusable para generación y manejo de artefactos.
 
 ## Bootstrap inicial creado
 
-Paquetes ya iniciados en este módulo:
+Implementación actual: `artifact/go/`
+
+Paquetes ya iniciados en esta implementación:
 
 - `artifact` root package con `Asset`, `Format`, naming y content types
 - `tabular/`
 - `pdf/`
 - `qr/`
 - `storage/`
+- `attachments/`
 
-El módulo ya cubre `Asset` común, naming/metadata, contratos de storage, export tabular CSV/XLSX, generación PDF simple y QR PNG reusable.
+El módulo ya cubre `Asset` común, naming/metadata, contratos de storage, export tabular CSV/XLSX, generación PDF simple, QR PNG reusable y metadata reusable de attachments.

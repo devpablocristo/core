@@ -34,7 +34,9 @@ Capacidad reusable para infraestructura técnica de servicios backend.
 
 ## Bootstrap inicial creado
 
-Paquetes ya iniciados en este módulo:
+Implementación actual: `backend/go/`
+
+Paquetes ya iniciados en esta implementación:
 
 - `httpserver/`
 - `httpjson/`

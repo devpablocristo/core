@@ -7,11 +7,15 @@ Aplican sin excepción las reglas de `AGENTS.md`.
 ## Resumen crítico
 
 - Este repo es un monorepo de capacidades reutilizables, no de productos
-- Los módulos raíz son: `saas`, `backend`, `postgres`, `serverless`, `governance`, `artifact`, `ai`
+- Los módulos raíz son: `saas`, `backend`, `databases`, `providers`, `eventing`, `governance`, `artifact`, `webhook`, `activity`, `ai`
 - Dentro de este repo NO se usan sufijos `-core`
 - No crear `common/`, `shared/`, `utils/` en la raíz
 - Lenguaje distinto no implica repo distinto
-- Solo crear subcarpetas `go/`, `rust/`, `python/` si la misma capacidad tiene múltiples implementaciones
+- Cada capacidad se separa por lenguaje desde el inicio: `saas/go`, `backend/go`, `ai/python`, etc.
+- Prohibido crear código o manifests en la raíz de una capacidad; la raíz solo organiza
+- Prohibido crear Go fuera de `go/`, Python fuera de `python/` o Rust fuera de `rust/`
+- Prohibido usar una sola versión global del repo; cada implementación tiene su propio `VERSION`
+- Los tags de release son por subdirectorio: `{modulo}/{runtime}/vX.Y.Z`
 - No meter dominio específico de Nexus, Pymes, Ponti, Fixguard o KMA/AlphaCoding
 - Hexagonal se evalúa por dirección de dependencias y aislamiento del dominio, no por el nombre de las carpetas
 - La estructura `usecases/domain`, `handler/dto` y `repository/models` es convención obligatoria para módulos Go con dominio real

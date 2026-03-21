@@ -51,12 +51,34 @@ La estructura objetivo es:
 
 ```text
 saas/
+  go/
 backend/
-postgres/
-serverless/
+  go/
+databases/
+  postgres/
+    go/
+  dynamodb/
+    go/
+providers/
+  aws/
+    lambda/
+      go/
+    s3/
+      go/
+    sqs/
+      go/
+eventing/
+  go/
 governance/
+  go/
 artifact/
+  go/
+webhook/
+  go/
+activity/
+  go/
 ai/
+  python/
 docs/
 scripts/
 examples/
@@ -64,10 +86,11 @@ examples/
 
 ### Regla de naming
 
-- Los módulos se nombran por capacidad o adapter concreto estable: `saas`, `backend`, `postgres`, `serverless`, `governance`, `artifact`, `ai`
+- Los módulos se nombran por capacidad o adapter concreto estable: `saas`, `backend`, `databases/postgres`, `databases/dynamodb`, `providers/aws/lambda`, `providers/aws/s3`, `providers/aws/sqs`, `eventing`, `governance`, `artifact`, `webhook`, `activity`, `ai`
 - NUNCA usar `saas-core/`, `backend-core/`, etc. dentro de este repo
 - NUNCA crear roots genéricos como `common/`, `shared/`, `utils/`, `libs/` en la raíz del repo
 - `shared/` solo puede existir dentro de un módulo concreto y con ownership claro
+- La raíz de una capacidad es solo contenedor organizativo; el código real vive siempre dentro del subdirectorio por lenguaje
 
 ---
 
@@ -77,25 +100,33 @@ El repo puede contener Go, Rust y Python. Lenguaje distinto NO obliga repo disti
 
 ### Regla
 
-- Si una capacidad tiene una sola implementación, no crear subcarpetas por lenguaje
-- Si una capacidad tiene más de una implementación, recién ahí usar:
+- Toda capacidad usa subcarpetas por lenguaje desde el inicio
+- Para Go, la ruta válida es siempre `{modulo}/go/...`
+- Para Python, la ruta válida es siempre `{modulo}/python/...`
+- Para Rust, la ruta válida es siempre `{modulo}/rust/...`
+- NUNCA crear `go.mod`, `pyproject.toml`, `Cargo.toml`, `src/` o paquetes de código directamente en la raíz de la capacidad
+- NUNCA crear archivos Go en `saas/`, `backend/`, `governance/`, etc. fuera de `go/`
+- NUNCA crear archivos Python en `ai/` fuera de `python/`
+- NUNCA usar una sola versión global para todo el repo
+- Toda implementación concreta (`saas/go`, `ai/python`, etc.) debe tener su propio archivo `VERSION`
+- Los tags de release siempre se cortan por subdirectorio: `{modulo}/{runtime}/vX.Y.Z`
+- Si una capacidad tiene más de una implementación, se agregan sin romper la raíz de capacidad:
 
 ```text
 {modulo}/
-  spec/
   go/
-  rust/
-  python/
 ```
 
 ### Ejemplos
 
-Correcto si hay una sola implementación:
+Correcto con una sola implementación:
 
 ```text
 governance/
-  Cargo.toml
-  src/
+  go/
+
+ai/
+  python/
 ```
 
 Correcto si hay múltiples implementaciones:
@@ -111,10 +142,17 @@ Incorrecto:
 
 ```text
 governance/
-  go/
-```
+  Cargo.toml
+  src/
 
-si no existe otra implementación.
+saas/
+  go.mod
+  identity/
+
+ai/
+  pyproject.toml
+  src/
+```
 
 ---
 
@@ -182,7 +220,7 @@ No pertenece:
 - wrappers acoplados a una app específica
 - adapters concretos de base de datos
 
-### `postgres/`
+### `databases/postgres/`
 
 Pertenece:
 - pool PostgreSQL
@@ -196,19 +234,64 @@ No pertenece:
 - dominio de negocio
 - adapters de otras bases de datos
 
-### `serverless/`
+### `databases/dynamodb/`
+
+Pertenece:
+- client bootstrap DynamoDB
+- helpers de serialización DynamoDB
+- operaciones reutilizables sobre tablas DynamoDB
+
+No pertenece:
+- runtime Lambda
+- API Gateway
+- dominio KMA
+- flows, audits, facilities, projects, etc.
+
+### `providers/aws/lambda/`
 
 Pertenece:
 - runtime Lambda
 - API Gateway adapters
-- envelopes HTTP/eventos
-- bootstrap AWS
-- adapters reutilizables de SQS, S3, DynamoDB
-- helpers de routing serverless
+- Lambda HTTP reusable
+- helpers de routing para Lambda
 
 No pertenece:
 - dominio KMA
 - flows, audits, facilities, projects, etc.
+
+### `providers/aws/s3/`
+
+Pertenece:
+- storage reusable sobre S3
+- presigned URLs
+- bootstrap AWS específico de S3
+
+No pertenece:
+- storage abstractions de negocio
+- dominio KMA
+
+### `providers/aws/sqs/`
+
+Pertenece:
+- envío reusable a SQS
+- serialización JSON común
+- bootstrap AWS específico de SQS
+
+No pertenece:
+- contratos de eventos de negocio
+- dominio KMA
+
+### `eventing/`
+
+Pertenece:
+- envelopes HTTP/eventos
+- contratos de eventos asíncronos
+- metadata reusable para publicación/consumo
+
+No pertenece:
+- routing Lambda
+- adapters concretos de proveedor
+- dominio KMA
 
 ### `governance/`
 
@@ -242,6 +325,29 @@ No pertenece:
 - templates o copy cerrados a un producto
 - reportes con dominio acoplado a una sola app
 
+### `webhook/`
+
+Pertenece:
+- endpoints outbound
+- firma HMAC
+- retries/backoff
+- replay y delivery planning
+
+No pertenece:
+- workers o rutas de una app específica
+- persistencia cerrada a un producto
+
+### `activity/`
+
+Pertenece:
+- audit append-only
+- hash chaining
+- export CSV/JSONL
+- timeline por entidad
+
+No pertenece:
+- dashboards o auditoría específica de una sola app
+
 ### `ai/`
 
 Pertenece:
@@ -270,14 +376,20 @@ Regla general:
 ### Excepciones permitidas
 
 - `saas` puede depender de `backend` para infraestructura técnica reusable
-- `serverless` puede depender de `backend` solo para piezas realmente transport-agnostic
 
 ### Reglas fuertes
 
 - `backend` no depende de otros módulos
-- `postgres` debe intentar mantenerse independiente
+- `databases/postgres` debe intentar mantenerse independiente
+- `databases/dynamodb` debe intentar mantenerse independiente
+- `providers/aws/lambda` debe intentar mantenerse independiente
+- `providers/aws/s3` debe intentar mantenerse independiente
+- `providers/aws/sqs` debe intentar mantenerse independiente
+- `eventing` debe intentar mantenerse independiente
 - `governance` debe intentar mantenerse independiente
 - `artifact` debe intentar mantenerse independiente
+- `webhook` debe intentar mantenerse independiente
+- `activity` debe intentar mantenerse independiente
 - `ai` debe intentar mantenerse independiente
 - Si una dependencia entre módulos no es obvia, documentarla primero
 
@@ -382,13 +494,14 @@ Estructura sugerida:
 
 ```text
 {modulo}/
-  Cargo.toml
-  src/
-    lib.rs
-    domain/
-    application/
-    adapters/
-  tests/
+  rust/
+    Cargo.toml
+    src/
+      lib.rs
+      domain/
+      application/
+      adapters/
+    tests/
 ```
 
 ---
@@ -446,6 +559,6 @@ Si el entorno no permite probar, decirlo explícitamente.
 - NUNCA meter dominio específico de producto en `core`
 - NUNCA crear `common/`, `shared/`, `utils/` en la raíz
 - NUNCA duplicar una capacidad en dos módulos
-- NUNCA usar subcarpetas por lenguaje si solo hay una implementación
+- NUNCA mezclar archivos de implementación directamente en la raíz de una capacidad
 - NUNCA afirmar seguridad de un cambio sin revisar consumidores y productores afectados
 - NUNCA decir "listo" sin pruebas o sin explicar por qué no pudieron correrse

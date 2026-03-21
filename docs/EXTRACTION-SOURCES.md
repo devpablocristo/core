@@ -28,6 +28,19 @@ Estado actual en `core`:
 - normalización de slug/role
 - `kernel/usecases/domain` para tipos compartidos
 - `middleware` HTTP reusable para principal resolution
+- contexts `org`, `users`, `billing`, `admin`, `usagemetering`
+- `handler/dto` y `repository/models` en los contexts con adapters
+- `clerkwebhook`
+- `identity/executor/jwks`
+- `identity/executor/oidc`
+- `billing/runtime`, `billing/webhook_handler`, `billing/dunning_worker`, `billing/stripe_client`
+- `migrations`
+- shims `shared/*` para compatibilidad del layout viejo
+
+Conclusión actual:
+
+- `saas-core` ya fue recreado de forma completa dentro de `core/saas/go`
+- la obsolescencia real del repo viejo depende solo de migrar sus consumidores
 
 ## `backend`
 
@@ -59,7 +72,7 @@ Estado actual en `core`:
 - `resilience`
 - `validation`
 
-## `postgres`
+## `databases/postgres`
 
 Fuentes principales:
 
@@ -80,7 +93,23 @@ Estado actual en `core`:
 - `Ping`
 - migrate runner con `fs.FS`
 
-## `serverless`
+## `databases/dynamodb`
+
+Fuente principal:
+
+- `/home/pablo/Projects/AlphaCoding/kma-backend/lambdas/shared`
+
+Componentes candidatos:
+
+- DynamoDB
+- bootstraps
+- marshaling/unmarshaling reusable
+
+Estado actual en `core`:
+
+- `dynamodbtable`
+
+## `providers/aws/lambda`
 
 Fuente principal:
 
@@ -90,19 +119,60 @@ Componentes candidatos:
 
 - runtime Lambda
 - API Gateway responses
-- SQS
-- S3
-- DynamoDB
-- bootstraps
-- validations y envelopes
+- Lambda HTTP
+- routing reusable
 
 Estado actual en `core`:
 
 - `lambdahttp`
-- `event`
+
+## `providers/aws/s3`
+
+Fuente principal:
+
+- `/home/pablo/Projects/AlphaCoding/kma-backend/lambdas/shared`
+
+Componentes candidatos:
+
+- S3
+- presigned URLs
+- uploads/downloads reutilizables
+
+Estado actual en `core`:
+
 - `s3store`
+
+## `providers/aws/sqs`
+
+Fuente principal:
+
+- `/home/pablo/Projects/AlphaCoding/kma-backend/lambdas/shared`
+
+Componentes candidatos:
+
+- SQS
+- envío JSON
+- bootstrap/config AWS
+
+Estado actual en `core`:
+
 - `sqsqueue`
-- `dynamodbtable`
+
+## `eventing`
+
+Fuente principal:
+
+- `/home/pablo/Projects/AlphaCoding/kma-backend/lambdas/shared`
+
+Componentes candidatos:
+
+- envelopes
+- contratos de eventos
+- metadata reusable
+
+Estado actual en `core`:
+
+- `envelope`
 
 ## `governance`
 
@@ -129,7 +199,10 @@ Estado actual en `core`:
 - risk engine
 - decision engine
 - approvals
+- delegations
+- audit replay
 - evidence pack builder
+- `handler/dto` y `repository/models` en los contexts con adapters
 - compatibilidad en `domain/`
 
 ## `artifact`
@@ -187,5 +260,154 @@ Estado actual en `core`:
 - `core_ai.registry`
 - `core_ai.config`
 - `core_ai.api`
-- wrappers de compatibilidad en los imports históricos
+- middleware FastAPI de auth, rate-limit y request context
+- app factory reusable
+- paquete `ai_core` y wrappers de compatibilidad en los imports históricos
 - tests estándar con `unittest`
+
+Conclusión actual:
+
+- `ai-core` ya fue recreado de forma completa dentro de `core/ai/python`
+- la obsolescencia real del repo viejo depende solo de migrar sus consumidores
+
+## Pendientes detectados en la última pasada
+
+### `webhook` como capacidad nueva
+
+Fuentes principales:
+
+- `/home/pablo/Projects/Pablo/pymes/pymes-core/backend/internal/outwebhooks/usecases.go`
+- `/home/pablo/Projects/Pablo/pymes/pymes-core/backend/internal/outwebhooks/repository.go`
+
+Señal:
+
+- gestión de endpoints
+- firma HMAC
+- outbox
+- retries/backoff
+- delivery log
+- replay
+
+Recomendación:
+
+- crear un módulo nuevo `webhook/go`
+- no meterlo dentro de `backend`, porque ya es una capacidad con semántica propia
+
+Estado actual:
+
+- `webhook/go` ya fue creado con `usecases/domain`, `repository/models`, signing HMAC, headers estándar y backoff de retries
+
+### `activity` o `auditlog` como capacidad nueva
+
+Fuentes principales:
+
+- `/home/pablo/Projects/Pablo/pymes/pymes-core/backend/internal/audit/usecases.go`
+- `/home/pablo/Projects/Pablo/pymes/pymes-core/backend/internal/audit/repository.go`
+- `/home/pablo/Projects/Pablo/pymes/pymes-core/backend/internal/timeline/usecases.go`
+- `/home/pablo/Projects/Pablo/pymes/pymes-core/backend/internal/timeline/repository.go`
+- `/home/pablo/Projects/Pablo/nexus/v3/review/internal/audit/usecases.go`
+
+Señal:
+
+- audit trail append-only
+- export CSV/JSONL
+- hash chaining / tamper-evident log
+- timeline por entidad
+- replay de eventos
+
+Recomendación:
+
+- no forzarlo dentro de `governance` todavía
+- evaluar un módulo nuevo `activity/go` o `auditlog/go`
+- si se mantiene en `governance`, solo para audit ligado a decisiones/workflows
+
+Estado actual:
+
+- `activity/go` ya fue creado con contexts `audit/` y `timeline/`
+
+### ampliar `databases/dynamodb/go` y `providers/aws/s3/go`
+
+Fuentes principales:
+
+- `/home/pablo/Projects/AlphaCoding/kma-backend/lambdas/shared/databases/nosql/dynamodb/bootstrap.go`
+- `/home/pablo/Projects/AlphaCoding/kma-backend/lambdas/shared/databases/nosql/dynamodb/client.go`
+- `/home/pablo/Projects/AlphaCoding/kma-backend/lambdas/public-upload/cmd/main.go`
+- `/home/pablo/Projects/AlphaCoding/kma-backend/lambdas/uploads/cmd/main.go`
+- `/home/pablo/Projects/AlphaCoding/kma-backend/lambdas/audits-review/internal/shared/services/s3_presigner.go`
+
+Señal:
+
+- cliente/bootstrapping DynamoDB más completo
+- presigned PUT para S3
+- upload flows reutilizables
+- URLs públicas/privadas y contratos de upload
+
+Recomendación:
+
+- ampliar `databases/dynamodb/go`
+- ampliar `providers/aws/s3/go`
+
+Estado actual:
+
+- `s3store` ya incluye `PresignPut` y `ExtractKey`
+- `dynamodbtable` ya incluye `DeleteJSON`, `QueryJSON` y `Health`
+
+### ampliar `artifact/go`
+
+Fuentes principales:
+
+- `/home/pablo/Projects/Pablo/pymes/pymes-core/backend/internal/attachments/usecases.go`
+- `/home/pablo/Projects/Pablo/pymes/pymes-core/backend/internal/attachments/usecases/domain/entities.go`
+
+Señal:
+
+- metadata de adjuntos
+- upload/download request contracts
+- storage key conventions
+- asociación de archivos a entidades
+
+Recomendación:
+
+- ampliar `artifact/go`
+- probablemente con `attachments` o `blobs` como subpaquete
+
+Estado actual:
+
+- `artifact/go/attachments` ya fue creado con metadata, storage keys y contratos de upload/download
+
+### ampliar `saas/go/notifications` o crear `notify` más adelante
+
+Fuentes principales:
+
+- `/home/pablo/Projects/Pablo/pymes/pymes-core/backend/internal/notifications/sender.go`
+
+Señal:
+
+- SMTP sender
+- SES sender
+- backend noop
+
+Recomendación:
+
+- por ahora ampliaría `saas/go/notifications`
+- solo crearía `notify/go` si aparece otro consumidor no-SaaS
+
+Estado actual:
+
+- `saas/go/notifications` ya incluye senders `noop`, `smtp` y `ses`
+
+### todavía no extraería
+
+Fuentes evaluadas:
+
+- `/home/pablo/Projects/Pablo/pymes/pymes-core/backend/internal/whatsapp`
+- `/home/pablo/Projects/Pablo/pymes/pymes-core/backend/internal/paymentgateway/gateway/mercadopago.go`
+- `/home/pablo/Projects/Pablo/pymes/pkgs/ts-pkg/src/auth.ts`
+- `/home/pablo/Projects/AlphaCoding/kma_web/src/features/auth/api/cognito.repo.impl.ts`
+- `/home/pablo/Projects/Pablo/ponti/ponti-backend/internal/admin/idp/firebase_admin.go`
+- `/home/pablo/Projects/AlphaCoding/KMA_app/src/core/repos/sqliteOutboxRepo.ts`
+
+Motivo:
+
+- siguen demasiado pegados a producto, canal o runtime específico
+- o todavía solo tienen un consumidor claro

@@ -14,10 +14,12 @@ alwaysApply: true
 ## Reglas fuertes
 
 - `backend` no depende de otros módulos
-- `postgres` debe intentar mantenerse independiente
+- `databases/postgres` debe intentar mantenerse independiente
+- `databases/dynamodb` debe intentar mantenerse independiente
 - `saas` puede depender de `backend`
-- `serverless` puede depender de `backend` solo para piezas técnicas realmente genéricas
-- `governance`, `artifact` y `ai` deben intentar mantenerse independientes
+- `providers/aws/lambda`, `providers/aws/s3` y `providers/aws/sqs` deben intentar mantenerse independientes
+- `eventing` debe intentar mantenerse independiente
+- `governance`, `artifact`, `webhook`, `activity` y `ai` deben intentar mantenerse independientes
 
 ## Si necesitás una excepción
 

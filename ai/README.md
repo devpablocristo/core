@@ -22,13 +22,11 @@ Capacidad reusable para runtime AI, providers y orquestación.
 
 - `/home/pablo/Projects/Pablo/ai-core`
 
-## Nota
-
-Aunque hoy probablemente siga siendo Python, el módulo se nombra por capacidad y no por lenguaje.
-
 ## Estructura actual
 
-El módulo ya sigue una estructura Python/FastAPI estándar:
+Implementación actual: `ai/python/`
+
+La implementación ya sigue una estructura Python/FastAPI estándar:
 
 - `src/core_ai/domain/`
 - `src/core_ai/providers/`
@@ -36,5 +34,14 @@ El módulo ya sigue una estructura Python/FastAPI estándar:
 - `src/core_ai/registry/`
 - `src/core_ai/config/`
 - `src/core_ai/api/`
+- `src/ai_core/` para compatibilidad con el paquete histórico
+- middleware reusable de auth, rate limit y request context
+- `create_app()` para wiring FastAPI estándar
 - wrappers de compatibilidad en `types.py`, `orchestrator.py` y `provider_factory.py`
 - `tests/`
+
+## Estado
+
+`/home/pablo/Projects/Pablo/ai-core` ya quedó absorbido funcionalmente dentro de `ai/python/`.
+
+Lo que sigue ya no es reconstrucción interna sino migración de consumidores y retiro del repo viejo.

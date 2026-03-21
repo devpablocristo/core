@@ -16,13 +16,19 @@ Pregunta:
 
 ## Módulos
 
-- `saas/`: orgs, users, identity, authz multi-tenant, billing, entitlements, usage metering
-- `backend/`: http server, auth transport, api keys, pagination, validation, retry y observability
-- `postgres/`: pool PostgreSQL, healthcheck, config y migraciones PostgreSQL
-- `serverless/`: Lambda, API Gateway, SQS, S3, DynamoDB, bootstraps y envelopes
-- `governance/`: policies, risk, approvals, evidence, audit contracts, state machines de decisión
-- `artifact/`: PDF, Excel, CSV, QR, report generation, naming y metadata de artefactos
-- `ai/`: orchestration, providers, auth/rate limit AI, runtime helpers, resilience
+- `saas/`: capability root, implementación actual en `saas/go/`
+- `backend/`: capability root, implementación actual en `backend/go/`
+- `databases/postgres/`: capability root, implementación actual en `databases/postgres/go/`
+- `databases/dynamodb/`: capability root, implementación actual en `databases/dynamodb/go/`
+- `providers/aws/lambda/`: capability root, implementación actual en `providers/aws/lambda/go/`
+- `providers/aws/s3/`: capability root, implementación actual en `providers/aws/s3/go/`
+- `providers/aws/sqs/`: capability root, implementación actual en `providers/aws/sqs/go/`
+- `eventing/`: capability root, implementación actual en `eventing/go/`
+- `governance/`: capability root, implementación actual en `governance/go/`
+- `artifact/`: capability root, implementación actual en `artifact/go/`
+- `webhook/`: capability root, implementación actual en `webhook/go/`
+- `activity/`: capability root, implementación actual en `activity/go/`
+- `ai/`: capability root, implementación actual en `ai/python/`
 
 ## No pertenece a `core`
 

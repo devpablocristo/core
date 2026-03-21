@@ -27,18 +27,24 @@ Kernel reusable para toma de decisión, políticas y control.
 
 ## Nota
 
-Este es el módulo más valioso, pero no debería ser el primero en migrarse. Primero conviene estabilizar `backend`, `serverless` y `artifact`.
+Este es el módulo más valioso, pero no debería ser el primero en migrarse. Primero conviene estabilizar `backend`, `databases`, `providers/aws` y `artifact`.
 
 ## Estructura actual
 
-Este módulo ya aplica la convención Go de contexto + `usecases/domain` sin romper compatibilidad todavía.
+Implementación actual: `governance/go/`
 
-Paquetes activos:
+Esta implementación ya aplica la convención Go de contexto + `usecases/domain` sin romper compatibilidad todavía.
+
+Paquetes activos en `governance/go/`:
 
 - `kernel/usecases/domain/` como fuente de verdad de tipos compartidos
 - `policy/` con `usecases.go` y `usecases/domain/`
 - `risk/` con `usecases.go` y `usecases/domain/`
 - `decision/` con `usecases.go` y `usecases/domain/`
 - `approval/` con `usecases.go` y `usecases/domain/`
+- `delegations/`
+- `audit/`
 - `evidence/` con `usecases.go` y `usecases/domain/`
+- `handler/dto/` en los contexts de aplicación
+- `repository/models/` en los contexts con puertos de persistencia o lookup
 - `domain/` como capa de compatibilidad para imports viejos

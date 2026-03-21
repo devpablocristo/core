@@ -11,12 +11,34 @@ Correcto:
 
 ```text
 saas/
+  go/
 backend/
-postgres/
-serverless/
+  go/
+databases/
+  postgres/
+    go/
+  dynamodb/
+    go/
+providers/
+  aws/
+    lambda/
+      go/
+    s3/
+      go/
+    sqs/
+      go/
+eventing/
+  go/
 governance/
+  go/
 artifact/
+  go/
+webhook/
+  go/
+activity/
+  go/
 ai/
+  python/
 ```
 
 Incorrecto:
@@ -28,8 +50,21 @@ backend-core/
 
 ## Multi-lenguaje
 
-- Si un módulo tiene una sola implementación, no crear carpetas por lenguaje
-- Si tiene múltiples implementaciones, usar:
+- Toda capacidad usa carpetas por lenguaje desde el inicio
+- Go siempre vive en `{modulo}/go/`
+- Python siempre vive en `{modulo}/python/`
+- Rust siempre vive en `{modulo}/rust/`
+- Cada implementación concreta debe tener `VERSION` en la raíz del runtime
+- Los tags de release siempre se cortan por subdirectorio: `{modulo}/{runtime}/vX.Y.Z`
+- La raíz de la capacidad no puede contener `go.mod`, `pyproject.toml`, `Cargo.toml`, `src/` ni paquetes reales
+- Si suma múltiples implementaciones, usar:
+
+```text
+{modulo}/
+  go/
+```
+
+si aparecen más runtimes:
 
 ```text
 {modulo}/
@@ -37,6 +72,18 @@ backend-core/
   go/
   rust/
   python/
+```
+
+Incorrecto:
+
+```text
+backend/
+  go.mod
+  httpjson/
+
+ai/
+  pyproject.toml
+  src/
 ```
 
 ## Reglas de raíz

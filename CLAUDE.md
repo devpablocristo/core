@@ -8,10 +8,16 @@ Acá viven módulos por capacidad:
 
 - `saas/`
 - `backend/`
-- `postgres/`
-- `serverless/`
+- `databases/postgres/`
+- `databases/dynamodb/`
+- `providers/aws/lambda/`
+- `providers/aws/s3/`
+- `providers/aws/sqs/`
+- `eventing/`
 - `governance/`
 - `artifact/`
+- `webhook/`
+- `activity/`
 - `ai/`
 
 No es un repo de apps ni de features específicas de un producto.
@@ -53,12 +59,34 @@ Correcto:
 
 ```text
 saas/
+  go/
 backend/
-postgres/
-serverless/
+  go/
+databases/
+  postgres/
+    go/
+  dynamodb/
+    go/
+providers/
+  aws/
+    lambda/
+      go/
+    s3/
+      go/
+    sqs/
+      go/
+eventing/
+  go/
 governance/
+  go/
 artifact/
+  go/
+webhook/
+  go/
+activity/
+  go/
 ai/
+  python/
 ```
 
 Incorrecto:
@@ -73,8 +101,23 @@ backend-core/
 - Nombrar por capacidad, no por lenguaje
 - No crear `common/`, `shared/`, `utils/`, `libs/` en la raíz
 - `shared/` solo puede existir dentro de un módulo concreto
-- Si una capacidad tiene una sola implementación, no crear `/go`, `/rust` o `/python`
+- Toda capacidad se separa por lenguaje desde el inicio
+- Para Go, usar siempre `{modulo}/go/...`
+- Para Python, usar siempre `{modulo}/python/...`
+- Para Rust, usar siempre `{modulo}/rust/...`
+- No crear `go.mod`, `pyproject.toml`, `Cargo.toml`, `src/` ni paquetes reales en la raíz de la capacidad
+- No crear código Go fuera de `go/` ni código Python fuera de `python/`
+- No usar una versión global del repo
+- Toda implementación concreta debe tener su propio archivo `VERSION`
+- Los tags de release se cortan por subdirectorio: `{modulo}/{runtime}/vX.Y.Z`
 - Si tiene múltiples implementaciones, usar:
+
+```text
+{modulo}/
+  go/
+```
+
+si suma más runtimes:
 
 ```text
 {modulo}/
@@ -82,6 +125,18 @@ backend-core/
   go/
   rust/
   python/
+```
+
+Incorrecto aunque hoy solo exista un runtime:
+
+```text
+saas/
+  go.mod
+  identity/
+
+ai/
+  pyproject.toml
+  src/
 ```
 
 ---
@@ -113,13 +168,29 @@ No pertenece si:
 
 - http server, auth transport, api keys, pagination, validation, retry y observability
 
-### `postgres`
+### `databases/postgres`
 
 - pool PostgreSQL, healthcheck, config y migraciones PostgreSQL
 
-### `serverless`
+### `databases/dynamodb`
 
-- Lambda, API Gateway, SQS, S3, DynamoDB, bootstraps y envelopes
+- client bootstrap DynamoDB, marshaling reusable y operaciones comunes sobre tablas
+
+### `providers/aws/lambda`
+
+- Lambda, API Gateway y Lambda HTTP reusable
+
+### `providers/aws/s3`
+
+- storage S3 reusable y presigned URLs
+
+### `providers/aws/sqs`
+
+- envío reusable a SQS
+
+### `eventing`
+
+- envelopes y contratos de eventos asíncronos
 
 ### `governance`
 
@@ -128,6 +199,14 @@ No pertenece si:
 ### `artifact`
 
 - PDF, Excel, CSV, QR, report generation, file naming y metadata
+
+### `webhook`
+
+- endpoints outbound, firma HMAC, retries/backoff, replay y delivery planning
+
+### `activity`
+
+- audit append-only, hash chaining, export CSV/JSONL y timeline por entidad
 
 ### `ai`
 
@@ -146,10 +225,12 @@ No pertenece si:
 - Ningún módulo importa internals de otro
 - Por default, cada módulo es autocontenido
 - `backend` no depende de otros módulos
-- `postgres` debe intentar mantenerse independiente
+- `databases/postgres` debe intentar mantenerse independiente
+- `databases/dynamodb` debe intentar mantenerse independiente
 - `saas` puede depender de `backend`
-- `serverless` puede depender de `backend` solo para piezas técnicas realmente genéricas
-- `governance`, `artifact` y `ai` deben intentar mantenerse independientes
+- `providers/aws/lambda`, `providers/aws/s3` y `providers/aws/sqs` deben intentar mantenerse independientes
+- `eventing` debe intentar mantenerse independiente
+- `governance`, `artifact`, `webhook`, `activity` y `ai` deben intentar mantenerse independientes
 
 ---
 
@@ -261,7 +342,7 @@ Si no se puede probar, decirlo explícitamente.
 - NUNCA meter dominio específico de producto en `core`
 - NUNCA crear `common/`, `shared/`, `utils/` en la raíz
 - NUNCA duplicar una capacidad en dos módulos
-- NUNCA crear carpetas por lenguaje si solo hay una implementación
+- NUNCA mezclar implementación directa en la raíz de una capacidad
 - NUNCA afirmar que algo está listo sin evidencia de verificación
 
 Fuente de verdad equivalente para GPT/Codex: `AGENTS.md`.

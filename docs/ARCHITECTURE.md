@@ -4,27 +4,36 @@
 
 `core` es el repo de capacidades reutilizables para varios productos.
 
-La unidad principal de organización es la **capacidad**, no el producto y no el lenguaje.
+La unidad principal de organización es la **capacidad**. Dentro de cada capacidad, la implementación se separa explícitamente por lenguaje.
 
 ## Módulos raíz
 
 - `saas`
 - `backend`
-- `postgres`
-- `serverless`
+- `databases`
+- `providers`
+- `eventing`
 - `governance`
 - `artifact`
+- `webhook`
+- `activity`
 - `ai`
 
-## Estado de bootstrap
+## Estado actual
 
-- `backend`: activo, módulo Go con HTTP, observability, pagination, resilience y validation
-- `postgres`: activo, módulo Go con pool/config/migrations
-- `serverless`: activo, módulo Go con Lambda HTTP, event envelopes y adapters S3/SQS/DynamoDB
-- `governance`: activo, módulo Go con kernel de dominio y contexts con `usecases/domain`
-- `artifact`: activo, módulo Go con `Asset`, naming, tabular, PDF y QR
-- `saas`: activo, módulo Go con dominio SaaS, contexts con `usecases/domain` y middleware HTTP reusable
-- `ai`: activo, paquete Python con `domain/providers/services/registry/config/api`
+- `backend/go`: activo, módulo Go con HTTP, observability, pagination, resilience y validation
+- `databases/postgres/go`: activo, módulo Go con pool/config/migrations
+- `databases/dynamodb/go`: activo, módulo Go con adapter reusable para DynamoDB
+- `providers/aws/lambda/go`: activo, módulo Go con Lambda HTTP / API Gateway
+- `providers/aws/s3/go`: activo, módulo Go con adapter reusable para S3
+- `providers/aws/sqs/go`: activo, módulo Go con adapter reusable para SQS
+- `eventing/go`: activo, módulo Go con envelopes de eventos asíncronos
+- `governance/go`: activo, módulo Go con kernel de dominio, contexts con `usecases/domain` y adapters `handler/dto` + `repository/models`
+- `artifact/go`: activo, módulo Go con `Asset`, naming, tabular, PDF, QR y `attachments`
+- `webhook/go`: activo, módulo Go con endpoints, signing, retry policy y planning de deliveries
+- `activity/go`: activo, módulo Go con audit trail append-only y timeline
+- `saas/go`: activo, módulo Go con dominio SaaS, contexts con `usecases/domain`, `handler/dto`, `repository/models` y middleware HTTP reusable
+- `ai/python`: activo, paquete Python con `domain/providers/services/registry/config/api`, middleware FastAPI, app factory y `ai_core` como compatibilidad histórica
 
 ## Reglas de frontera
 
@@ -45,27 +54,55 @@ La unidad principal de organización es la **capacidad**, no el producto y no el
 
 Lenguaje distinto no obliga repo distinto.
 
-### Una sola implementación
-
-Si la capacidad tiene una sola implementación, el módulo vive directo en su raíz:
+Cada capacidad usa subdirectorios por lenguaje desde el inicio:
 
 ```text
 governance/
-  Cargo.toml
-  src/
+  go/
 ```
 
-### Múltiples implementaciones
-
-Solo cuando exista más de una implementación real:
+Si aparece otra implementación:
 
 ```text
 governance/
   spec/
   go/
   rust/
-  python/
 ```
+
+## Regla de versionado
+
+No existe una única versión del repo `core`.
+
+Cada implementación concreta se versiona de forma independiente:
+
+- `backend/go`
+- `databases/postgres/go`
+- `databases/dynamodb/go`
+- `providers/aws/lambda/go`
+- `providers/aws/s3/go`
+- `providers/aws/sqs/go`
+- `eventing/go`
+- `governance/go`
+- `artifact/go`
+- `webhook/go`
+- `activity/go`
+- `saas/go`
+- `ai/python`
+
+Cada una debe tener un archivo `VERSION` y sus tags se cortan por subdirectorio:
+
+- `backend/go/v0.1.0`
+- `databases/postgres/go/v0.1.0`
+- `databases/dynamodb/go/v0.1.0`
+- `providers/aws/lambda/go/v0.1.0`
+- `providers/aws/s3/go/v0.1.0`
+- `providers/aws/sqs/go/v0.1.0`
+- `eventing/go/v0.1.0`
+- `saas/go/v0.1.0`
+- `ai/python/v0.1.0`
+
+Para más detalle, ver [VERSIONING.md](VERSIONING.md).
 
 ## Dependencias permitidas
 
@@ -78,10 +115,11 @@ Regla general:
 Reglas específicas:
 
 - `backend` no depende de otros módulos;
-- `postgres` debe intentar mantenerse independiente;
+- `databases/*` debe intentar mantenerse independiente;
+- `providers/aws/*` debe intentar mantenerse independiente;
+- `eventing` debe intentar mantenerse independiente;
 - `saas` puede depender de `backend`;
-- `serverless` puede depender de `backend` solo para piezas técnicas realmente genéricas;
-- `governance`, `artifact` y `ai` deben intentar mantenerse independientes.
+- `governance`, `artifact`, `webhook`, `activity` y `ai` deben intentar mantenerse independientes.
 
 ## Patrones por tipo de módulo
 
@@ -95,9 +133,9 @@ La convención de estructura para módulos Go con dominio real es:
 {contexto}/
   usecases.go
   usecases/domain/entities.go
-  handler.go
+  handler.go                 # cuando expone adapter de aplicación
   handler/dto/dto.go
-  repository.go
+  repository.go              # cuando define puerto de persistencia o lookup
   repository/models/models.go
 ```
 
@@ -118,7 +156,7 @@ No forzar hexagonal en paquetes simples:
 Preferido para kernels deterministas o sensibles a performance:
 
 ```text
-{modulo}/
+{modulo}/rust/
   Cargo.toml
   src/
     lib.rs
@@ -132,7 +170,7 @@ Preferido para kernels deterministas o sensibles a performance:
 Preferido para runtime AI y librerías Python:
 
 ```text
-{modulo}/
+{modulo}/python/
   pyproject.toml
   src/
   tests/
@@ -140,14 +178,27 @@ Preferido para runtime AI y librerías Python:
 
 Si expone FastAPI, separar `domain`, `providers`, `services`, `config` y `api` con `router/dependencies/schemas/app`.
 
+## Validación del repo
+
+El repo tiene validación local y CI por módulos independientes:
+
+- `scripts/test-go-modules.sh`
+- `scripts/test-ai.sh`
+- `scripts/test-all.sh`
+- `.github/workflows/ci.yml`
+
 ## Orden recomendado de profundización y migración
 
 1. `backend`
-2. `postgres`
-3. `serverless`
-4. `artifact`
-5. `governance`
-6. `saas`
-7. `ai`
+2. `databases/postgres`
+3. `databases/dynamodb`
+4. `providers/aws/*`
+5. `eventing`
+6. `artifact`
+7. `webhook`
+8. `activity`
+9. `governance`
+10. `saas`
+11. `ai`
 
 Ese orden sigue minimizando riesgo de extracción y reduce acoplamiento temprano, incluso después del bootstrap inicial.
