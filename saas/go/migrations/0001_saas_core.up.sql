@@ -1,5 +1,5 @@
 -- saas-core: consolidated SaaS infrastructure schema
--- Source: nexus v1 migrations 0001, 0003, 0004, 0005, 0006, 0007, 0008, 0009, 0010
+-- Consolidated tenant and identity bootstrap schema.
 
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 

@@ -41,5 +41,9 @@ if [[ -f "${module_dir}/Cargo.toml" ]]; then
   sed -i -E "s/^version = \".*\"$/version = \"${version}\"/" "${module_dir}/Cargo.toml"
 fi
 
+if [[ -f "${module_dir}/package.json" ]]; then
+  sed -i -E "s/\"version\": \".*\"/\"version\": \"${version}\"/" "${module_dir}/package.json"
+fi
+
 echo "updated ${module} to ${version}"
 echo "next tag: ${module}/v${version}"

@@ -7,6 +7,7 @@ Este repo no contiene apps. Contiene módulos por capacidad.
 ## Módulos
 
 - `saas/`: tenancy, identity, users, billing, entitlements
+- `auth/`: sesión/browser auth reusable para frontends
 - `backend/`: infraestructura reusable para servicios backend
 - `databases/`: adapters concretos de bases de datos
 - `providers/`: adapters concretos de proveedores externos
@@ -33,6 +34,8 @@ Este repo no contiene apps. Contiene módulos por capacidad.
 core/
   saas/
     go/
+  auth/
+    ts/
   backend/
     go/
   databases/
@@ -80,7 +83,7 @@ Este repo ya tiene:
 - reglas para Claude, GPT/Codex y Cursor;
 - estructura raíz del monorepo;
 - documentación de fronteras y migración;
-- bootstrap real en `backend/`, `databases/`, `providers/`, `eventing/`, `governance/`, `artifact/`, `webhook/`, `activity/`, `saas/` y `ai/`;
+- bootstrap real en `backend/`, `databases/`, `providers/`, `eventing/`, `governance/`, `artifact/`, `webhook/`, `activity/`, `saas/`, `auth/` y `ai/`;
 - separación explícita por lenguaje en cada capacidad;
 - scripts de validación por módulo y workflow CI del monorepo.
 
@@ -98,6 +101,7 @@ Este repo ya tiene:
 - `webhook/go/`: gestión de endpoints, firma HMAC, headers, backoff y planning de deliveries
 - `activity/go/`: `kernel/usecases/domain`, `audit`, `timeline` y export helpers
 - `saas/go/`: `kernel/usecases/domain`, `authz`, `identity`, `org`, `users`, `billing`, `admin`, `entitlement`, `tenant`, `usagemetering`, `middleware`, `handler/dto`, `repository/models`, más compatibilidad en `domain/`
+- `auth/ts/`: storage namespaced de browser, eventos de logout, fetch auth, axios auth con refresh serializado y adapters frontend
 - `ai/python/`: `core_ai` con `domain`, `providers`, `services`, `registry`, `config`, `api`, middleware FastAPI, auth/rate-limit/logging/resilience y `ai_core` como paquete de compatibilidad histórica
 
 Estado clave:

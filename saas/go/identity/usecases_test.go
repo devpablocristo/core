@@ -10,7 +10,7 @@ func TestLegacyUsecasesResolvePrincipalAcceptsInternalTenantClaim(t *testing.T) 
 
 	uc := NewUsecases(staticTokenVerifier{claims: map[string]any{
 		"iss":      "https://issuer.example",
-		"aud":      []string{"nexus"},
+		"aud":      []string{"example-service"},
 		"org_id":   "tenant-123",
 		"sub":      "user_123",
 		"role":     "admin",
@@ -18,7 +18,7 @@ func TestLegacyUsecasesResolvePrincipalAcceptsInternalTenantClaim(t *testing.T) 
 		"org_role": "org:secops",
 	}}, Config{
 		Issuer:      "https://issuer.example",
-		Audience:    "nexus",
+		Audience:    "example-service",
 		OrgClaim:    "org_id",
 		RoleClaim:   "role",
 		ScopesClaim: "scopes",

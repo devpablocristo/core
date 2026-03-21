@@ -58,7 +58,7 @@ func TestResolvePrincipalAcceptsCompactClaimsAndExternalOrgLookup(t *testing.T) 
 	resolver := &stubOrgResolver{tenantID: "tenant-internal-1", ok: true}
 	uc := NewUsecasesWithOrgResolver(staticTokenVerifier{claims: map[string]any{
 		"iss": "https://issuer.example",
-		"aud": "nexus",
+		"aud": "example-service",
 		"sub": "user_abc",
 		"o": map[string]any{
 			"id":  "org_2s9x",
@@ -67,7 +67,7 @@ func TestResolvePrincipalAcceptsCompactClaimsAndExternalOrgLookup(t *testing.T) 
 		},
 	}}, resolver, Config{
 		Issuer:   "https://issuer.example",
-		Audience: "nexus",
+		Audience: "example-service",
 	})
 
 	principal, err := uc.ResolvePrincipal(context.Background(), "token")

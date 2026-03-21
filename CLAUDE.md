@@ -105,8 +105,9 @@ backend-core/
 - Para Go, usar siempre `{modulo}/go/...`
 - Para Python, usar siempre `{modulo}/python/...`
 - Para Rust, usar siempre `{modulo}/rust/...`
+- Para TypeScript, usar siempre `{modulo}/ts/...`
 - No crear `go.mod`, `pyproject.toml`, `Cargo.toml`, `src/` ni paquetes reales en la raíz de la capacidad
-- No crear código Go fuera de `go/` ni código Python fuera de `python/`
+- No crear código Go fuera de `go/`, código Python fuera de `python/` ni TypeScript fuera de `ts/`
 - No usar una versión global del repo
 - Toda implementación concreta debe tener su propio archivo `VERSION`
 - Los tags de release se cortan por subdirectorio: `{modulo}/{runtime}/vX.Y.Z`

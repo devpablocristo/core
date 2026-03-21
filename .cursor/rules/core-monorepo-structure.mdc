@@ -54,6 +54,7 @@ backend-core/
 - Go siempre vive en `{modulo}/go/`
 - Python siempre vive en `{modulo}/python/`
 - Rust siempre vive en `{modulo}/rust/`
+- TypeScript siempre vive en `{modulo}/ts/`
 - Cada implementación concreta debe tener `VERSION` en la raíz del runtime
 - Los tags de release siempre se cortan por subdirectorio: `{modulo}/{runtime}/vX.Y.Z`
 - La raíz de la capacidad no puede contener `go.mod`, `pyproject.toml`, `Cargo.toml`, `src/` ni paquetes reales

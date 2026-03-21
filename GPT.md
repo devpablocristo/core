@@ -13,7 +13,7 @@ Aplican sin excepción las reglas de `AGENTS.md`.
 - Lenguaje distinto no implica repo distinto
 - Cada capacidad se separa por lenguaje desde el inicio: `saas/go`, `backend/go`, `ai/python`, etc.
 - Prohibido crear código o manifests en la raíz de una capacidad; la raíz solo organiza
-- Prohibido crear Go fuera de `go/`, Python fuera de `python/` o Rust fuera de `rust/`
+- Prohibido crear Go fuera de `go/`, Python fuera de `python/`, Rust fuera de `rust/` o TypeScript fuera de `ts/`
 - Prohibido usar una sola versión global del repo; cada implementación tiene su propio `VERSION`
 - Los tags de release son por subdirectorio: `{modulo}/{runtime}/vX.Y.Z`
 - No meter dominio específico de Nexus, Pymes, Ponti, Fixguard o KMA/AlphaCoding

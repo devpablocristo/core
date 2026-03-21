@@ -9,6 +9,7 @@ La unidad principal de organización es la **capacidad**. Dentro de cada capacid
 ## Módulos raíz
 
 - `saas`
+- `auth`
 - `backend`
 - `databases`
 - `providers`
@@ -33,6 +34,7 @@ La unidad principal de organización es la **capacidad**. Dentro de cada capacid
 - `webhook/go`: activo, módulo Go con endpoints, signing, retry policy y planning de deliveries
 - `activity/go`: activo, módulo Go con audit trail append-only y timeline
 - `saas/go`: activo, módulo Go con dominio SaaS, contexts con `usecases/domain`, `handler/dto`, `repository/models` y middleware HTTP reusable
+- `auth/ts`: activo, módulo TypeScript para sesión/browser, fetch auth, axios auth y adapters frontend reutilizables
 - `ai/python`: activo, paquete Python con `domain/providers/services/registry/config/api`, middleware FastAPI, app factory y `ai_core` como compatibilidad histórica
 
 ## Reglas de frontera
@@ -77,6 +79,7 @@ No existe una única versión del repo `core`.
 Cada implementación concreta se versiona de forma independiente:
 
 - `backend/go`
+- `auth/ts`
 - `databases/postgres/go`
 - `databases/dynamodb/go`
 - `providers/aws/lambda/go`
@@ -93,6 +96,7 @@ Cada implementación concreta se versiona de forma independiente:
 Cada una debe tener un archivo `VERSION` y sus tags se cortan por subdirectorio:
 
 - `backend/go/v0.1.0`
+- `auth/ts/v0.1.0`
 - `databases/postgres/go/v0.1.0`
 - `databases/dynamodb/go/v0.1.0`
 - `providers/aws/lambda/go/v0.1.0`

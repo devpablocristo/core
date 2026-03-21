@@ -28,6 +28,7 @@ Pregunta:
 - `artifact/`: capability root, implementación actual en `artifact/go/`
 - `webhook/`: capability root, implementación actual en `webhook/go/`
 - `activity/`: capability root, implementación actual en `activity/go/`
+- `auth/`: capability root, implementación actual en `auth/ts/`
 - `ai/`: capability root, implementación actual en `ai/python/`
 
 ## No pertenece a `core`

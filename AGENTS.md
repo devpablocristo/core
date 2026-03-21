@@ -104,9 +104,11 @@ El repo puede contener Go, Rust y Python. Lenguaje distinto NO obliga repo disti
 - Para Go, la ruta válida es siempre `{modulo}/go/...`
 - Para Python, la ruta válida es siempre `{modulo}/python/...`
 - Para Rust, la ruta válida es siempre `{modulo}/rust/...`
+- Para TypeScript, la ruta válida es siempre `{modulo}/ts/...`
 - NUNCA crear `go.mod`, `pyproject.toml`, `Cargo.toml`, `src/` o paquetes de código directamente en la raíz de la capacidad
 - NUNCA crear archivos Go en `saas/`, `backend/`, `governance/`, etc. fuera de `go/`
 - NUNCA crear archivos Python en `ai/` fuera de `python/`
+- NUNCA crear archivos TypeScript fuera de `ts/`
 - NUNCA usar una sola versión global para todo el repo
 - Toda implementación concreta (`saas/go`, `ai/python`, etc.) debe tener su propio archivo `VERSION`
 - Los tags de release siempre se cortan por subdirectorio: `{modulo}/{runtime}/vX.Y.Z`

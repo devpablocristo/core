@@ -10,6 +10,7 @@ discover_modules() {
     find "${ROOT_DIR}" -type f -path '*/go/go.mod' -printf '%h\n'
     find "${ROOT_DIR}" -type f -path '*/python/pyproject.toml' -printf '%h\n'
     find "${ROOT_DIR}" -type f -path '*/rust/Cargo.toml' -printf '%h\n'
+    find "${ROOT_DIR}" -type f -path '*/ts/package.json' -printf '%h\n'
   } | sed "s#^${ROOT_DIR}/##" | sort
 }
 
@@ -62,6 +63,18 @@ while IFS= read -r module; do
       fi
       if [[ "${actual_version}" != "${version}" ]]; then
         echo "Cargo.toml version mismatch in ${module}: VERSION=${version} cargo=${actual_version}" >&2
+        exit 1
+      fi
+      ;;
+    */ts)
+      package_json="${ROOT_DIR}/${module}/package.json"
+      actual_version="$(awk -F'\"' '/^[[:space:]]*\"version\": \"/ {print $4; exit}' "${package_json}")"
+      if [[ -z "${actual_version}" ]]; then
+        echo "missing version in ${module}/package.json" >&2
+        exit 1
+      fi
+      if [[ "${actual_version}" != "${version}" ]]; then
+        echo "package.json version mismatch in ${module}: VERSION=${version} package=${actual_version}" >&2
         exit 1
       fi
       ;;

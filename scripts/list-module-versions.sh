@@ -9,6 +9,7 @@ discover_modules() {
     find "${ROOT_DIR}" -type f -path '*/go/go.mod' -printf '%h\n'
     find "${ROOT_DIR}" -type f -path '*/python/pyproject.toml' -printf '%h\n'
     find "${ROOT_DIR}" -type f -path '*/rust/Cargo.toml' -printf '%h\n'
+    find "${ROOT_DIR}" -type f -path '*/ts/package.json' -printf '%h\n'
   } | sed "s#^${ROOT_DIR}/##" | sort
 }
 

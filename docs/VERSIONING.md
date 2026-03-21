@@ -16,6 +16,7 @@ La unidad de versionado es cada implementación concreta:
 - `webhook/go`
 - `activity/go`
 - `saas/go`
+- `auth/ts`
 - `ai/python`
 
 ## Regla
@@ -32,6 +33,11 @@ ai/
   python/
     VERSION
     pyproject.toml
+
+auth/
+  ts/
+    VERSION
+    package.json
 ```
 
 ## Semántica
@@ -57,6 +63,7 @@ Los tags se cortan por subdirectorio:
 - `governance/go/v0.1.0`
 - `artifact/go/v0.1.0`
 - `saas/go/v0.1.0`
+- `auth/ts/v0.1.0`
 - `ai/python/v0.1.0`
 
 Para Go esto sigue la convención correcta de módulos versionados en subdirectorios del monorepo.
@@ -64,6 +71,7 @@ Para Go esto sigue la convención correcta de módulos versionados en subdirecto
 ## Fuente de verdad
 
 - Go: `VERSION` es la fuente de verdad del release
+- TypeScript: `VERSION` y `package.json` deben coincidir
 - Python: `VERSION` y `pyproject.toml` deben coincidir
 - Rust: `VERSION` y `Cargo.toml` deben coincidir cuando exista `rust/`
 

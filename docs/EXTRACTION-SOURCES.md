@@ -72,6 +72,30 @@ Estado actual en `core`:
 - `resilience`
 - `validation`
 
+## `auth`
+
+Fuentes principales:
+
+- `/home/pablo/Projects/Pablo/ponti/ponti-frontend/ui/src/pages/login`
+- `/home/pablo/Projects/Pablo/ponti/ponti-frontend/ui/src/api/client.ts`
+- `/home/pablo/Projects/Pablo/pymes/pkgs/ts-pkg`
+
+Componentes candidatos:
+
+- storage namespaced de browser
+- eventos de logout forzado
+- fetch auth con token provider
+- cliente axios con refresh serializado
+- adapters frontend para Clerk
+
+Estado actual en `core`:
+
+- `browser/storage`
+- `browser/events`
+- `http/fetch`
+- `http/axios`
+- `providers/clerk`
+
 ## `databases/postgres`
 
 Fuentes principales:

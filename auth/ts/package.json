@@ -1,0 +1,28 @@
+{
+  "name": "@devpablocristo/core-auth",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./browser/events": "./src/browser/events.ts",
+    "./browser/storage": "./src/browser/storage.ts",
+    "./http/fetch": "./src/http/fetch.ts",
+    "./http/axios": "./src/http/axios.ts",
+    "./providers/clerk": "./src/providers/clerk.ts"
+  },
+  "scripts": {
+    "test": "vitest run --environment jsdom --globals",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "axios": "^1.8.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "axios-mock-adapter": "^2.1.0",
+    "jsdom": "^26.1.0",
+    "typescript": "^5.8.0",
+    "vitest": "^3.2.4"
+  }
+}
