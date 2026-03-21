@@ -4,6 +4,11 @@
 
 La unidad de versionado es cada implementación concreta:
 
+- `authz/go`
+- `browser/ts`
+- `http/ts`
+- `authn/go`
+- `notifications/go`
 - `backend/go`
 - `databases/postgres/go`
 - `databases/dynamodb/go`
@@ -16,7 +21,7 @@ La unidad de versionado es cada implementación concreta:
 - `webhook/go`
 - `activity/go`
 - `saas/go`
-- `auth/ts`
+- `authn/ts`
 - `ai/python`
 
 ## Regla
@@ -34,7 +39,7 @@ ai/
     VERSION
     pyproject.toml
 
-auth/
+authn/
   ts/
     VERSION
     package.json
@@ -52,6 +57,11 @@ auth/
 Los tags se cortan por subdirectorio:
 
 - `backend/go/v0.1.0`
+- `authz/go/v0.1.0`
+- `browser/ts/v0.1.0`
+- `http/ts/v0.1.0`
+- `authn/go/v0.1.0`
+- `notifications/go/v0.1.0`
 - `databases/postgres/go/v0.1.0`
 - `databases/dynamodb/go/v0.1.0`
 - `providers/aws/lambda/go/v0.1.0`
@@ -63,7 +73,7 @@ Los tags se cortan por subdirectorio:
 - `governance/go/v0.1.0`
 - `artifact/go/v0.1.0`
 - `saas/go/v0.1.0`
-- `auth/ts/v0.1.0`
+- `authn/ts/v0.1.0`
 - `ai/python/v0.1.0`
 
 Para Go esto sigue la convención correcta de módulos versionados en subdirectorios del monorepo.
@@ -103,8 +113,8 @@ Validar consistencia:
 ./scripts/validate-module-versions.sh
 ```
 
-Subir `saas/go` a `0.2.0`:
+Subir `authz/go` a `0.2.0`:
 
 ```bash
-./scripts/bump-module-version.sh saas/go 0.2.0
+./scripts/bump-module-version.sh authz/go 0.2.0
 ```

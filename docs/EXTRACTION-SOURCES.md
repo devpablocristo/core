@@ -22,7 +22,6 @@ Componentes candidatos:
 Estado actual en `core`:
 
 - dominio base de tenant/principal/API key
-- helpers de authz
 - parsing neutral de bearer/api key
 - entitlements por plan
 - normalización de slug/role
@@ -31,16 +30,62 @@ Estado actual en `core`:
 - contexts `org`, `users`, `billing`, `admin`, `usagemetering`
 - `handler/dto` y `repository/models` en los contexts con adapters
 - `clerkwebhook`
-- `identity/executor/jwks`
-- `identity/executor/oidc`
+- `identity/executor/jwks` -> `authn/go/jwks`
+- `identity/executor/oidc` -> `authn/go/oidc`
 - `billing/runtime`, `billing/webhook_handler`, `billing/dunning_worker`, `billing/stripe_client`
 - `migrations`
 - shims `shared/*` para compatibilidad del layout viejo
+- contrato SaaS de notificaciones apoyado en `notifications/`
 
 Conclusión actual:
 
 - `saas-core` ya fue recreado de forma completa dentro de `core/saas/go`
 - la obsolescencia real del repo viejo depende solo de migrar sus consumidores
+
+## `authz`
+
+Fuentes principales:
+
+- `/home/pablo/Projects/Pablo/saas-core/shared/authz`
+
+Componentes candidatos:
+
+- constantes de scopes
+- checks de scopes
+- checks de roles
+- adapter liviano para exponer autorización reusable
+
+Estado actual en `core`:
+
+- `authz.go`
+- `usecases.go`
+- `handler.go`
+- `handler/dto`
+
+## `notifications`
+
+Fuentes principales:
+
+- `/home/pablo/Projects/Pablo/core/saas/go/notifications`
+- `/home/pablo/Projects/Pablo/pymes/pymes-core/backend/internal/notifications/sender.go`
+
+Componentes candidatos:
+
+- senders `noop`
+- senders `smtp`
+- senders `ses`
+- config reusable por env
+- bootstrap reusable de email
+
+Estado actual en `core`:
+
+- `EmailMessage`
+- `EmailSender`
+- `NewNoopEmailSender`
+- `NewSMTPSender`
+- `NewSESSender`
+- `EmailConfigFromEnv`
+- `NewEmailSender`
 
 ## `backend`
 
@@ -72,7 +117,7 @@ Estado actual en `core`:
 - `resilience`
 - `validation`
 
-## `auth`
+## `authn`
 
 Fuentes principales:
 
@@ -399,7 +444,7 @@ Estado actual:
 
 - `artifact/go/attachments` ya fue creado con metadata, storage keys y contratos de upload/download
 
-### ampliar `saas/go/notifications` o crear `notify` más adelante
+### ampliar `notifications/go` o crear `notify` más adelante
 
 Fuentes principales:
 
@@ -413,12 +458,12 @@ Señal:
 
 Recomendación:
 
-- por ahora ampliaría `saas/go/notifications`
+- por ahora ampliaría `notifications/go`
 - solo crearía `notify/go` si aparece otro consumidor no-SaaS
 
 Estado actual:
 
-- `saas/go/notifications` ya incluye senders `noop`, `smtp` y `ses`
+- `saas/go/notifications` quedó solo como puerto de dominio SaaS
 
 ### todavía no extraería
 

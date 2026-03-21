@@ -7,8 +7,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/devpablocristo/core/saas/go/httperr"
-	oidc "github.com/devpablocristo/core/saas/go/identity/executor/oidc"
+	oidc "github.com/devpablocristo/core/authn/go/oidc"
+	"github.com/devpablocristo/core/backend/go/httperr"
 	identitydto "github.com/devpablocristo/core/saas/go/identity/handler/dto"
 	identitydomain "github.com/devpablocristo/core/saas/go/identity/usecases/domain"
 )

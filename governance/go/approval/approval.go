@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/devpablocristo/core/governance/go/domain"
+	kerneldomain "github.com/devpablocristo/core/governance/go/kernel/usecases/domain"
 )
 
 var (
@@ -22,7 +22,7 @@ type Config struct {
 
 type BreakGlassRule struct {
 	Actions           []string
-	RiskLevel         domain.RiskLevel
+	RiskLevel         kerneldomain.RiskLevel
 	RequiredApprovals int
 }
 
@@ -31,19 +31,19 @@ func DefaultConfig() Config {
 		DefaultTTL:        time.Hour,
 		BreakGlassDefault: 2,
 		BreakGlassRules: []BreakGlassRule{
-			{Actions: []string{"delete"}, RiskLevel: domain.RiskHigh, RequiredApprovals: 2},
-			{Actions: []string{"runbook.execute"}, RiskLevel: domain.RiskHigh, RequiredApprovals: 2},
+			{Actions: []string{"delete"}, RiskLevel: kerneldomain.RiskHigh, RequiredApprovals: 2},
+			{Actions: []string{"runbook.execute"}, RiskLevel: kerneldomain.RiskHigh, RequiredApprovals: 2},
 		},
 	}
 }
 
-func RequirementFor(request domain.Request, decision domain.Decision, riskTier domain.RiskLevel, config Config, now time.Time) domain.ApprovalRequirement {
+func RequirementFor(request kerneldomain.Request, decision kerneldomain.Decision, riskTier kerneldomain.RiskLevel, config Config, now time.Time) kerneldomain.ApprovalRequirement {
 	config = normalizeConfig(config)
 	if now.IsZero() {
 		now = time.Now().UTC()
 	}
-	if decision != domain.DecisionRequireApproval {
-		return domain.ApprovalRequirement{}
+	if decision != kerneldomain.DecisionRequireApproval {
+		return kerneldomain.ApprovalRequirement{}
 	}
 
 	requiredApprovals := 1
@@ -58,7 +58,7 @@ func RequirementFor(request domain.Request, decision domain.Decision, riskTier d
 		requiredApprovals = max(2, config.BreakGlassDefault)
 	}
 
-	return domain.ApprovalRequirement{
+	return kerneldomain.ApprovalRequirement{
 		Required:          true,
 		BreakGlass:        breakGlass,
 		RequiredApprovals: requiredApprovals,
@@ -66,13 +66,13 @@ func RequirementFor(request domain.Request, decision domain.Decision, riskTier d
 	}
 }
 
-func New(requestID string, requirement domain.ApprovalRequirement, now time.Time) domain.Approval {
+func New(requestID string, requirement kerneldomain.ApprovalRequirement, now time.Time) kerneldomain.Approval {
 	if now.IsZero() {
 		now = time.Now().UTC()
 	}
-	return domain.Approval{
+	return kerneldomain.Approval{
 		RequestID:         requestID,
-		Status:            domain.ApprovalStatusPending,
+		Status:            kerneldomain.ApprovalStatusPending,
 		CreatedAt:         now,
 		ExpiresAt:         requirement.ExpiresAt,
 		BreakGlass:        requirement.BreakGlass,
@@ -80,8 +80,8 @@ func New(requestID string, requirement domain.ApprovalRequirement, now time.Time
 	}
 }
 
-func Approve(item domain.Approval, approverID, note string, now time.Time) (domain.Approval, bool, error) {
-	if item.Status != domain.ApprovalStatusPending {
+func Approve(item kerneldomain.Approval, approverID, note string, now time.Time) (kerneldomain.Approval, bool, error) {
+	if item.Status != kerneldomain.ApprovalStatusPending {
 		return item, false, ErrNotPending
 	}
 	if now.IsZero() {
@@ -91,9 +91,9 @@ func Approve(item domain.Approval, approverID, note string, now time.Time) (doma
 		return item, false, ErrAlreadyDecided
 	}
 
-	item.Decisions = append(item.Decisions, domain.ApprovalDecision{
+	item.Decisions = append(item.Decisions, kerneldomain.ApprovalDecision{
 		ApproverID: strings.TrimSpace(approverID),
-		Action:     domain.ApprovalActionApprove,
+		Action:     kerneldomain.ApprovalActionApprove,
 		Note:       note,
 		DecidedAt:  now,
 	})
@@ -103,15 +103,15 @@ func Approve(item domain.Approval, approverID, note string, now time.Time) (doma
 		return item, false, nil
 	}
 
-	item.Status = domain.ApprovalStatusApproved
+	item.Status = kerneldomain.ApprovalStatusApproved
 	item.DecidedBy = strings.TrimSpace(approverID)
 	item.DecisionNote = note
 	item.DecidedAt = &now
 	return item, true, nil
 }
 
-func Reject(item domain.Approval, approverID, note string, now time.Time) (domain.Approval, error) {
-	if item.Status != domain.ApprovalStatusPending {
+func Reject(item kerneldomain.Approval, approverID, note string, now time.Time) (kerneldomain.Approval, error) {
+	if item.Status != kerneldomain.ApprovalStatusPending {
 		return item, ErrNotPending
 	}
 	if now.IsZero() {
@@ -121,20 +121,20 @@ func Reject(item domain.Approval, approverID, note string, now time.Time) (domai
 		return item, ErrAlreadyDecided
 	}
 
-	item.Decisions = append(item.Decisions, domain.ApprovalDecision{
+	item.Decisions = append(item.Decisions, kerneldomain.ApprovalDecision{
 		ApproverID: strings.TrimSpace(approverID),
-		Action:     domain.ApprovalActionReject,
+		Action:     kerneldomain.ApprovalActionReject,
 		Note:       note,
 		DecidedAt:  now,
 	})
-	item.Status = domain.ApprovalStatusRejected
+	item.Status = kerneldomain.ApprovalStatusRejected
 	item.DecidedBy = strings.TrimSpace(approverID)
 	item.DecisionNote = note
 	item.DecidedAt = &now
 	return item, nil
 }
 
-func matchesRule(action string, riskTier domain.RiskLevel, rule BreakGlassRule) bool {
+func matchesRule(action string, riskTier kerneldomain.RiskLevel, rule BreakGlassRule) bool {
 	if len(rule.Actions) > 0 && !slices.Contains(rule.Actions, strings.TrimSpace(action)) {
 		return false
 	}
@@ -144,7 +144,7 @@ func matchesRule(action string, riskTier domain.RiskLevel, rule BreakGlassRule) 
 	return true
 }
 
-func hasApprover(item domain.Approval, approverID string) bool {
+func hasApprover(item kerneldomain.Approval, approverID string) bool {
 	for _, decision := range item.Decisions {
 		if decision.ApproverID == strings.TrimSpace(approverID) {
 			return true
@@ -153,10 +153,10 @@ func hasApprover(item domain.Approval, approverID string) bool {
 	return false
 }
 
-func countApprovals(decisions []domain.ApprovalDecision) int {
+func countApprovals(decisions []kerneldomain.ApprovalDecision) int {
 	count := 0
 	for _, decision := range decisions {
-		if decision.Action == domain.ApprovalActionApprove {
+		if decision.Action == kerneldomain.ApprovalActionApprove {
 			count++
 		}
 	}

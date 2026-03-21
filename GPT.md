@@ -7,7 +7,7 @@ Aplican sin excepción las reglas de `AGENTS.md`.
 ## Resumen crítico
 
 - Este repo es un monorepo de capacidades reutilizables, no de productos
-- Los módulos raíz son: `saas`, `backend`, `databases`, `providers`, `eventing`, `governance`, `artifact`, `webhook`, `activity`, `ai`
+- Los módulos raíz son: `saas`, `authn`, `authz`, `notifications`, `backend`, `databases`, `providers`, `eventing`, `governance`, `artifact`, `webhook`, `activity`, `ai`
 - Dentro de este repo NO se usan sufijos `-core`
 - No crear `common/`, `shared/`, `utils/` en la raíz
 - Lenguaje distinto no implica repo distinto

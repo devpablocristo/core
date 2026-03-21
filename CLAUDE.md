@@ -7,6 +7,9 @@ Este repo es el monorepo `core` para capacidades reutilizables compartidas entre
 Acá viven módulos por capacidad:
 
 - `saas/`
+- `authz/`
+- `authn/`
+- `notifications/`
 - `backend/`
 - `databases/postgres/`
 - `databases/dynamodb/`
@@ -58,35 +61,42 @@ El repo se llama `core`, así que adentro NO usamos sufijos `-core`.
 Correcto:
 
 ```text
-saas/
-  go/
-backend/
-  go/
-databases/
-  postgres/
+core/
+  saas/
     go/
-  dynamodb/
+  authz/
     go/
-providers/
-  aws/
-    lambda/
+  authn/
+    ts/
+  notifications/
+    go/
+  backend/
+    go/
+  databases/
+    postgres/
       go/
-    s3/
+    dynamodb/
       go/
-    sqs/
-      go/
-eventing/
-  go/
-governance/
-  go/
-artifact/
-  go/
-webhook/
-  go/
-activity/
-  go/
-ai/
-  python/
+  providers/
+    aws/
+      lambda/
+        go/
+      s3/
+        go/
+      sqs/
+        go/
+  eventing/
+    go/
+  governance/
+    go/
+  artifact/
+    go/
+  webhook/
+    go/
+  activity/
+    go/
+  ai/
+    python/
 ```
 
 Incorrecto:
@@ -163,7 +173,19 @@ No pertenece si:
 
 ### `saas`
 
-- orgs, users, identity, authz multi-tenant, billing, entitlements, usage metering
+- orgs, users, identity, billing, entitlements, usage metering
+
+### `authz`
+
+- autorización reusable por roles y scopes
+
+### `authn`
+
+- autenticación reusable: parsing de credenciales, `jwks`, `oidc`, sesión/browser auth para frontends
+
+### `notifications`
+
+- senders reutilizables `noop`, `smtp`, `ses`
 
 ### `backend`
 
@@ -226,9 +248,11 @@ No pertenece si:
 - Ningún módulo importa internals de otro
 - Por default, cada módulo es autocontenido
 - `backend` no depende de otros módulos
+- `authz` debe intentar mantenerse independiente
+- `notifications` debe intentar mantenerse independiente
 - `databases/postgres` debe intentar mantenerse independiente
 - `databases/dynamodb` debe intentar mantenerse independiente
-- `saas` puede depender de `backend`
+- `saas` puede depender de `backend`, `authz` y `notifications`
 - `providers/aws/lambda`, `providers/aws/s3` y `providers/aws/sqs` deben intentar mantenerse independientes
 - `eventing` debe intentar mantenerse independiente
 - `governance`, `artifact`, `webhook`, `activity` y `ai` deben intentar mantenerse independientes

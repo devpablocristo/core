@@ -5,7 +5,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/devpablocristo/core/saas/go/domainerr"
+	"github.com/devpablocristo/core/backend/go/domainerr"
 )
 
 func TestClaimsResolverVerify(t *testing.T) {

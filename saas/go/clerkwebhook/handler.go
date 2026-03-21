@@ -18,7 +18,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/devpablocristo/core/saas/go/httperr"
+	"github.com/devpablocristo/core/backend/go/httperr"
 	"github.com/devpablocristo/core/saas/go/notifications"
 	userdomain "github.com/devpablocristo/core/saas/go/users/usecases/domain"
 )

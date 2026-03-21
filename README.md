@@ -7,7 +7,11 @@ Este repo no contiene apps. Contiene módulos por capacidad.
 ## Módulos
 
 - `saas/`: tenancy, identity, users, billing, entitlements
-- `auth/`: sesión/browser auth reusable para frontends
+- `browser/`: storage y utilidades reutilizables del runtime browser
+- `http/`: transporte HTTP frontend reusable, `fetch` JSON y `event-stream`
+- `authz/`: autorización reusable por roles y scopes
+- `authn/`: autenticación reusable, tanto backend (`go`) como sesión/browser (`ts`)
+- `notifications/`: senders y transporte reusable para notificaciones
 - `backend/`: infraestructura reusable para servicios backend
 - `databases/`: adapters concretos de bases de datos
 - `providers/`: adapters concretos de proveedores externos
@@ -34,8 +38,17 @@ Este repo no contiene apps. Contiene módulos por capacidad.
 core/
   saas/
     go/
-  auth/
+  browser/
     ts/
+  http/
+    ts/
+  authz/
+    go/
+  authn/
+    go/
+    ts/
+  notifications/
+    go/
   backend/
     go/
   databases/
@@ -83,13 +96,17 @@ Este repo ya tiene:
 - reglas para Claude, GPT/Codex y Cursor;
 - estructura raíz del monorepo;
 - documentación de fronteras y migración;
-- bootstrap real en `backend/`, `databases/`, `providers/`, `eventing/`, `governance/`, `artifact/`, `webhook/`, `activity/`, `saas/`, `auth/` y `ai/`;
+- bootstrap real en `backend/`, `databases/`, `providers/`, `eventing/`, `governance/`, `artifact/`, `webhook/`, `activity/`, `saas/`, `authz/`, `authn/`, `notifications/` y `ai/`;
 - separación explícita por lenguaje en cada capacidad;
 - scripts de validación por módulo y workflow CI del monorepo.
 
 ### Bootstrap por módulo
 
 - `backend/go/`: `httpjson`, `apikey`, `httpserver`, `observability`, `pagination`, `resilience`, `validation`
+- `browser/ts/`: namespace storage para browser, lectura/escritura string/JSON y cleanup por prefijo
+- `http/ts/`: `fetch` reusable, parseo uniforme de errores HTTP y JSON `event-stream`
+- `authz/go/`: scopes, roles, checks reusable y adapter liviano de autorización
+- `notifications/go/`: `noop`, `smtp`, `ses`, config reusable y bootstrap de email senders
 - `databases/postgres/go/`: config/pool `pgx` y migrate runner
 - `databases/dynamodb/go/`: acceso reusable a DynamoDB
 - `providers/aws/lambda/go/`: `lambdahttp`
@@ -100,8 +117,9 @@ Este repo ya tiene:
 - `artifact/go/`: root `Asset` + naming/content types, `storage`, `tabular`, `pdf`, `qr`, `attachments`
 - `webhook/go/`: gestión de endpoints, firma HMAC, headers, backoff y planning de deliveries
 - `activity/go/`: `kernel/usecases/domain`, `audit`, `timeline` y export helpers
-- `saas/go/`: `kernel/usecases/domain`, `authz`, `identity`, `org`, `users`, `billing`, `admin`, `entitlement`, `tenant`, `usagemetering`, `middleware`, `handler/dto`, `repository/models`, más compatibilidad en `domain/`
-- `auth/ts/`: storage namespaced de browser, eventos de logout, fetch auth, axios auth con refresh serializado y adapters frontend
+- `saas/go/`: `kernel/usecases/domain`, `identity`, `org`, `users`, `billing`, `admin`, `entitlement`, `tenant`, `usagemetering`, `middleware`, `handler/dto`, `repository/models` y contrato SaaS de notificaciones
+- `authn/go/`: parsing de credenciales, `jwks` y `oidc` reusable para autenticación backend
+- `authn/ts/`: storage namespaced de auth, eventos de logout, fetch auth, axios auth con refresh serializado y adapters frontend
 - `ai/python/`: `core_ai` con `domain`, `providers`, `services`, `registry`, `config`, `api`, middleware FastAPI, auth/rate-limit/logging/resilience y `ai_core` como paquete de compatibilidad histórica
 
 Estado clave:

@@ -9,7 +9,11 @@ La unidad principal de organización es la **capacidad**. Dentro de cada capacid
 ## Módulos raíz
 
 - `saas`
-- `auth`
+- `browser`
+- `http`
+- `authz`
+- `authn`
+- `notifications`
 - `backend`
 - `databases`
 - `providers`
@@ -22,6 +26,10 @@ La unidad principal de organización es la **capacidad**. Dentro de cada capacid
 
 ## Estado actual
 
+- `browser/ts`: activo, módulo TypeScript con namespace storage reusable para browser
+- `http/ts`: activo, módulo TypeScript con `fetch` JSON, parseo de errores y `event-stream`
+- `authz/go`: activo, módulo Go con scopes, roles, checks reusable y adapter liviano de autorización
+- `notifications/go`: activo, módulo Go con senders `noop`, `smtp`, `ses` y bootstrap reusable de email
 - `backend/go`: activo, módulo Go con HTTP, observability, pagination, resilience y validation
 - `databases/postgres/go`: activo, módulo Go con pool/config/migrations
 - `databases/dynamodb/go`: activo, módulo Go con adapter reusable para DynamoDB
@@ -33,8 +41,9 @@ La unidad principal de organización es la **capacidad**. Dentro de cada capacid
 - `artifact/go`: activo, módulo Go con `Asset`, naming, tabular, PDF, QR y `attachments`
 - `webhook/go`: activo, módulo Go con endpoints, signing, retry policy y planning de deliveries
 - `activity/go`: activo, módulo Go con audit trail append-only y timeline
-- `saas/go`: activo, módulo Go con dominio SaaS, contexts con `usecases/domain`, `handler/dto`, `repository/models` y middleware HTTP reusable
-- `auth/ts`: activo, módulo TypeScript para sesión/browser, fetch auth, axios auth y adapters frontend reutilizables
+- `saas/go`: activo, módulo Go con dominio SaaS, contexts con `usecases/domain`, `handler/dto`, `repository/models`, middleware HTTP reusable y contratos SaaS
+- `authn/go`: activo, módulo Go con parsing de credenciales, `jwks` y `oidc`
+- `authn/ts`: activo, módulo TypeScript para sesión/browser, fetch auth, axios auth y adapters frontend reutilizables
 - `ai/python`: activo, paquete Python con `domain/providers/services/registry/config/api`, middleware FastAPI, app factory y `ai_core` como compatibilidad histórica
 
 ## Reglas de frontera
@@ -78,8 +87,13 @@ No existe una única versión del repo `core`.
 
 Cada implementación concreta se versiona de forma independiente:
 
+- `authz/go`
+- `browser/ts`
+- `http/ts`
+- `notifications/go`
 - `backend/go`
-- `auth/ts`
+- `authn/go`
+- `authn/ts`
 - `databases/postgres/go`
 - `databases/dynamodb/go`
 - `providers/aws/lambda/go`
@@ -96,7 +110,12 @@ Cada implementación concreta se versiona de forma independiente:
 Cada una debe tener un archivo `VERSION` y sus tags se cortan por subdirectorio:
 
 - `backend/go/v0.1.0`
-- `auth/ts/v0.1.0`
+- `authz/go/v0.1.0`
+- `browser/ts/v0.1.0`
+- `http/ts/v0.1.0`
+- `authn/go/v0.1.0`
+- `notifications/go/v0.1.0`
+- `authn/ts/v0.1.0`
 - `databases/postgres/go/v0.1.0`
 - `databases/dynamodb/go/v0.1.0`
 - `providers/aws/lambda/go/v0.1.0`
@@ -119,10 +138,12 @@ Regla general:
 Reglas específicas:
 
 - `backend` no depende de otros módulos;
+- `authz` debe intentar mantenerse independiente;
+- `notifications` debe intentar mantenerse independiente;
 - `databases/*` debe intentar mantenerse independiente;
 - `providers/aws/*` debe intentar mantenerse independiente;
 - `eventing` debe intentar mantenerse independiente;
-- `saas` puede depender de `backend`;
+- `saas` puede depender de `backend`, `authn`, `authz` y `notifications`;
 - `governance`, `artifact`, `webhook`, `activity` y `ai` deben intentar mantenerse independientes.
 
 ## Patrones por tipo de módulo
@@ -194,15 +215,19 @@ El repo tiene validación local y CI por módulos independientes:
 ## Orden recomendado de profundización y migración
 
 1. `backend`
-2. `databases/postgres`
-3. `databases/dynamodb`
-4. `providers/aws/*`
-5. `eventing`
-6. `artifact`
-7. `webhook`
-8. `activity`
-9. `governance`
-10. `saas`
-11. `ai`
+2. `authz`
+3. `browser`
+4. `http`
+5. `notifications`
+6. `databases/postgres`
+7. `databases/dynamodb`
+8. `providers/aws/*`
+9. `eventing`
+10. `artifact`
+11. `webhook`
+12. `activity`
+13. `governance`
+14. `saas`
+15. `ai`
 
 Ese orden sigue minimizando riesgo de extracción y reduce acoplamiento temprano, incluso después del bootstrap inicial.

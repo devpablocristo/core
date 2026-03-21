@@ -11,6 +11,9 @@ Este repo contiene capacidades reutilizables, no productos.
 
 Módulos raíz esperados:
 - `saas/`
+- `authz/`
+- `authn/`
+- `notifications/`
 - `backend/`
 - `databases/postgres/`
 - `databases/dynamodb/`

@@ -50,43 +50,50 @@ El repo se llama `core`, por lo tanto adentro NO usamos sufijos `-core`.
 La estructura objetivo es:
 
 ```text
-saas/
-  go/
-backend/
-  go/
-databases/
-  postgres/
+core/
+  saas/
     go/
-  dynamodb/
+  authz/
     go/
-providers/
-  aws/
-    lambda/
+  authn/
+    ts/
+  notifications/
+    go/
+  backend/
+    go/
+  databases/
+    postgres/
       go/
-    s3/
+    dynamodb/
       go/
-    sqs/
-      go/
-eventing/
-  go/
-governance/
-  go/
-artifact/
-  go/
-webhook/
-  go/
-activity/
-  go/
-ai/
-  python/
-docs/
-scripts/
-examples/
+  providers/
+    aws/
+      lambda/
+        go/
+      s3/
+        go/
+      sqs/
+        go/
+  eventing/
+    go/
+  governance/
+    go/
+  artifact/
+    go/
+  webhook/
+    go/
+  activity/
+    go/
+  ai/
+    python/
+  docs/
+  scripts/
+  examples/
 ```
 
 ### Regla de naming
 
-- Los módulos se nombran por capacidad o adapter concreto estable: `saas`, `backend`, `databases/postgres`, `databases/dynamodb`, `providers/aws/lambda`, `providers/aws/s3`, `providers/aws/sqs`, `eventing`, `governance`, `artifact`, `webhook`, `activity`, `ai`
+- Los módulos se nombran por capacidad o adapter concreto estable: `saas`, `authz`, `authn`, `notifications`, `backend`, `databases/postgres`, `databases/dynamodb`, `providers/aws/lambda`, `providers/aws/s3`, `providers/aws/sqs`, `eventing`, `governance`, `artifact`, `webhook`, `activity`, `ai`
 - NUNCA usar `saas-core/`, `backend-core/`, etc. dentro de este repo
 - NUNCA crear roots genéricos como `common/`, `shared/`, `utils/`, `libs/` en la raíz del repo
 - `shared/` solo puede existir dentro de un módulo concreto y con ownership claro
@@ -192,16 +199,53 @@ Pertenece:
 - orgs
 - users
 - identity
-- authz multi-tenant
 - billing
 - entitlements
 - usage metering
-- notifications SaaS reutilizables
 
 No pertenece:
 - onboarding específico de un producto
 - UI/admin específico
 - copy comercial de una app
+
+### `authz/`
+
+Pertenece:
+- scopes
+- roles
+- checks de autorización reusable
+
+No pertenece:
+- identidad
+- storage de sesión browser
+- tenancy o billing
+
+### `authn/`
+
+Pertenece:
+- parsing de credenciales backend
+- `jwks`
+- `oidc`
+- storage de tokens browser
+- refresh serializado
+- logout forzado
+- helpers HTTP frontend
+
+No pertenece:
+- authz por scopes/roles
+- UI de login específica de una app
+
+### `notifications/`
+
+Pertenece:
+- senders reutilizables `noop`, `smtp`, `ses`
+- config reusable por env
+- bootstrap reusable de email
+
+No pertenece:
+- preferencias de notificación de una app
+- templates/copy de producto
+- colas o workers específicos de una app
 
 ### `backend/`
 
@@ -378,10 +422,13 @@ Regla general:
 ### Excepciones permitidas
 
 - `saas` puede depender de `backend` para infraestructura técnica reusable
+- `saas` puede depender de `authz` y `notifications` para capacidades transversales
 
 ### Reglas fuertes
 
 - `backend` no depende de otros módulos
+- `authz` debe intentar mantenerse independiente
+- `notifications` debe intentar mantenerse independiente
 - `databases/postgres` debe intentar mantenerse independiente
 - `databases/dynamodb` debe intentar mantenerse independiente
 - `providers/aws/lambda` debe intentar mantenerse independiente

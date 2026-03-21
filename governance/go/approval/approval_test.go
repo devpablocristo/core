@@ -4,13 +4,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/devpablocristo/core/governance/go/domain"
+	kerneldomain "github.com/devpablocristo/core/governance/go/kernel/usecases/domain"
 )
 
 func TestRequirementForBreakGlassRule(t *testing.T) {
 	t.Parallel()
 
-	requirement := RequirementFor(domain.Request{Action: "delete"}, domain.DecisionRequireApproval, domain.RiskHigh, DefaultConfig(), time.Date(2026, 3, 20, 10, 0, 0, 0, time.UTC))
+	requirement := RequirementFor(kerneldomain.Request{Action: "delete"}, kerneldomain.DecisionRequireApproval, kerneldomain.RiskHigh, DefaultConfig(), time.Date(2026, 3, 20, 10, 0, 0, 0, time.UTC))
 	if !requirement.Required {
 		t.Fatal("expected approval requirement")
 	}
@@ -25,7 +25,7 @@ func TestRequirementForBreakGlassRule(t *testing.T) {
 func TestApproveBreakGlassNeedsQuorum(t *testing.T) {
 	t.Parallel()
 
-	item := New("req-1", domain.ApprovalRequirement{
+	item := New("req-1", kerneldomain.ApprovalRequirement{
 		Required:          true,
 		BreakGlass:        true,
 		RequiredApprovals: 2,
@@ -39,7 +39,7 @@ func TestApproveBreakGlassNeedsQuorum(t *testing.T) {
 	if finalized {
 		t.Fatal("did not expect finalization after first approval")
 	}
-	if updated.Status != domain.ApprovalStatusPending {
+	if updated.Status != kerneldomain.ApprovalStatusPending {
 		t.Fatalf("unexpected status after partial approval: %s", updated.Status)
 	}
 
@@ -50,7 +50,7 @@ func TestApproveBreakGlassNeedsQuorum(t *testing.T) {
 	if !finalized {
 		t.Fatal("expected finalization after quorum")
 	}
-	if updated.Status != domain.ApprovalStatusApproved {
+	if updated.Status != kerneldomain.ApprovalStatusApproved {
 		t.Fatalf("unexpected status after quorum: %s", updated.Status)
 	}
 }
@@ -58,7 +58,7 @@ func TestApproveBreakGlassNeedsQuorum(t *testing.T) {
 func TestRejectFinalizesImmediately(t *testing.T) {
 	t.Parallel()
 
-	item := New("req-1", domain.ApprovalRequirement{
+	item := New("req-1", kerneldomain.ApprovalRequirement{
 		Required:          true,
 		BreakGlass:        true,
 		RequiredApprovals: 2,
@@ -69,7 +69,7 @@ func TestRejectFinalizesImmediately(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Reject returned error: %v", err)
 	}
-	if updated.Status != domain.ApprovalStatusRejected {
+	if updated.Status != kerneldomain.ApprovalStatusRejected {
 		t.Fatalf("unexpected status after reject: %s", updated.Status)
 	}
 }

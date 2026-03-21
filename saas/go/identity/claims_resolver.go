@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/devpablocristo/core/saas/go/domainerr"
+	"github.com/devpablocristo/core/backend/go/domainerr"
 	identitydomain "github.com/devpablocristo/core/saas/go/identity/usecases/domain"
 )
 

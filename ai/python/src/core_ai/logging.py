@@ -51,3 +51,10 @@ def context_fields() -> dict[str, Any]:
         "tenant_id": tenant_id_var.get(),
         "user_id": user_id_var.get(),
     }
+
+
+def format_log_event(event: str, /, **fields: Any) -> str:
+    parts = [event]
+    for key, value in fields.items():
+        parts.append(f"{key}={value}")
+    return " ".join(parts)

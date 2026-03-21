@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/devpablocristo/core/governance/go/domain"
+	kerneldomain "github.com/devpablocristo/core/governance/go/kernel/usecases/domain"
 	"github.com/google/cel-go/cel"
 	"github.com/google/cel-go/common/types"
 )
@@ -29,7 +29,7 @@ func NewEvaluator() *Evaluator {
 	return &Evaluator{env: env, progs: make(map[string]cel.Program)}
 }
 
-func (e *Evaluator) Match(request domain.Request, item domain.Policy, now time.Time) (bool, error) {
+func (e *Evaluator) Match(request kerneldomain.Request, item kerneldomain.Policy, now time.Time) (bool, error) {
 	if strings.TrimSpace(item.ActionFilter) != "" && strings.TrimSpace(item.ActionFilter) != strings.TrimSpace(request.Action) {
 		return false, nil
 	}
@@ -39,7 +39,7 @@ func (e *Evaluator) Match(request domain.Request, item domain.Policy, now time.T
 	return e.Matches(item.Expression, request, now)
 }
 
-func (e *Evaluator) Matches(expression string, request domain.Request, now time.Time) (bool, error) {
+func (e *Evaluator) Matches(expression string, request kerneldomain.Request, now time.Time) (bool, error) {
 	if strings.TrimSpace(expression) == "" {
 		return true, nil
 	}
@@ -68,7 +68,7 @@ func (e *Evaluator) Matches(expression string, request domain.Request, now time.
 	return value, nil
 }
 
-func RequestToMap(request domain.Request) map[string]any {
+func RequestToMap(request kerneldomain.Request) map[string]any {
 	return map[string]any{
 		"id": request.ID,
 		"subject": map[string]any{

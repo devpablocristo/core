@@ -6,7 +6,7 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/devpablocristo/core/saas/go/metrics"
+	"github.com/devpablocristo/core/backend/go/observability"
 	"gorm.io/gorm"
 )
 
@@ -22,11 +22,11 @@ func (usageRow) TableName() string { return "org_usage_counters" }
 
 type Repository struct {
 	db      *gorm.DB
-	metrics metrics.Sink
+	metrics observability.Sink
 	logger  *slog.Logger
 }
 
-func NewRepository(db *gorm.DB, sink metrics.Sink, logger *slog.Logger) *Repository {
+func NewRepository(db *gorm.DB, sink observability.Sink, logger *slog.Logger) *Repository {
 	if logger == nil {
 		logger = slog.Default()
 	}

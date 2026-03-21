@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	authn "github.com/devpablocristo/core/authn/go"
 	identitydomain "github.com/devpablocristo/core/saas/go/identity/usecases/domain"
 )
 
@@ -84,9 +85,9 @@ func (u *UseCases) ResolvePrincipal(ctx context.Context, token string) (identity
 }
 
 func (u *UseCases) BearerToken(raw string) (string, bool) {
-	return BearerToken(raw)
+	return authn.BearerToken(raw)
 }
 
 func (u *UseCases) APIKeyToken(authHeader, xAPIKey string) (string, bool) {
-	return APIKeyToken(authHeader, xAPIKey)
+	return authn.APIKeyToken(authHeader, xAPIKey)
 }

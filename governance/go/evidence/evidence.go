@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/devpablocristo/core/governance/go/domain"
+	kerneldomain "github.com/devpablocristo/core/governance/go/kernel/usecases/domain"
 )
 
 const Version = "1.0"
@@ -18,20 +18,20 @@ type TimelineEvent struct {
 }
 
 type Pack struct {
-	Version     string            `json:"version"`
-	GeneratedAt time.Time         `json:"generated_at"`
-	Request     domain.Request    `json:"request"`
-	Evaluation  domain.Evaluation `json:"evaluation"`
-	Approval    *domain.Approval  `json:"approval,omitempty"`
-	Timeline    []TimelineEvent   `json:"timeline,omitempty"`
-	Signature   string            `json:"signature,omitempty"`
+	Version     string                  `json:"version"`
+	GeneratedAt time.Time               `json:"generated_at"`
+	Request     kerneldomain.Request    `json:"request"`
+	Evaluation  kerneldomain.Evaluation `json:"evaluation"`
+	Approval    *kerneldomain.Approval  `json:"approval,omitempty"`
+	Timeline    []TimelineEvent         `json:"timeline,omitempty"`
+	Signature   string                  `json:"signature,omitempty"`
 }
 
 type Signer interface {
 	Sign(*Pack) error
 }
 
-func Build(request domain.Request, evaluation domain.Evaluation, approval *domain.Approval, timeline []TimelineEvent, signer Signer, now time.Time) (Pack, error) {
+func Build(request kerneldomain.Request, evaluation kerneldomain.Evaluation, approval *kerneldomain.Approval, timeline []TimelineEvent, signer Signer, now time.Time) (Pack, error) {
 	if now.IsZero() {
 		now = time.Now().UTC()
 	}

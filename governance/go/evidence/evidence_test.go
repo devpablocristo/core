@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/devpablocristo/core/governance/go/domain"
+	kerneldomain "github.com/devpablocristo/core/governance/go/kernel/usecases/domain"
 )
 
 func TestBuildSignsPack(t *testing.T) {
@@ -12,9 +12,9 @@ func TestBuildSignsPack(t *testing.T) {
 
 	signer := &fakeSigner{}
 	pack, err := Build(
-		domain.Request{ID: "req-1", Action: "delete"},
-		domain.Evaluation{RequestID: "req-1", Decision: domain.DecisionRequireApproval},
-		&domain.Approval{RequestID: "req-1", Status: domain.ApprovalStatusPending},
+		kerneldomain.Request{ID: "req-1", Action: "delete"},
+		kerneldomain.Evaluation{RequestID: "req-1", Decision: kerneldomain.DecisionRequireApproval},
+		&kerneldomain.Approval{RequestID: "req-1", Status: kerneldomain.ApprovalStatusPending},
 		[]TimelineEvent{{Event: "received", Actor: "bot-1", At: time.Now().UTC(), Summary: "request received"}},
 		signer,
 		time.Date(2026, 3, 20, 12, 0, 0, 0, time.UTC),

@@ -4,7 +4,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/devpablocristo/core/saas/go/domain"
+	kerneldomain "github.com/devpablocristo/core/saas/go/kernel/usecases/domain"
 )
 
 func NormalizeSlug(raw string) string {
@@ -40,8 +40,8 @@ func NormalizeRole(raw string) string {
 	}
 }
 
-func NewMembership(tenantID, userID, role string) domain.Membership {
-	return domain.Membership{
+func NewMembership(tenantID, userID, role string) kerneldomain.Membership {
+	return kerneldomain.Membership{
 		TenantID: tenantID,
 		UserID:   userID,
 		Role:     NormalizeRole(role),

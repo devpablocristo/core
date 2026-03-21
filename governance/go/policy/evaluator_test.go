@@ -5,17 +5,17 @@ import (
 	"testing"
 	"time"
 
-	"github.com/devpablocristo/core/governance/go/domain"
+	kerneldomain "github.com/devpablocristo/core/governance/go/kernel/usecases/domain"
 )
 
 func TestMatches(t *testing.T) {
 	t.Parallel()
 
 	evaluator := NewEvaluator()
-	request := domain.Request{
-		Subject: domain.Subject{Type: domain.RequesterTypeAgent, ID: "bot-1"},
+	request := kerneldomain.Request{
+		Subject: kerneldomain.Subject{Type: kerneldomain.RequesterTypeAgent, ID: "bot-1"},
 		Action:  "delete",
-		Target:  domain.Target{System: "prod"},
+		Target:  kerneldomain.Target{System: "prod"},
 		Params: map[string]any{
 			"amount": 1200,
 		},
@@ -34,7 +34,7 @@ func TestMatchesRejectsInvalidExpression(t *testing.T) {
 	t.Parallel()
 
 	evaluator := NewEvaluator()
-	_, err := evaluator.Matches(`request.action = "delete"`, domain.Request{}, time.Now())
+	_, err := evaluator.Matches(`request.action = "delete"`, kerneldomain.Request{}, time.Now())
 	if err == nil || !strings.Contains(err.Error(), "Syntax error") {
 		t.Fatalf("expected syntax error, got %v", err)
 	}
@@ -44,11 +44,11 @@ func TestMatchAppliesStaticFilters(t *testing.T) {
 	t.Parallel()
 
 	evaluator := NewEvaluator()
-	request := domain.Request{
+	request := kerneldomain.Request{
 		Action: "deploy",
-		Target: domain.Target{System: "prod"},
+		Target: kerneldomain.Target{System: "prod"},
 	}
-	item := domain.Policy{
+	item := kerneldomain.Policy{
 		ActionFilter: "delete",
 		SystemFilter: "prod",
 		Expression:   "true",

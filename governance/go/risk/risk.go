@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/devpablocristo/core/governance/go/domain"
+	kerneldomain "github.com/devpablocristo/core/governance/go/kernel/usecases/domain"
 )
 
 const (
@@ -102,7 +102,7 @@ func DefaultConfig() Config {
 	}
 }
 
-func Evaluate(request domain.Request, history History, config Config, policyRiskOverride *domain.RiskLevel, now time.Time) domain.RiskAssessment {
+func Evaluate(request kerneldomain.Request, history History, config Config, policyRiskOverride *kerneldomain.RiskLevel, now time.Time) kerneldomain.RiskAssessment {
 	config = normalizeConfig(config)
 	if now.IsZero() {
 		now = time.Now().UTC()
@@ -116,7 +116,7 @@ func Evaluate(request domain.Request, history History, config Config, policyRisk
 		finalScore = applyPolicyOverride(*policyRiskOverride, finalScore, config)
 	}
 
-	return domain.RiskAssessment{
+	return kerneldomain.RiskAssessment{
 		Factors:       factors,
 		RawScore:      rawScore,
 		Amplification: amplification,
@@ -126,52 +126,52 @@ func Evaluate(request domain.Request, history History, config Config, policyRisk
 	}
 }
 
-func Tier(action string, policyRiskOverride *domain.RiskLevel, config Config) domain.RiskLevel {
+func Tier(action string, policyRiskOverride *kerneldomain.RiskLevel, config Config) kerneldomain.RiskLevel {
 	if policyRiskOverride != nil {
 		switch *policyRiskOverride {
-		case domain.RiskHigh:
-			return domain.RiskHigh
-		case domain.RiskMedium:
-			return domain.RiskMedium
-		case domain.RiskLow:
-			return domain.RiskLow
+		case kerneldomain.RiskHigh:
+			return kerneldomain.RiskHigh
+		case kerneldomain.RiskMedium:
+			return kerneldomain.RiskMedium
+		case kerneldomain.RiskLow:
+			return kerneldomain.RiskLow
 		}
 	}
 	action = strings.TrimSpace(action)
 	if slices.Contains(config.HighActions, action) {
-		return domain.RiskHigh
+		return kerneldomain.RiskHigh
 	}
 	if slices.Contains(config.MediumActions, action) {
-		return domain.RiskMedium
+		return kerneldomain.RiskMedium
 	}
-	return domain.RiskLow
+	return kerneldomain.RiskLow
 }
 
-func DecideFromPolicy(effect domain.Decision, tier domain.RiskLevel) (domain.Decision, bool) {
+func DecideFromPolicy(effect kerneldomain.Decision, tier kerneldomain.RiskLevel) (kerneldomain.Decision, bool) {
 	switch effect {
-	case domain.DecisionDeny:
-		return domain.DecisionDeny, true
-	case domain.DecisionRequireApproval:
-		return domain.DecisionRequireApproval, true
-	case domain.DecisionAllow:
-		if tier == domain.RiskHigh {
-			return domain.DecisionRequireApproval, true
+	case kerneldomain.DecisionDeny:
+		return kerneldomain.DecisionDeny, true
+	case kerneldomain.DecisionRequireApproval:
+		return kerneldomain.DecisionRequireApproval, true
+	case kerneldomain.DecisionAllow:
+		if tier == kerneldomain.RiskHigh {
+			return kerneldomain.DecisionRequireApproval, true
 		}
-		return domain.DecisionAllow, true
+		return kerneldomain.DecisionAllow, true
 	default:
 		return "", false
 	}
 }
 
-func DefaultDecision(tier domain.RiskLevel) domain.Decision {
-	if tier == domain.RiskHigh {
-		return domain.DecisionRequireApproval
+func DefaultDecision(tier kerneldomain.RiskLevel) kerneldomain.Decision {
+	if tier == kerneldomain.RiskHigh {
+		return kerneldomain.DecisionRequireApproval
 	}
-	return domain.DecisionAllow
+	return kerneldomain.DecisionAllow
 }
 
-func evaluateFactors(request domain.Request, history History, config Config, now time.Time) []domain.RiskFactor {
-	factors := make([]domain.RiskFactor, 0, 6)
+func evaluateFactors(request kerneldomain.Request, history History, config Config, now time.Time) []kerneldomain.RiskFactor {
+	factors := make([]kerneldomain.RiskFactor, 0, 6)
 	factors = append(factors, actionFactor(request.Action, config))
 	factors = append(factors, offHoursFactor(now, config))
 	factors = append(factors, actorHistoryFactor(history.ActorHistory, config))
@@ -181,73 +181,73 @@ func evaluateFactors(request domain.Request, history History, config Config, now
 	return factors
 }
 
-func actionFactor(action string, config Config) domain.RiskFactor {
+func actionFactor(action string, config Config) kerneldomain.RiskFactor {
 	action = strings.TrimSpace(action)
 	switch {
 	case slices.Contains(config.HighActions, action):
-		return domain.RiskFactor{Name: "action_type", Score: 0.4, Active: true, Reason: action + " is high-risk action"}
+		return kerneldomain.RiskFactor{Name: "action_type", Score: 0.4, Active: true, Reason: action + " is high-risk action"}
 	case slices.Contains(config.MediumActions, action):
-		return domain.RiskFactor{Name: "action_type", Score: 0.2, Active: true, Reason: action + " is medium-risk action"}
+		return kerneldomain.RiskFactor{Name: "action_type", Score: 0.2, Active: true, Reason: action + " is medium-risk action"}
 	default:
-		return domain.RiskFactor{Name: "action_type", Score: 0.1, Reason: action + " is low-risk action"}
+		return kerneldomain.RiskFactor{Name: "action_type", Score: 0.1, Reason: action + " is low-risk action"}
 	}
 }
 
-func offHoursFactor(now time.Time, config Config) domain.RiskFactor {
+func offHoursFactor(now time.Time, config Config) kerneldomain.RiskFactor {
 	hour := now.UTC().Hour()
 	if hour < config.BusinessHours.Start || hour >= config.BusinessHours.End {
-		return domain.RiskFactor{Name: "off_hours", Score: 0.2, Active: true, Reason: "request at off-hours"}
+		return kerneldomain.RiskFactor{Name: "off_hours", Score: 0.2, Active: true, Reason: "request at off-hours"}
 	}
-	return domain.RiskFactor{Name: "off_hours"}
+	return kerneldomain.RiskFactor{Name: "off_hours"}
 }
 
-func actorHistoryFactor(history int, config Config) domain.RiskFactor {
+func actorHistoryFactor(history int, config Config) kerneldomain.RiskFactor {
 	switch {
 	case history <= config.ActorThresholds.Unknown:
-		return domain.RiskFactor{Name: "actor_unknown", Score: 0.3, Active: true, Reason: "unknown actor, no previous requests"}
+		return kerneldomain.RiskFactor{Name: "actor_unknown", Score: 0.3, Active: true, Reason: "unknown actor, no previous requests"}
 	case history < config.ActorThresholds.New:
-		return domain.RiskFactor{Name: "actor_unknown", Score: 0.15, Active: true, Reason: "new actor with limited history"}
+		return kerneldomain.RiskFactor{Name: "actor_unknown", Score: 0.15, Active: true, Reason: "new actor with limited history"}
 	default:
-		return domain.RiskFactor{Name: "actor_unknown"}
+		return kerneldomain.RiskFactor{Name: "actor_unknown"}
 	}
 }
 
-func frequencyFactor(count int, config Config) domain.RiskFactor {
+func frequencyFactor(count int, config Config) kerneldomain.RiskFactor {
 	switch {
 	case count > config.FrequencyThresholds.Critical:
-		return domain.RiskFactor{Name: "frequency_anomaly", Score: 0.3, Active: true, Reason: "frequency above critical threshold"}
+		return kerneldomain.RiskFactor{Name: "frequency_anomaly", Score: 0.3, Active: true, Reason: "frequency above critical threshold"}
 	case count > config.FrequencyThresholds.Warning:
-		return domain.RiskFactor{Name: "frequency_anomaly", Score: 0.15, Active: true, Reason: "frequency above warning threshold"}
+		return kerneldomain.RiskFactor{Name: "frequency_anomaly", Score: 0.15, Active: true, Reason: "frequency above warning threshold"}
 	default:
-		return domain.RiskFactor{Name: "frequency_anomaly"}
+		return kerneldomain.RiskFactor{Name: "frequency_anomaly"}
 	}
 }
 
-func successRateFactor(value float64, config Config) domain.RiskFactor {
+func successRateFactor(value float64, config Config) kerneldomain.RiskFactor {
 	if value < 0 {
-		return domain.RiskFactor{Name: "execution_history"}
+		return kerneldomain.RiskFactor{Name: "execution_history"}
 	}
 	switch {
 	case value < config.SuccessRateThresholds.Low:
-		return domain.RiskFactor{Name: "execution_history", Score: 0.3, Active: true, Reason: "low historical success rate"}
+		return kerneldomain.RiskFactor{Name: "execution_history", Score: 0.3, Active: true, Reason: "low historical success rate"}
 	case value < config.SuccessRateThresholds.Moderate:
-		return domain.RiskFactor{Name: "execution_history", Score: 0.1, Active: true, Reason: "moderate historical success rate"}
+		return kerneldomain.RiskFactor{Name: "execution_history", Score: 0.1, Active: true, Reason: "moderate historical success rate"}
 	case value >= config.SuccessRateThresholds.Excellent:
-		return domain.RiskFactor{Name: "execution_history", Score: -0.15, Reason: "excellent historical success rate"}
+		return kerneldomain.RiskFactor{Name: "execution_history", Score: -0.15, Reason: "excellent historical success rate"}
 	default:
-		return domain.RiskFactor{Name: "execution_history"}
+		return kerneldomain.RiskFactor{Name: "execution_history"}
 	}
 }
 
-func targetFactor(system string, config Config) domain.RiskFactor {
+func targetFactor(system string, config Config) kerneldomain.RiskFactor {
 	system = strings.TrimSpace(strings.ToLower(system))
 	if slices.Contains(config.SensitiveSystems, system) {
-		return domain.RiskFactor{Name: "target_sensitivity", Score: 0.3, Active: true, Reason: "target is sensitive system"}
+		return kerneldomain.RiskFactor{Name: "target_sensitivity", Score: 0.3, Active: true, Reason: "target is sensitive system"}
 	}
-	return domain.RiskFactor{Name: "target_sensitivity"}
+	return kerneldomain.RiskFactor{Name: "target_sensitivity"}
 }
 
-func calculateAmplification(factors []domain.RiskFactor, config Config) float64 {
+func calculateAmplification(factors []kerneldomain.RiskFactor, config Config) float64 {
 	active := make(map[string]bool, len(factors))
 	count := 0
 	for _, factor := range factors {
@@ -278,17 +278,17 @@ func allFactorsActive(factors []string, active map[string]bool) bool {
 	return true
 }
 
-func applyPolicyOverride(override domain.RiskLevel, currentScore float64, config Config) float64 {
+func applyPolicyOverride(override kerneldomain.RiskLevel, currentScore float64, config Config) float64 {
 	switch override {
-	case domain.RiskHigh:
+	case kerneldomain.RiskHigh:
 		if currentScore < config.Thresholds.RequireApproval {
 			return config.Thresholds.RequireApproval
 		}
-	case domain.RiskMedium:
+	case kerneldomain.RiskMedium:
 		if currentScore < config.Thresholds.EnhancedLog {
 			return config.Thresholds.EnhancedLog
 		}
-	case domain.RiskLow:
+	case kerneldomain.RiskLow:
 		if currentScore > config.Thresholds.Allow {
 			return config.Thresholds.Allow * 0.9
 		}
@@ -296,29 +296,29 @@ func applyPolicyOverride(override domain.RiskLevel, currentScore float64, config
 	return currentScore
 }
 
-func scoreToLevel(score float64, config Config) domain.RiskLevel {
+func scoreToLevel(score float64, config Config) kerneldomain.RiskLevel {
 	switch {
 	case score >= config.Thresholds.RequireApproval:
-		return domain.RiskHigh
+		return kerneldomain.RiskHigh
 	case score >= config.Thresholds.EnhancedLog:
-		return domain.RiskMedium
+		return kerneldomain.RiskMedium
 	default:
-		return domain.RiskLow
+		return kerneldomain.RiskLow
 	}
 }
 
-func scoreToDecision(score float64, config Config) domain.Decision {
+func scoreToDecision(score float64, config Config) kerneldomain.Decision {
 	switch {
 	case score >= config.Thresholds.Deny:
-		return domain.DecisionDeny
+		return kerneldomain.DecisionDeny
 	case score >= config.Thresholds.RequireApproval:
-		return domain.DecisionRequireApproval
+		return kerneldomain.DecisionRequireApproval
 	default:
-		return domain.DecisionAllow
+		return kerneldomain.DecisionAllow
 	}
 }
 
-func sumFactors(factors []domain.RiskFactor) float64 {
+func sumFactors(factors []kerneldomain.RiskFactor) float64 {
 	total := 0.0
 	for _, factor := range factors {
 		total += factor.Score

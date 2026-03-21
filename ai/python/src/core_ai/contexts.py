@@ -16,3 +16,7 @@ class AuthContext:
     api_actor: str | None = None
     api_role: str | None = None
     api_scopes: str | None = None
+
+    @property
+    def org_id(self) -> str:
+        return self.tenant_id

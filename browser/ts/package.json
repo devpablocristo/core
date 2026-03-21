@@ -1,0 +1,20 @@
+{
+  "name": "@devpablocristo/core-browser",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./storage": "./src/storage.ts"
+  },
+  "scripts": {
+    "test": "vitest run --environment jsdom --globals",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "jsdom": "^26.1.0",
+    "typescript": "^5.8.0",
+    "vitest": "^3.2.4"
+  }
+}

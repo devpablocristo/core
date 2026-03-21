@@ -6,14 +6,14 @@ import (
 	"time"
 
 	"github.com/devpablocristo/core/governance/go/approval"
-	"github.com/devpablocristo/core/governance/go/domain"
+	kerneldomain "github.com/devpablocristo/core/governance/go/kernel/usecases/domain"
 	"github.com/devpablocristo/core/governance/go/policy"
 	"github.com/devpablocristo/core/governance/go/risk"
 )
 
 type Input struct {
-	Request  domain.Request
-	Policies []domain.Policy
+	Request  kerneldomain.Request
+	Policies []kerneldomain.Policy
 	History  risk.History
 	Now      time.Time
 }
@@ -32,13 +32,13 @@ func New(riskConfig risk.Config, approvalConfig approval.Config) *Engine {
 	}
 }
 
-func (e *Engine) Evaluate(input Input) (domain.Evaluation, error) {
+func (e *Engine) Evaluate(input Input) (kerneldomain.Evaluation, error) {
 	now := input.Now
 	if now.IsZero() {
 		now = time.Now().UTC()
 	}
-	policies := append([]domain.Policy(nil), input.Policies...)
-	slices.SortStableFunc(policies, func(a, b domain.Policy) int {
+	policies := append([]kerneldomain.Policy(nil), input.Policies...)
+	slices.SortStableFunc(policies, func(a, b kerneldomain.Policy) int {
 		if a.Priority == b.Priority {
 			return cmpStrings(a.ID, b.ID)
 		}
@@ -48,24 +48,24 @@ func (e *Engine) Evaluate(input Input) (domain.Evaluation, error) {
 		return 1
 	})
 
-	evaluation := domain.Evaluation{
+	evaluation := kerneldomain.Evaluation{
 		RequestID:   input.Request.ID,
 		EvaluatedAt: now,
 	}
 
-	var selected *domain.Policy
+	var selected *kerneldomain.Policy
 	for _, item := range policies {
 		if !item.Enabled {
 			continue
 		}
 		match, err := e.evaluator.Match(input.Request, item, now)
 		if err != nil {
-			return domain.Evaluation{}, fmt.Errorf("evaluate policy %q: %w", item.Name, err)
+			return kerneldomain.Evaluation{}, fmt.Errorf("evaluate policy %q: %w", item.Name, err)
 		}
 		if !match {
 			continue
 		}
-		if item.Mode == domain.PolicyModeShadow {
+		if item.Mode == kerneldomain.PolicyModeShadow {
 			evaluation.ShadowPolicies = append(evaluation.ShadowPolicies, item.ID)
 			continue
 		}
@@ -74,7 +74,7 @@ func (e *Engine) Evaluate(input Input) (domain.Evaluation, error) {
 		break
 	}
 
-	var riskOverride *domain.RiskLevel
+	var riskOverride *kerneldomain.RiskLevel
 	if selected != nil {
 		riskOverride = selected.RiskOverride
 	}
@@ -85,7 +85,7 @@ func (e *Engine) Evaluate(input Input) (domain.Evaluation, error) {
 	if selected != nil {
 		decision, ok := risk.DecideFromPolicy(selected.Effect, evaluation.RiskTier)
 		if !ok {
-			return domain.Evaluation{}, fmt.Errorf("unsupported policy effect %q", selected.Effect)
+			return kerneldomain.Evaluation{}, fmt.Errorf("unsupported policy effect %q", selected.Effect)
 		}
 		evaluation.Decision = decision
 		evaluation.DecisionReason = "Policy '" + selected.Name + "'"

@@ -7,9 +7,12 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 import ai_core
+from ai_core.api.sse import EventSourceResponse
 from ai_core.auth import AuthMiddleware as LegacyAuthMiddleware
+from ai_core.clients.http_backend import HTTPBackendClient
 from ai_core.fastapi import apply_permissive_cors, install_request_context_middleware, register_common_exception_handlers
 from ai_core.logging import bind_request_context, clear_request_context, get_logger, get_request_id, update_request_context
+from ai_core.observability.otel import configure_opentelemetry
 from ai_core.orchestrator import OrchestratorLimits, orchestrate
 from ai_core.provider_factory import create_provider
 from ai_core.rate_limit import RateLimitMiddleware as LegacyRateLimitMiddleware
@@ -33,6 +36,14 @@ class AICompatTests(unittest.IsolatedAsyncioTestCase):
     def test_package_exports(self) -> None:
         self.assertTrue(hasattr(ai_core, "AuthContext"))
         self.assertTrue(hasattr(ai_core, "EchoProvider"))
+        self.assertTrue(hasattr(ai_core, "HTTPBackendClient"))
+        self.assertTrue(hasattr(ai_core, "EventSourceResponse"))
+        self.assertTrue(hasattr(ai_core, "configure_opentelemetry"))
+
+    def test_compat_runtime_exports_import(self) -> None:
+        self.assertTrue(HTTPBackendClient)
+        self.assertTrue(EventSourceResponse)
+        self.assertTrue(configure_opentelemetry)
 
     def test_create_provider_echo(self) -> None:
         provider = create_provider(types.SimpleNamespace(llm_provider="echo"))

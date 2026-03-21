@@ -8,20 +8,25 @@ Implementación actual: `saas/go/`
 
 ## Pertenece
 
+- admin de tenant y lifecycle multi-tenant
 - orgs
 - users
 - identity
-- authz multi-tenant
 - billing
 - entitlements
 - usage metering
-- notifications SaaS reutilizables
+- middleware de auth que resuelve principal, tenant, role y scopes
+- webhooks de identity provider cuando sincronizan users, orgs y memberships SaaS
 
 ## No pertenece
 
 - onboarding específico de un producto
 - UI/admin de una app específica
 - copy comercial o dominio específico de un producto
+- transporte de notificaciones (`smtp`, `ses`, `noop`)
+- helpers HTTP genéricos
+- context keys, errores de dominio y métricas genéricas
+- verificación `jwks`/`oidc` reusable fuera del dominio SaaS
 
 ## Fuente inicial esperada
 
@@ -29,19 +34,18 @@ Implementación actual: `saas/go/`
 
 ## Estado de absorción
 
-- absorbido: `org`, `users`, `identity`, `billing`, `clerkwebhook`, `entitlements`, `admin`, `usagemetering`, `notifications`, `migrations`
-- absorbido: `shared/authz`, `shared/ctxkeys`, `shared/domainerr`, `shared/httperr`, `shared/metrics`, `shared/middleware` como capa de compatibilidad
+- absorbido: `org`, `users`, `identity`, `billing`, `clerkwebhook`, `admin`, `usagemetering`, `migrations`
 - ampliado: `tenant/`, `kernel/usecases/domain/`, `handler/dto/`, `repository/models/`, runtime de billing y tests por contexto
 - pendiente fuera de este módulo: migrar consumers y recién después eliminar código duplicado del repo `saas-core`
+- extraído a módulos raíz: `authn/`, `authz/`, `backend/` y `notifications/`
 
 ## Estructura actual
 
-Este módulo ya aplica la convención Go de contexto + `usecases/domain` sin romper compatibilidad todavía.
+Este módulo ya aplica la convención Go de contexto + `usecases/domain` y quedó sin shims técnicos de compatibilidad.
 
 Paquetes activos en `saas/go/`:
 
 - `kernel/usecases/domain/` como fuente de verdad de tipos compartidos
-- `authz/` con `usecases.go` y `usecases/domain/`
 - `identity/` con `usecases.go` y `usecases/domain/`
 - `org/`
 - `users/`
@@ -50,9 +54,28 @@ Paquetes activos en `saas/go/`:
 - `entitlement/` con `usecases.go` y `usecases/domain/`
 - `tenant/` con `usecases.go` y `usecases/domain/`
 - `usagemetering/`
-- `notifications/` con senders `noop`, `smtp` y `ses`
 - `middleware/` con auth middleware reusable
 - `handler/dto/` en los contexts de aplicación
 - `repository/models/` en los contexts con puertos de persistencia o lookup
-- `domain/` como capa de compatibilidad para imports viejos
-- `shared/` como shim de compatibilidad para el layout histórico de `saas-core`
+- `notifications/` como contrato SaaS de intención de notificación
+
+## Fronteras
+
+La regla para `saas` es simple: se queda acá todo lo que entiende de verdad el modelo multi-tenant.
+
+Se quedan en `saas/go/`:
+
+- `admin/`, porque maneja `tenant settings`, `plan`, lifecycle y límites
+- `users/`, porque modela users, members y relaciones con orgs dentro de la plataforma
+- `middleware/`, porque este middleware no es HTTP genérico; resuelve `Principal`, `TenantID`, `Role` y `Scopes`
+- `clerkwebhook/`, porque sincroniza users, orgs y memberships de la plataforma
+
+No se quedan en `saas/go/` las implementaciones técnicas genéricas:
+
+- `notifications/go/` contiene transporte reusable (`noop`, `smtp`, `ses`)
+- `saas/go/notifications/` contiene solo el puerto de dominio: la intención de notificar algo del tenant
+- `authn/go/` contiene `jwks` y `oidc`
+- `authz/go/` contiene roles/scopes reutilizables
+- `backend/go/` contiene helpers técnicos como `contextkeys`, `domainerr`, `httperr` y sinks de observabilidad
+
+La diferencia no es “usa auth” o “usa email”. La diferencia es: si la pieza necesita entender tenant, org, membership, plan o lifecycle, pertenece a `saas`. Si solo provee infraestructura reusable, sale a un módulo raíz.

@@ -33,7 +33,7 @@ Este es el módulo más valioso, pero no debería ser el primero en migrarse. Pr
 
 Implementación actual: `governance/go/`
 
-Esta implementación ya aplica la convención Go de contexto + `usecases/domain` sin romper compatibilidad todavía.
+Esta implementación ya aplica la convención Go de contexto + `usecases/domain` sin capas de compatibilidad internas.
 
 Paquetes activos en `governance/go/`:
 
@@ -47,4 +47,3 @@ Paquetes activos en `governance/go/`:
 - `evidence/` con `usecases.go` y `usecases/domain/`
 - `handler/dto/` en los contexts de aplicación
 - `repository/models/` en los contexts con puertos de persistencia o lookup
-- `domain/` como capa de compatibilidad para imports viejos

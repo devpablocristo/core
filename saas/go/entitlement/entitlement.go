@@ -3,36 +3,36 @@ package entitlement
 import (
 	"strings"
 
-	"github.com/devpablocristo/core/saas/go/domain"
+	kerneldomain "github.com/devpablocristo/core/saas/go/kernel/usecases/domain"
 )
 
-func NormalizePlan(raw string) domain.PlanCode {
+func NormalizePlan(raw string) kerneldomain.PlanCode {
 	switch strings.TrimSpace(strings.ToLower(raw)) {
-	case string(domain.PlanGrowth):
-		return domain.PlanGrowth
-	case string(domain.PlanEnterprise):
-		return domain.PlanEnterprise
+	case string(kerneldomain.PlanGrowth):
+		return kerneldomain.PlanGrowth
+	case string(kerneldomain.PlanEnterprise):
+		return kerneldomain.PlanEnterprise
 	default:
-		return domain.PlanStarter
+		return kerneldomain.PlanStarter
 	}
 }
 
-func DefaultHardLimits(plan domain.PlanCode) domain.HardLimits {
+func DefaultHardLimits(plan kerneldomain.PlanCode) kerneldomain.HardLimits {
 	switch NormalizePlan(string(plan)) {
-	case domain.PlanGrowth:
-		return domain.HardLimits{
+	case kerneldomain.PlanGrowth:
+		return kerneldomain.HardLimits{
 			ToolsMax:           50,
 			RunRPM:             120,
 			AuditRetentionDays: 90,
 		}
-	case domain.PlanEnterprise:
-		return domain.HardLimits{
+	case kerneldomain.PlanEnterprise:
+		return kerneldomain.HardLimits{
 			ToolsMax:           250,
 			RunRPM:             600,
 			AuditRetentionDays: 365,
 		}
 	default:
-		return domain.HardLimits{
+		return kerneldomain.HardLimits{
 			ToolsMax:           10,
 			RunRPM:             30,
 			AuditRetentionDays: 30,

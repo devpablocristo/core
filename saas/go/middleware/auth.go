@@ -6,7 +6,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/devpablocristo/core/saas/go/ctxkeys"
+	authn "github.com/devpablocristo/core/authn/go"
+	"github.com/devpablocristo/core/backend/go/contextkeys"
 	"github.com/devpablocristo/core/saas/go/identity"
 	kerneldomain "github.com/devpablocristo/core/saas/go/kernel/usecases/domain"
 	"github.com/google/uuid"
@@ -24,6 +25,7 @@ type errorEnvelope struct {
 }
 
 type Principal = kerneldomain.Principal
+type PrincipalVerifier = identity.PrincipalVerifier
 
 // AuthMiddleware resuelve bearer o api key y deja el principal en contexto.
 func AuthMiddleware(bearerVerifier, apiKeyVerifier identity.PrincipalVerifier, next http.Handler) http.Handler {
@@ -42,10 +44,10 @@ func AuthMiddleware(bearerVerifier, apiKeyVerifier identity.PrincipalVerifier, n
 			ok        bool
 		)
 
-		if token, found := identity.BearerToken(r.Header.Get("Authorization")); found && bearerVerifier != nil {
+		if token, found := authn.BearerToken(r.Header.Get("Authorization")); found && bearerVerifier != nil {
 			principal, err = bearerVerifier.Verify(r.Context(), token)
 			ok = err == nil
-		} else if token, found := identity.APIKeyToken(r.Header.Get("Authorization"), r.Header.Get("X-API-Key")); found && apiKeyVerifier != nil {
+		} else if token, found := authn.APIKeyToken(r.Header.Get("Authorization"), r.Header.Get("X-API-Key")); found && apiKeyVerifier != nil {
 			principal, err = apiKeyVerifier.Verify(r.Context(), token)
 			ok = err == nil
 		}
