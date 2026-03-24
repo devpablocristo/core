@@ -33,7 +33,10 @@ Capacidad reusable para generación y manejo de artefactos.
 
 ## Bootstrap inicial creado
 
-Implementación actual: `artifact/go/`
+Implementaciones actuales:
+
+- `artifact/go/`
+- `artifact/rust/`
 
 Paquetes ya iniciados en esta implementación:
 
@@ -45,3 +48,13 @@ Paquetes ya iniciados en esta implementación:
 - `attachments/`
 
 El módulo ya cubre `Asset` común, naming/metadata, contratos de storage, export tabular CSV/XLSX, generación PDF simple, QR PNG reusable y metadata reusable de attachments.
+
+## Alcance de Rust
+
+`artifact/rust/` cubre:
+
+- `asset`
+- `attachments`
+- `tabular`
+
+`pdf` y `qr` siguen en `artifact/go/` por ahora.

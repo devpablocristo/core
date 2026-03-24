@@ -17,9 +17,12 @@ La unidad de versionado es cada implementación concreta:
 - `providers/aws/sqs/go`
 - `eventing/go`
 - `governance/go`
+- `governance/rust`
 - `artifact/go`
+- `artifact/rust`
 - `webhook/go`
 - `activity/go`
+- `activity/rust`
 - `saas/go`
 - `authn/ts`
 - `ai/python`
@@ -70,8 +73,11 @@ Los tags se cortan por subdirectorio:
 - `eventing/go/v0.1.0`
 - `webhook/go/v0.1.0`
 - `activity/go/v0.1.0`
+- `activity/rust/v0.1.0`
 - `governance/go/v0.1.0`
+- `governance/rust/v0.1.0`
 - `artifact/go/v0.1.0`
+- `artifact/rust/v0.1.0`
 - `saas/go/v0.1.0`
 - `authn/ts/v0.1.0`
 - `ai/python/v0.1.0`

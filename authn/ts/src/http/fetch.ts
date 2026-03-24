@@ -81,13 +81,17 @@ async function buildHeaders(options: RequestOptions): Promise<Record<string, str
   }
 
   const token = tokenProvider ? await tokenProvider() : null;
+  const apiKey = readEnv("VITE_API_KEY")?.trim() || resolveLocalAPIKeyFallback();
+  // Do not send X-API-KEY with Bearer by default: middleware would fall back to service identity and hide the human session.
+  const allowDualAuth = readEnv("VITE_DEV_ALLOW_API_KEY_WITH_CLERK_BEARER") === "true";
+
   if (token) {
     headers.Authorization = `Bearer ${token}`;
-  } else {
-    const apiKey = readEnv("VITE_API_KEY")?.trim() || resolveLocalAPIKeyFallback();
-    if (apiKey) {
+    if (allowDualAuth && apiKey) {
       headers["X-API-KEY"] = apiKey;
     }
+  } else if (apiKey) {
+    headers["X-API-KEY"] = apiKey;
   }
 
   if (options.orgId) {

@@ -55,6 +55,7 @@ Paquetes activos en `saas/go/`:
 - `tenant/` con `usecases.go` y `usecases/domain/`
 - `usagemetering/`
 - `middleware/` con auth middleware reusable
+- `session/` — `GET /session` como eco JSON del `Principal` del kernel (sin lógica de producto)
 - `handler/dto/` en los contexts de aplicación
 - `repository/models/` en los contexts con puertos de persistencia o lookup
 - `notifications/` como contrato SaaS de intención de notificación

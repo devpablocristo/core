@@ -3,6 +3,20 @@
 from .api.app import create_app
 from .api.sse import EventSourceResponse
 from .clients.http_backend import HTTPBackendClient
+from .completions import (
+    CompletionSettings,
+    GoogleAIStudioGenerateContentClient,
+    JSONCompletionClient,
+    LLMBudgetExceededError,
+    LLMCompletion,
+    LLMError,
+    LLMRateLimitError,
+    OllamaChatClient,
+    OpenAIChatCompletionsClient,
+    StubLLMClient,
+    build_llm_client,
+    validate_json_completion,
+)
 from .orchestrator import OrchestratorLimits, orchestrate
 from .observability.otel import configure_opentelemetry
 from .provider_factory import ProviderFactory, ProviderFactoryError
@@ -23,21 +37,33 @@ __all__ = [
     "CircuitBreakerOpenError",
     "CircuitBreakerState",
     "ChatChunk",
+    "CompletionSettings",
     "EchoProvider",
     "EventSourceResponse",
+    "GoogleAIStudioGenerateContentClient",
     "HTTPBackendClient",
+    "JSONCompletionClient",
+    "LLMBudgetExceededError",
+    "LLMCompletion",
+    "LLMError",
+    "LLMRateLimitError",
     "Message",
+    "OllamaChatClient",
+    "OpenAIChatCompletionsClient",
     "OrchestratorLimits",
     "ProviderFactory",
     "ProviderFactoryError",
     "RateLimitMiddleware",
     "RateLimitSettings",
+    "StubLLMClient",
     "ToolCall",
     "ToolDeclaration",
     "Usage",
+    "build_llm_client",
     "configure_logging",
     "configure_opentelemetry",
     "create_app",
     "error_payload",
     "orchestrate",
+    "validate_json_completion",
 ]

@@ -44,12 +44,17 @@ func AuthMiddleware(bearerVerifier, apiKeyVerifier identity.PrincipalVerifier, n
 			ok        bool
 		)
 
-		if token, found := authn.BearerToken(r.Header.Get("Authorization")); found && bearerVerifier != nil {
-			principal, err = bearerVerifier.Verify(r.Context(), token)
+		// 1) JWT primero si hay Bearer
+		if bearerToken, found := authn.BearerToken(r.Header.Get("Authorization")); found && bearerVerifier != nil {
+			principal, err = bearerVerifier.Verify(r.Context(), bearerToken)
 			ok = err == nil
-		} else if token, found := authn.APIKeyToken(r.Header.Get("Authorization"), r.Header.Get("X-API-Key")); found && apiKeyVerifier != nil {
-			principal, err = apiKeyVerifier.Verify(r.Context(), token)
-			ok = err == nil
+		}
+		// 2) Si el JWT falla (issuer, org_id, etc.) o no hubo Bearer, intentar X-API-KEY (útil en dev: Clerk + clave local)
+		if !ok && apiKeyVerifier != nil {
+			if apiToken, found := authn.APIKeyToken(r.Header.Get("Authorization"), r.Header.Get("X-API-Key")); found {
+				principal, err = apiKeyVerifier.Verify(r.Context(), apiToken)
+				ok = err == nil
+			}
 		}
 
 		if !ok {

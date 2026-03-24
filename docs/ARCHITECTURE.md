@@ -38,9 +38,12 @@ La unidad principal de organización es la **capacidad**. Dentro de cada capacid
 - `providers/aws/sqs/go`: activo, módulo Go con adapter reusable para SQS
 - `eventing/go`: activo, módulo Go con envelopes de eventos asíncronos
 - `governance/go`: activo, módulo Go con kernel de dominio, contexts con `usecases/domain` y adapters `handler/dto` + `repository/models`
+- `governance/rust`: activo, runtime Rust para el kernel determinista (`risk`, `decision`, `approval`, `evidence`) con puertos y adapters explícitos
 - `artifact/go`: activo, módulo Go con `Asset`, naming, tabular, PDF, QR y `attachments`
+- `artifact/rust`: activo, runtime Rust para `asset`, `attachments` y `tabular` con codecs XLSX desacoplados
 - `webhook/go`: activo, módulo Go con endpoints, signing, retry policy y planning de deliveries
 - `activity/go`: activo, módulo Go con audit trail append-only y timeline
+- `activity/rust`: activo, runtime Rust para `audit` y `timeline` con puertos, adapters y hashing determinista
 - `saas/go`: activo, módulo Go con dominio SaaS, contexts con `usecases/domain`, `handler/dto`, `repository/models`, middleware HTTP reusable y contratos SaaS
 - `authn/go`: activo, módulo Go con parsing de credenciales, `jwks` y `oidc`
 - `authn/ts`: activo, módulo TypeScript para sesión/browser, fetch auth, axios auth y adapters frontend reutilizables
@@ -101,9 +104,12 @@ Cada implementación concreta se versiona de forma independiente:
 - `providers/aws/sqs/go`
 - `eventing/go`
 - `governance/go`
+- `governance/rust`
 - `artifact/go`
+- `artifact/rust`
 - `webhook/go`
 - `activity/go`
+- `activity/rust`
 - `saas/go`
 - `ai/python`
 

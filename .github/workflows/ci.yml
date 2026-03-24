@@ -26,8 +26,11 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
       - name: Make scripts executable
-        run: chmod +x scripts/validate-runtime-layout.sh scripts/validate-module-versions.sh scripts/list-module-versions.sh scripts/bump-module-version.sh scripts/test-go-modules.sh scripts/test-ai.sh scripts/test-all.sh
+        run: chmod +x scripts/validate-runtime-layout.sh scripts/validate-module-versions.sh scripts/list-module-versions.sh scripts/bump-module-version.sh scripts/test-go-modules.sh scripts/test-rust-modules.sh scripts/test-ai.sh scripts/test-all.sh
 
       - name: Run all module tests
         run: ./scripts/test-all.sh

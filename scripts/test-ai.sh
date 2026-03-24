@@ -13,7 +13,7 @@ fi
 
 "${VENV_DIR}/bin/pip" install --upgrade pip >/dev/null
 "${VENV_DIR}/bin/pip" install -e "${AI_DIR}[test]" >/dev/null
-"${VENV_DIR}/bin/python" -m compileall "${AI_DIR}/src"
+PYTHONPYCACHEPREFIX="${AI_DIR}/.pycache" "${VENV_DIR}/bin/python" -m compileall "${AI_DIR}/src"
 (
   cd "${AI_DIR}"
   PYTHONPATH=src "${VENV_DIR}/bin/python" -m unittest discover -s tests -v

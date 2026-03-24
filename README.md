@@ -68,12 +68,15 @@ core/
     go/
   governance/
     go/
+    rust/
   artifact/
     go/
+    rust/
   webhook/
     go/
   activity/
     go/
+    rust/
   ai/
     python/
   docs/
@@ -114,9 +117,12 @@ Este repo ya tiene:
 - `providers/aws/sqs/go/`: envío reusable a SQS
 - `eventing/go/`: envelope tipado reusable para eventos asíncronos
 - `governance/go/`: `kernel/usecases/domain`, `policy`, `risk`, `decision`, `approval`, `delegations`, `audit`, `evidence`, `handler/dto`, `repository/models`, más compatibilidad en `domain/`
+- `governance/rust/`: kernel determinista con hexagonal architecture para `risk`, `decision`, `approval` y `evidence`, listo para adapters de integración
 - `artifact/go/`: root `Asset` + naming/content types, `storage`, `tabular`, `pdf`, `qr`, `attachments`
+- `artifact/rust/`: runtime Rust para `asset`, `attachments` y `tabular` CSV/XLSX con puertos explícitos para codecs e infraestructura
 - `webhook/go/`: gestión de endpoints, firma HMAC, headers, backoff y planning de deliveries
 - `activity/go/`: `kernel/usecases/domain`, `audit`, `timeline` y export helpers
+- `activity/rust/`: runtime hexagonal para `audit` y `timeline`, con hash chaining, exports deterministas y adapters explícitos
 - `saas/go/`: `kernel/usecases/domain`, `identity`, `org`, `users`, `billing`, `admin`, `entitlement`, `tenant`, `usagemetering`, `middleware`, `handler/dto`, `repository/models` y contrato SaaS de notificaciones
 - `authn/go/`: parsing de credenciales, `jwks` y `oidc` reusable para autenticación backend
 - `authn/ts/`: storage namespaced de auth, eventos de logout, fetch auth, axios auth con refresh serializado y adapters frontend

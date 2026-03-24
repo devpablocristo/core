@@ -31,7 +31,10 @@ Este es el módulo más valioso, pero no debería ser el primero en migrarse. Pr
 
 ## Estructura actual
 
-Implementación actual: `governance/go/`
+Implementaciones actuales:
+
+- `governance/go/`
+- `governance/rust/`
 
 Esta implementación ya aplica la convención Go de contexto + `usecases/domain` sin capas de compatibilidad internas.
 
@@ -47,3 +50,10 @@ Paquetes activos en `governance/go/`:
 - `evidence/` con `usecases.go` y `usecases/domain/`
 - `handler/dto/` en los contexts de aplicación
 - `repository/models/` en los contexts con puertos de persistencia o lookup
+
+Runtime adicional activo:
+
+- `governance/rust/` contiene el kernel determinista con hexagonal architecture
+- `domain/`: modelos, risk, approval, evidence
+- `application/`: decision engine y evidence service
+- `infrastructure/`: adapters de policy matching y signing HMAC

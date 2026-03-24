@@ -88,6 +88,26 @@ func TestResolvePrincipalAcceptsCompactClaimsAndExternalOrgLookup(t *testing.T) 
 	}
 }
 
+func TestResolvePrincipalAcceptsIssuerWithTrailingSlashMismatch(t *testing.T) {
+	t.Parallel()
+
+	uc := NewUsecasesWithOrgResolver(staticTokenVerifier{claims: map[string]any{
+		"iss":       "https://issuer.example/",
+		"tenant_id": "acme",
+		"sub":       "user-1",
+	}}, nil, Config{
+		Issuer: "https://issuer.example",
+	})
+
+	principal, err := uc.ResolvePrincipal(context.Background(), "token")
+	if err != nil {
+		t.Fatalf("ResolvePrincipal returned error: %v", err)
+	}
+	if principal.TenantID != "acme" {
+		t.Fatalf("unexpected tenant id: %q", principal.TenantID)
+	}
+}
+
 func TestResolvePrincipalRejectsUnknownExternalOrg(t *testing.T) {
 	t.Parallel()
 

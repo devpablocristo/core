@@ -2,7 +2,10 @@
 
 Capacidad reusable para audit trails y timelines.
 
-Implementación actual: `activity/go/`
+Implementaciones actuales:
+
+- `activity/go/`
+- `activity/rust/`
 
 ## Pertenece
 
@@ -22,3 +25,8 @@ Implementación actual: `activity/go/`
 - `/home/pablo/Projects/Pablo/pymes/pymes-core/backend/internal/audit`
 - `/home/pablo/Projects/Pablo/pymes/pymes-core/backend/internal/timeline`
 - `/home/pablo/Projects/Pablo/nexus/v3/review/internal/audit`
+
+## Estructura actual
+
+- `activity/go/`: `kernel/usecases/domain`, `audit`, `timeline`
+- `activity/rust/`: `domain`, `application`, `infrastructure`

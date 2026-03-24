@@ -58,7 +58,7 @@ func (r *ClaimsResolver) ResolvePrincipal(ctx context.Context, bearerToken strin
 		return identitydomain.Principal{}, domainerr.Unauthorized("invalid bearer token")
 	}
 
-	if r.cfg.Issuer != "" && toString(claims["iss"]) != r.cfg.Issuer {
+	if r.cfg.Issuer != "" && normalizeIssuerURL(toString(claims["iss"])) != normalizeIssuerURL(r.cfg.Issuer) {
 		return identitydomain.Principal{}, domainerr.Unauthorized("invalid token issuer")
 	}
 	if r.cfg.Audience != "" && !audienceMatches(claims["aud"], r.cfg.Audience) {
@@ -100,6 +100,12 @@ func (r *ClaimsResolver) resolveTenantID(ctx context.Context, claims map[string]
 		return strings.TrimSpace(resolvedID), nil
 	}
 	return "", domainerr.Unauthorized("unknown organization claim")
+}
+
+// normalizeIssuerURL compara issuers de OIDC/Clerk aunque uno lleve barra final y el otro no.
+func normalizeIssuerURL(raw string) string {
+	raw = strings.TrimSpace(raw)
+	return strings.TrimSuffix(raw, "/")
 }
 
 func effectiveTenantClaimName(configured string) string {

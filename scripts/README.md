@@ -16,6 +16,7 @@ Acá viven scripts transversales del monorepo `core`.
 - `list-module-versions.sh`: lista módulos versionados y el tag esperado de release
 - `bump-module-version.sh`: sube la versión de un módulo concreto
 - `test-go-modules.sh`: corre `go test ./...` en cada módulo Go independiente
+- `test-rust-modules.sh`: corre `cargo test` en cada módulo Rust independiente
 - `test-ai.sh`: crea un `.venv` local para `ai/python`, instala dependencias de test y corre `compileall` + `unittest`
 - `test-all.sh`: ejecuta validación de layout, versionado y toda la suite del repo
 

@@ -33,15 +33,16 @@ func MigrateUp(ctx context.Context, db *sql.DB, scope string) error {
 		return err
 	}
 
+	// Nombre propio: golang-migrate (pymes-core/migrations) ya usa "schema_migrations" con otro esquema.
 	if _, err := db.ExecContext(ctx, `
-		CREATE TABLE IF NOT EXISTS schema_migrations (
+		CREATE TABLE IF NOT EXISTS saas_core_schema_migrations (
 			scope text NOT NULL,
 			version text NOT NULL,
 			applied_at timestamptz NOT NULL,
 			PRIMARY KEY (scope, version)
 		)
 	`); err != nil {
-		return fmt.Errorf("ensure schema_migrations: %w", err)
+		return fmt.Errorf("ensure saas_core_schema_migrations: %w", err)
 	}
 
 	for _, item := range items {
@@ -100,7 +101,7 @@ func applyMigration(ctx context.Context, db *sql.DB, scope string, item migratio
 	}()
 
 	result, err := tx.ExecContext(ctx, `
-		INSERT INTO schema_migrations (scope, version, applied_at)
+		INSERT INTO saas_core_schema_migrations (scope, version, applied_at)
 		VALUES ($1, $2, NOW())
 		ON CONFLICT (scope, version) DO NOTHING
 	`, scope, item.version)
