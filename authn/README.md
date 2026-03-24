@@ -35,10 +35,14 @@ Implementaciones actuales:
 
 ## Estructura actual
 
-- `authn/go/`
+- `authn/go/` — inbound: `Principal`, `Credential`, `Authenticator`, `Extractor`, `TryInbound`, `BearerJWTAuthenticator`, `APIKeyFuncAuthenticator` (sin “provider universal”: refresh/OAuth/sesiones van fuera de esta capa). Ejemplos: [go/README.md](go/README.md).
 - `authn/go/jwks/`
-- `authn/go/oidc/`
+- `authn/go/oidc/` — discovery + verificación + intercambio de código (flujo federado; no mezclar con API key)
 - `authn/ts/src/browser/`
 - `authn/ts/src/http/`
 - `authn/ts/src/providers/`
 - `authn/ts/tests/`
+
+## Principio de diseño (Go)
+
+Una sola abstracción inflada (`VerifyToken` + `RefreshToken` + `RevokeSession` en una interfaz) rompe con API keys y JWT stateless. Acá solo: **extraer credencial → autenticar → `Principal`**. El middleware `saas/go/middleware.AuthMiddleware` sigue el mismo orden que `authn.TryInbound` (JWT primero, luego API key si el JWT falla o no hay Bearer).

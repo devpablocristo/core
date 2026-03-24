@@ -38,30 +38,28 @@ func AuthMiddleware(bearerVerifier, apiKeyVerifier identity.PrincipalVerifier, n
 			return
 		}
 
-		var (
-			principal kerneldomain.Principal
-			err       error
-			ok        bool
+		var jwtAuth authn.Authenticator
+		if bearerVerifier != nil {
+			jwtAuth = jwtPrincipalVerifier{v: bearerVerifier}
+		}
+		var keyAuth authn.Authenticator
+		if apiKeyVerifier != nil {
+			keyAuth = apiKeyPrincipalVerifier{v: apiKeyVerifier}
+		}
+
+		ap, method, err := authn.TryInbound(
+			r.Context(),
+			jwtAuth,
+			keyAuth,
+			r.Header.Get("Authorization"),
+			r.Header.Get("X-API-Key"),
 		)
-
-		// 1) JWT primero si hay Bearer
-		if bearerToken, found := authn.BearerToken(r.Header.Get("Authorization")); found && bearerVerifier != nil {
-			principal, err = bearerVerifier.Verify(r.Context(), bearerToken)
-			ok = err == nil
-		}
-		// 2) Si el JWT falla (issuer, org_id, etc.) o no hubo Bearer, intentar X-API-KEY (útil en dev: Clerk + clave local)
-		if !ok && apiKeyVerifier != nil {
-			if apiToken, found := authn.APIKeyToken(r.Header.Get("Authorization"), r.Header.Get("X-API-Key")); found {
-				principal, err = apiKeyVerifier.Verify(r.Context(), apiToken)
-				ok = err == nil
-			}
-		}
-
-		if !ok {
+		if err != nil || ap == nil {
 			writeError(w, http.StatusUnauthorized, "UNAUTHORIZED", "valid credentials required")
 			return
 		}
 
+		principal := authnToKernelPrincipal(ap, method)
 		principal.AuthMethod = strings.TrimSpace(principal.AuthMethod)
 		ctx := withPrincipal(r.Context(), principal)
 		next.ServeHTTP(w, r.WithContext(ctx))

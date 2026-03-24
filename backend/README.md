@@ -43,5 +43,6 @@ Paquetes ya iniciados en esta implementación:
 - `apikey/`
 - `observability/`
 - `pagination/`
+- `intparse/` — enteros positivos para query params (pagination sin depender de `httpjson`)
 - `resilience/`
 - `validation/`

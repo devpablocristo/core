@@ -1,32 +1,33 @@
 // Package reviewclient proporciona un cliente HTTP genérico para Nexus Review API.
-// Agnóstico al producto: cualquier servicio que consuma Review (Companion, Pymes, Ponti, etc.)
-// puede importar este paquete en lugar de mantener su propia copia.
+// Agnóstico al producto: cualquier servicio que consuma Review puede importar este paquete.
 package reviewclient
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
-	"strings"
 	"time"
+
+	"github.com/devpablocristo/core/backend/go/httpclient"
 )
 
 // Client cliente HTTP hacia Nexus Review.
 type Client struct {
-	baseURL    string
-	apiKey     string
-	httpClient *http.Client
+	caller *httpclient.Caller
 }
 
-// NewClient crea el cliente con baseURL (sin slash final) y API key.
+// NewClient crea el cliente con baseURL y API key.
 func NewClient(baseURL, apiKey string) *Client {
+	h := make(http.Header)
+	h.Set("X-API-Key", apiKey)
 	return &Client{
-		baseURL:    strings.TrimRight(baseURL, "/"),
-		apiKey:     apiKey,
-		httpClient: &http.Client{Timeout: 30 * time.Second},
+		caller: &httpclient.Caller{
+			BaseURL:     baseURL,
+			Header:      h,
+			HTTP:        &http.Client{Timeout: 30 * time.Second},
+			MaxBodySize: 1 << 20, // 1MB
+		},
 	}
 }
 
@@ -75,12 +76,13 @@ type RequestSummary struct {
 
 // SubmitRequest envía POST /v1/requests con idempotency key opcional.
 func (c *Client) SubmitRequest(ctx context.Context, idempotencyKey string, body SubmitRequestBody) (SubmitResponse, error) {
-	var out SubmitResponse
-	extra := http.Header{}
+	var opts []httpclient.RequestOption
 	if idempotencyKey != "" {
-		extra.Set("Idempotency-Key", idempotencyKey)
+		opts = append(opts, httpclient.WithIdempotencyKey(idempotencyKey))
 	}
-	st, raw, err := c.doJSON(ctx, http.MethodPost, "/v1/requests", body, extra)
+
+	var out SubmitResponse
+	st, raw, err := c.caller.DoJSON(ctx, http.MethodPost, "/v1/requests", body, opts...)
 	if err != nil {
 		return out, fmt.Errorf("review submit: %w", err)
 	}
@@ -96,7 +98,7 @@ func (c *Client) SubmitRequest(ctx context.Context, idempotencyKey string, body 
 // GetRequest consulta GET /v1/requests/{id}. Devuelve status HTTP para distinguir 404.
 func (c *Client) GetRequest(ctx context.Context, id string) (RequestSummary, int, error) {
 	var out RequestSummary
-	st, raw, err := c.doJSON(ctx, http.MethodGet, "/v1/requests/"+id, nil, nil)
+	st, raw, err := c.caller.DoJSON(ctx, http.MethodGet, "/v1/requests/"+id, nil)
 	if err != nil {
 		return out, 0, fmt.Errorf("review get request: %w", err)
 	}
@@ -114,12 +116,8 @@ func (c *Client) GetRequest(ctx context.Context, id string) (RequestSummary, int
 
 // ReportResult reporta resultado de ejecución POST /v1/requests/{id}/result.
 func (c *Client) ReportResult(ctx context.Context, requestID string, success bool, durationMS int64, details string) error {
-	body := map[string]any{
-		"success":     success,
-		"duration_ms": durationMS,
-		"details":     details,
-	}
-	st, raw, err := c.doJSON(ctx, http.MethodPost, "/v1/requests/"+requestID+"/result", body, nil)
+	body := map[string]any{"success": success, "duration_ms": durationMS, "details": details}
+	st, raw, err := c.caller.DoJSON(ctx, http.MethodPost, "/v1/requests/"+requestID+"/result", body)
 	if err != nil {
 		return fmt.Errorf("review report result: %w", err)
 	}
@@ -131,92 +129,44 @@ func (c *Client) ReportResult(ctx context.Context, requestID string, success boo
 
 // --- Policies ---
 
-// ListPolicies consulta GET /v1/policies. Devuelve status + body crudo.
 func (c *Client) ListPolicies(ctx context.Context) (int, []byte, error) {
-	return c.doJSON(ctx, http.MethodGet, "/v1/policies", nil, nil)
+	return c.caller.DoJSON(ctx, http.MethodGet, "/v1/policies", nil)
 }
 
-// CreatePolicy envía POST /v1/policies.
 func (c *Client) CreatePolicy(ctx context.Context, body any) (int, []byte, error) {
-	return c.doJSON(ctx, http.MethodPost, "/v1/policies", body, nil)
+	return c.caller.DoJSON(ctx, http.MethodPost, "/v1/policies", body)
 }
 
-// UpdatePolicy envía PATCH /v1/policies/{id}.
 func (c *Client) UpdatePolicy(ctx context.Context, id string, body any) (int, []byte, error) {
-	return c.doJSON(ctx, http.MethodPatch, "/v1/policies/"+id, body, nil)
+	return c.caller.DoJSON(ctx, http.MethodPatch, "/v1/policies/"+id, body)
 }
 
-// DeletePolicy envía DELETE /v1/policies/{id}.
 func (c *Client) DeletePolicy(ctx context.Context, id string) (int, error) {
-	st, _, err := c.doJSON(ctx, http.MethodDelete, "/v1/policies/"+id, nil, nil)
+	st, _, err := c.caller.DoJSON(ctx, http.MethodDelete, "/v1/policies/"+id, nil)
 	return st, err
 }
 
 // --- Action Types ---
 
-// ListActionTypes consulta GET /v1/action-types.
 func (c *Client) ListActionTypes(ctx context.Context) (int, []byte, error) {
-	return c.doJSON(ctx, http.MethodGet, "/v1/action-types", nil, nil)
+	return c.caller.DoJSON(ctx, http.MethodGet, "/v1/action-types", nil)
 }
 
 // --- Approvals ---
 
-// ListPendingApprovals consulta GET /v1/approvals/pending.
 func (c *Client) ListPendingApprovals(ctx context.Context) (int, []byte, error) {
-	return c.doJSON(ctx, http.MethodGet, "/v1/approvals/pending", nil, nil)
+	return c.caller.DoJSON(ctx, http.MethodGet, "/v1/approvals/pending", nil)
 }
 
-// Approve envía POST /v1/approvals/{id}/approve.
 func (c *Client) Approve(ctx context.Context, id string, body any) (int, []byte, error) {
-	return c.doJSON(ctx, http.MethodPost, "/v1/approvals/"+id+"/approve", body, nil)
+	return c.caller.DoJSON(ctx, http.MethodPost, "/v1/approvals/"+id+"/approve", body)
 }
 
-// Reject envía POST /v1/approvals/{id}/reject.
 func (c *Client) Reject(ctx context.Context, id string, body any) (int, []byte, error) {
-	return c.doJSON(ctx, http.MethodPost, "/v1/approvals/"+id+"/reject", body, nil)
+	return c.caller.DoJSON(ctx, http.MethodPost, "/v1/approvals/"+id+"/reject", body)
 }
 
 // --- Helpers ---
-
-// doJSON ejecuta una petición HTTP JSON contra Review.
-func (c *Client) doJSON(ctx context.Context, method, path string, body any, extraHeaders http.Header) (int, []byte, error) {
-	var rdr io.Reader
-	if body != nil {
-		b, err := json.Marshal(body)
-		if err != nil {
-			return 0, nil, fmt.Errorf("marshal body: %w", err)
-		}
-		rdr = bytes.NewReader(b)
-	}
-
-	url := c.baseURL + path
-	req, err := http.NewRequestWithContext(ctx, method, url, rdr)
-	if err != nil {
-		return 0, nil, fmt.Errorf("build request: %w", err)
-	}
-
-	req.Header.Set("X-API-Key", c.apiKey)
-	if body != nil {
-		req.Header.Set("Content-Type", "application/json")
-	}
-	for k, vv := range extraHeaders {
-		for _, v := range vv {
-			req.Header.Add(k, v)
-		}
-	}
-
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return 0, nil, fmt.Errorf("http do: %w", err)
-	}
-	defer resp.Body.Close()
-
-	raw, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return resp.StatusCode, nil, fmt.Errorf("read body: %w", err)
-	}
-	return resp.StatusCode, raw, nil
-}
 
 // ParseErrorBody intenta extraer mensaje de error de respuesta de Review.
 func ParseErrorBody(raw []byte) string {

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/devpablocristo/core/backend/go/httpjson"
+	"github.com/devpablocristo/core/backend/go/intparse"
 )
 
 const (
@@ -69,7 +69,7 @@ func NormalizeLimit(limit int, config Config) int {
 // ParseParams normaliza `limit` y `cursor` desde strings HTTP.
 func ParseParams(rawLimit, rawCursor string, config Config) (Params, error) {
 	config = NormalizeConfig(config)
-	limit, err := httpjson.ParsePositiveInt(strings.TrimSpace(rawLimit), config.DefaultLimit)
+	limit, err := intparse.ParsePositiveInt(strings.TrimSpace(rawLimit), config.DefaultLimit)
 	if err != nil {
 		return Params{}, fmt.Errorf("parse pagination limit: %w", err)
 	}

@@ -6,17 +6,17 @@ import unittest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-import ai_core
-from ai_core.api.sse import EventSourceResponse
-from ai_core.auth import AuthMiddleware as LegacyAuthMiddleware
-from ai_core.clients.http_backend import HTTPBackendClient
-from ai_core.fastapi import apply_permissive_cors, install_request_context_middleware, register_common_exception_handlers
-from ai_core.logging import bind_request_context, clear_request_context, get_logger, get_request_id, update_request_context
-from ai_core.observability.otel import configure_opentelemetry
-from ai_core.orchestrator import OrchestratorLimits, orchestrate
-from ai_core.provider_factory import create_provider
-from ai_core.rate_limit import RateLimitMiddleware as LegacyRateLimitMiddleware
-from ai_core.types import ChatChunk, EchoProvider, Message, ToolCall, ToolDeclaration
+import core_ai
+from core_ai.api.sse import EventSourceResponse
+from core_ai.auth import AuthMiddleware as LegacyAuthMiddleware
+from core_ai.clients.http_backend import HTTPBackendClient
+from core_ai.fastapi import apply_permissive_cors, install_request_context_middleware, register_common_exception_handlers
+from core_ai.logging import bind_request_context, clear_request_context, get_logger, get_request_id, update_request_context
+from core_ai.observability.otel import configure_opentelemetry
+from core_ai.orchestrator import OrchestratorLimits, orchestrate
+from core_ai.provider_factory import create_provider
+from core_ai.rate_limit import RateLimitMiddleware as LegacyRateLimitMiddleware
+from core_ai.types import ChatChunk, EchoProvider, Message, ToolCall, ToolDeclaration
 
 
 class StaticProvider:
