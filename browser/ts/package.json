@@ -5,14 +5,23 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./storage": "./src/storage.ts"
+    "./storage": "./src/storage.ts",
+    "./crud": "./src/crud/index.ts"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
   },
   "scripts": {
     "test": "vitest run --environment jsdom --globals",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
     "@types/node": "^24.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "jsdom": "^26.1.0",
     "typescript": "^5.8.0",
     "vitest": "^3.2.4"
