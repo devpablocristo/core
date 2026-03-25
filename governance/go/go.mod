@@ -3,7 +3,7 @@ module github.com/devpablocristo/core/governance/go
 go 1.26.1
 
 require (
-	github.com/devpablocristo/core/backend/go v0.0.0
+	github.com/devpablocristo/core/http/go v0.0.0
 	github.com/google/cel-go v0.26.1
 )
 
@@ -17,4 +17,4 @@ require (
 	google.golang.org/protobuf v1.36.8 // indirect
 )
 
-replace github.com/devpablocristo/core/backend/go => ../../backend/go
+replace github.com/devpablocristo/core/http/go => ../../http/go

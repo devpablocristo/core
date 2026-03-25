@@ -3,7 +3,7 @@ package session
 import (
 	"net/http"
 
-	"github.com/devpablocristo/core/backend/go/httperr"
+	"github.com/devpablocristo/core/http/go/httperr"
 	saasmiddleware "github.com/devpablocristo/core/saas/go/middleware"
 )
 

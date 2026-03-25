@@ -8,7 +8,7 @@ import (
 	"time"
 
 	oidc "github.com/devpablocristo/core/authn/go/oidc"
-	"github.com/devpablocristo/core/backend/go/httperr"
+	"github.com/devpablocristo/core/http/go/httperr"
 	identitydto "github.com/devpablocristo/core/saas/go/identity/handler/dto"
 	identitydomain "github.com/devpablocristo/core/saas/go/identity/usecases/domain"
 )

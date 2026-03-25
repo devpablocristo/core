@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/devpablocristo/core/backend/go/httpclient"
+	"github.com/devpablocristo/core/http/go/httpclient"
 )
 
 // Client cliente HTTP hacia Nexus Review.

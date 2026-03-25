@@ -3,7 +3,7 @@ package billing
 import (
 	"net/http"
 
-	"github.com/devpablocristo/core/backend/go/httperr"
+	"github.com/devpablocristo/core/http/go/httperr"
 )
 
 const (

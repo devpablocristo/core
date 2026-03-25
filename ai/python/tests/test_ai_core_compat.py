@@ -10,8 +10,7 @@ import core_ai
 from core_ai.api.sse import EventSourceResponse
 from core_ai.auth import AuthMiddleware as LegacyAuthMiddleware
 from core_ai.clients.http_backend import HTTPBackendClient
-from core_ai.fastapi import apply_permissive_cors, install_request_context_middleware, register_common_exception_handlers
-from core_ai.logging import bind_request_context, clear_request_context, get_logger, get_request_id, update_request_context
+from core_ai.logging import bind_request_context, clear_request_context, get_request_id, update_request_context
 from core_ai.observability.otel import configure_opentelemetry
 from core_ai.orchestrator import OrchestratorLimits, orchestrate
 from core_ai.provider_factory import create_provider
@@ -34,11 +33,11 @@ class StaticProvider:
 
 class AICompatTests(unittest.IsolatedAsyncioTestCase):
     def test_package_exports(self) -> None:
-        self.assertTrue(hasattr(ai_core, "AuthContext"))
-        self.assertTrue(hasattr(ai_core, "EchoProvider"))
-        self.assertTrue(hasattr(ai_core, "HTTPBackendClient"))
-        self.assertTrue(hasattr(ai_core, "EventSourceResponse"))
-        self.assertTrue(hasattr(ai_core, "configure_opentelemetry"))
+        self.assertTrue(hasattr(core_ai, "AuthContext"))
+        self.assertTrue(hasattr(core_ai, "EchoProvider"))
+        self.assertTrue(hasattr(core_ai, "HTTPBackendClient"))
+        self.assertTrue(hasattr(core_ai, "EventSourceResponse"))
+        self.assertTrue(hasattr(core_ai, "configure_opentelemetry"))
 
     def test_compat_runtime_exports_import(self) -> None:
         self.assertTrue(HTTPBackendClient)
@@ -52,21 +51,6 @@ class AICompatTests(unittest.IsolatedAsyncioTestCase):
     def test_create_provider_gemini_requires_api_key(self) -> None:
         with self.assertRaises(ValueError):
             create_provider(types.SimpleNamespace(llm_provider="gemini", gemini_api_key=""))
-
-    def test_fastapi_helpers(self) -> None:
-        app = FastAPI()
-        apply_permissive_cors(app)
-        install_request_context_middleware(app, bind_request_context, clear_request_context)
-        register_common_exception_handlers(app, get_logger("ai_core_test"))
-
-        @app.get("/healthz")
-        async def healthz() -> dict[str, str]:
-            return {"status": "ok"}
-
-        client = TestClient(app)
-        response = client.get("/healthz")
-        self.assertEqual(response.status_code, 200)
-        self.assertIn("X-Request-ID", response.headers)
 
     def test_legacy_auth_middleware(self) -> None:
         app = FastAPI()
@@ -97,7 +81,7 @@ class AICompatTests(unittest.IsolatedAsyncioTestCase):
         app = FastAPI()
         app.add_middleware(
             LegacyRateLimitMiddleware,
-            settings=types.SimpleNamespace(ai_external_rpm=1, ai_internal_rpm=10),
+            settings=types.SimpleNamespace(external_rpm=1, internal_rpm=10),
         )
 
         @app.get("/v1/public/ping")
@@ -135,7 +119,7 @@ class AICompatTests(unittest.IsolatedAsyncioTestCase):
                 [Message(role="user", content="sum please")],
                 [ToolDeclaration(name="sum", description="sum numbers")],
                 {"sum": handler},
-                "org-1",
+                context={"org_id": "org-1"},
                 limits=OrchestratorLimits(),
             )
         ]

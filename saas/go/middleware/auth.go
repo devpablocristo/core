@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	authn "github.com/devpablocristo/core/authn/go"
-	"github.com/devpablocristo/core/backend/go/contextkeys"
+	"github.com/devpablocristo/core/security/go/contextkeys"
 	"github.com/devpablocristo/core/saas/go/identity"
 	kerneldomain "github.com/devpablocristo/core/saas/go/kernel/usecases/domain"
 	"github.com/google/uuid"
