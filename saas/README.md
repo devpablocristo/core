@@ -37,7 +37,7 @@ Implementación actual: `saas/go/`
 - absorbido: `org`, `users`, `identity`, `billing`, `clerkwebhook`, `admin`, `usagemetering`, `migrations`
 - ampliado: `tenant/`, `kernel/usecases/domain/`, `handler/dto/`, `repository/models/`, runtime de billing y tests por contexto
 - pendiente fuera de este módulo: migrar consumers y recién después eliminar código duplicado del repo `saas-core`
-- extraído a módulos raíz: `authn/`, `authz/`, `backend/` y `notifications/`
+- extraído a módulos raíz: `authn/`, `authz/`, `http/`, `observability/`, `config/`, `security/`, `validate/`, `errors/`, `utils/`, `concurrency/` y `notifications/`
 
 ## Estructura actual
 
@@ -77,6 +77,6 @@ No se quedan en `saas/go/` las implementaciones técnicas genéricas:
 - `saas/go/notifications/` contiene solo el puerto de dominio: la intención de notificar algo del tenant
 - `authn/go/` contiene `jwks` y `oidc`
 - `authz/go/` contiene roles/scopes reutilizables
-- `backend/go/` contiene helpers técnicos como `contextkeys`, `domainerr`, `httperr` y sinks de observabilidad
+- `http/`, `observability/`, `config/`, `security/`, `validate/`, `errors/`, `utils/` y `concurrency/` contienen la infraestructura reusable que ya no pertenece al dominio SaaS
 
 La diferencia no es “usa auth” o “usa email”. La diferencia es: si la pieza necesita entender tenant, org, membership, plan o lifecycle, pertenece a `saas`. Si solo provee infraestructura reusable, sale a un módulo raíz.

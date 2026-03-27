@@ -11,10 +11,16 @@ La unidad principal de organización es la **capacidad**. Dentro de cada capacid
 - `saas`
 - `browser`
 - `http`
+- `observability`
+- `config`
+- `security`
+- `validate`
+- `errors`
+- `utils`
+- `concurrency`
 - `authz`
 - `authn`
 - `notifications`
-- `backend`
 - `databases`
 - `providers`
 - `eventing`
@@ -30,7 +36,22 @@ La unidad principal de organización es la **capacidad**. Dentro de cada capacid
 - `http/ts`: activo, módulo TypeScript con `fetch` JSON, parseo de errores y `event-stream`
 - `authz/go`: activo, módulo Go con scopes, roles, checks reusable y adapter liviano de autorización
 - `notifications/go`: activo, módulo Go con senders `noop`, `smtp`, `ses` y bootstrap reusable de email
-- `backend/go`: activo, módulo Go con HTTP, observability, pagination, resilience y validation
+- `http/go`: activo, módulo Go con utilidades backend HTTP reutilizables
+- `http/gin/go`: activo, adaptadores reutilizables para Gin
+- `observability/go`: activo, módulo Go de observabilidad reusable
+- `observability/rust`: activo, runtime Rust de observabilidad reusable
+- `config/go`: activo, módulo Go de configuración reusable
+- `security/go`: activo, módulo Go de helpers de seguridad reusable
+- `validate/go`: activo, módulo Go de validación reusable
+- `validate/rust`: activo, runtime Rust de validación reusable
+- `errors/go`: activo, módulo Go de errores reusable
+- `errors/rust`: activo, runtime Rust de errores reusable
+- `utils/go`: activo, utilidades técnicas compartidas
+- `utils/pagination/rust`: activo, runtime Rust de paginación reusable
+- `utils/resilience/rust`: activo, runtime Rust de resilience reusable
+- `concurrency/go`: activo, primitivas de concurrencia reusable
+- `concurrency/fsm/rust`: activo, runtime Rust para máquinas de estado
+- `concurrency/worker/rust`: activo, runtime Rust para workers
 - `databases/postgres/go`: activo, módulo Go con pool/config/migrations
 - `databases/dynamodb/go`: activo, módulo Go con adapter reusable para DynamoDB
 - `providers/aws/lambda/go`: activo, módulo Go con Lambda HTTP / API Gateway
@@ -94,10 +115,20 @@ Cada implementación concreta se versiona de forma independiente:
 - `browser/ts`
 - `http/ts`
 - `notifications/go`
-- `backend/go`
+- `config/go`
+- `concurrency/go`
+- `errors/go`
+- `http/go`
+- `http/gin/go`
+- `observability/go`
+- `security/go`
+- `utils/go`
+- `validate/go`
 - `authn/go`
 - `authn/ts`
+- `authn/rust`
 - `databases/postgres/go`
+- `databases/postgres/rust`
 - `databases/dynamodb/go`
 - `providers/aws/lambda/go`
 - `providers/aws/s3/go`
@@ -111,24 +142,56 @@ Cada implementación concreta se versiona de forma independiente:
 - `activity/go`
 - `activity/rust`
 - `saas/go`
+- `http/python`
+- `http/client/rust`
+- `http/server/rust`
+- `utils/pagination/rust`
+- `utils/resilience/rust`
+- `concurrency/fsm/rust`
+- `concurrency/worker/rust`
+- `errors/rust`
+- `validate/rust`
+- `observability/rust`
+- `ai/go`
 - `ai/python`
 
 Cada una debe tener un archivo `VERSION` y sus tags se cortan por subdirectorio:
 
-- `backend/go/v0.1.0`
+- `config/go/v0.1.0`
+- `concurrency/go/v0.1.0`
+- `errors/go/v0.1.0`
+- `http/go/v0.1.0`
+- `http/gin/go/v0.1.0`
+- `observability/go/v0.1.0`
+- `security/go/v0.1.0`
+- `utils/go/v0.1.0`
+- `validate/go/v0.1.0`
 - `authz/go/v0.1.0`
 - `browser/ts/v0.1.0`
 - `http/ts/v0.1.0`
 - `authn/go/v0.1.0`
+- `authn/rust/v0.1.0`
 - `notifications/go/v0.1.0`
 - `authn/ts/v0.1.0`
 - `databases/postgres/go/v0.1.0`
+- `databases/postgres/rust/v0.1.0`
 - `databases/dynamodb/go/v0.1.0`
 - `providers/aws/lambda/go/v0.1.0`
 - `providers/aws/s3/go/v0.1.0`
 - `providers/aws/sqs/go/v0.1.0`
 - `eventing/go/v0.1.0`
 - `saas/go/v0.1.0`
+- `http/python/v0.1.0`
+- `http/client/rust/v0.1.0`
+- `http/server/rust/v0.1.0`
+- `utils/pagination/rust/v0.1.0`
+- `utils/resilience/rust/v0.1.0`
+- `concurrency/fsm/rust/v0.1.0`
+- `concurrency/worker/rust/v0.1.0`
+- `errors/rust/v0.1.0`
+- `validate/rust/v0.1.0`
+- `observability/rust/v0.1.0`
+- `ai/go/v0.1.0`
 - `ai/python/v0.1.0`
 
 Para más detalle, ver [VERSIONING.md](VERSIONING.md).
@@ -143,13 +206,12 @@ Regla general:
 
 Reglas específicas:
 
-- `backend` no depende de otros módulos;
 - `authz` debe intentar mantenerse independiente;
 - `notifications` debe intentar mantenerse independiente;
 - `databases/*` debe intentar mantenerse independiente;
 - `providers/aws/*` debe intentar mantenerse independiente;
 - `eventing` debe intentar mantenerse independiente;
-- `saas` puede depender de `backend`, `authn`, `authz` y `notifications`;
+- `saas` puede depender de `http`, `observability`, `config`, `security`, `authn`, `authz` y `notifications`;
 - `governance`, `artifact`, `webhook`, `activity` y `ai` deben intentar mantenerse independientes.
 
 ## Patrones por tipo de módulo
@@ -220,10 +282,10 @@ El repo tiene validación local y CI por módulos independientes:
 
 ## Orden recomendado de profundización y migración
 
-1. `backend`
+1. `http`
 2. `authz`
 3. `browser`
-4. `http`
+4. `observability`
 5. `notifications`
 6. `databases/postgres`
 7. `databases/dynamodb`

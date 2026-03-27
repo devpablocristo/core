@@ -53,13 +53,39 @@ La estructura objetivo es:
 core/
   saas/
     go/
+  browser/
+    ts/
+  http/
+    go/
+    gin/go/
+    ts/
+    python/
+  observability/
+    go/
+    rust/
+  config/
+    go/
+  security/
+    go/
+  validate/
+    go/
+    rust/
+  errors/
+    go/
+    rust/
+  utils/
+    go/
+    pagination/rust/
+    resilience/rust/
+  concurrency/
+    go/
+    fsm/rust/
+    worker/rust/
   authz/
     go/
   authn/
     ts/
   notifications/
-    go/
-  backend/
     go/
   databases/
     postgres/
@@ -93,8 +119,8 @@ core/
 
 ### Regla de naming
 
-- Los módulos se nombran por capacidad o adapter concreto estable: `saas`, `authz`, `authn`, `notifications`, `backend`, `databases/postgres`, `databases/dynamodb`, `providers/aws/lambda`, `providers/aws/s3`, `providers/aws/sqs`, `eventing`, `governance`, `artifact`, `webhook`, `activity`, `ai`
-- NUNCA usar `saas-core/`, `backend-core/`, etc. dentro de este repo
+- Los módulos se nombran por capacidad o adapter concreto estable: `saas`, `browser`, `http`, `observability`, `config`, `security`, `validate`, `errors`, `utils`, `concurrency`, `authz`, `authn`, `notifications`, `databases/postgres`, `databases/dynamodb`, `providers/aws/lambda`, `providers/aws/s3`, `providers/aws/sqs`, `eventing`, `governance`, `artifact`, `webhook`, `activity`, `ai`
+- NUNCA usar `saas-core/`, `http-core/`, etc. dentro de este repo
 - NUNCA crear roots genéricos como `common/`, `shared/`, `utils/`, `libs/` en la raíz del repo
 - `shared/` solo puede existir dentro de un módulo concreto y con ownership claro
 - La raíz de una capacidad es solo contenedor organizativo; el código real vive siempre dentro del subdirectorio por lenguaje
@@ -113,7 +139,7 @@ El repo puede contener Go, Rust y Python. Lenguaje distinto NO obliga repo disti
 - Para Rust, la ruta válida es siempre `{modulo}/rust/...`
 - Para TypeScript, la ruta válida es siempre `{modulo}/ts/...`
 - NUNCA crear `go.mod`, `pyproject.toml`, `Cargo.toml`, `src/` o paquetes de código directamente en la raíz de la capacidad
-- NUNCA crear archivos Go en `saas/`, `backend/`, `governance/`, etc. fuera de `go/`
+- NUNCA crear archivos Go en `saas/`, `http/`, `observability/`, `governance/`, etc. fuera de `go/`
 - NUNCA crear archivos Python en `ai/` fuera de `python/`
 - NUNCA crear archivos TypeScript fuera de `ts/`
 - NUNCA usar una sola versión global para todo el repo
@@ -247,18 +273,15 @@ No pertenece:
 - templates/copy de producto
 - colas o workers específicos de una app
 
-### `backend/`
+### Módulos técnicos backend
 
 Pertenece:
-- http server
-- request/response helpers
-- auth transport reusable
-- api keys
-- pagination
-- validation
-- retry/resilience
-- observability
-- context keys y errores técnicos compartidos
+- `http/` para server, request/response helpers, auth transport y api keys reutilizables
+- `observability/` para métricas, tracing y sinks compartidos
+- `validate/` para validación reusable
+- `errors/` para errores técnicos compartidos
+- `utils/` para paginación, resiliencia y helpers genéricos
+- `config/`, `security/` y `concurrency/` para infraestructura reusable transversal
 
 No pertenece:
 - dominio de negocio
@@ -276,7 +299,7 @@ Pertenece:
 - helpers `pgx` o `database/sql` específicos de PostgreSQL
 
 No pertenece:
-- runtime backend genérico
+- runtime HTTP genérico fuera de `http/`
 - dominio de negocio
 - adapters de otras bases de datos
 

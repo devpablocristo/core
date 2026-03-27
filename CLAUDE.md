@@ -7,10 +7,18 @@ Este repo es el monorepo `core` para capacidades reutilizables compartidas entre
 Acá viven módulos por capacidad:
 
 - `saas/`
+- `browser/`
+- `http/`
+- `observability/`
+- `config/`
+- `security/`
+- `validate/`
+- `errors/`
+- `utils/`
+- `concurrency/`
 - `authz/`
 - `authn/`
 - `notifications/`
-- `backend/`
 - `databases/postgres/`
 - `databases/dynamodb/`
 - `providers/aws/lambda/`
@@ -64,13 +72,39 @@ Correcto:
 core/
   saas/
     go/
+  browser/
+    ts/
+  http/
+    go/
+    gin/go/
+    ts/
+    python/
+  observability/
+    go/
+    rust/
+  config/
+    go/
+  security/
+    go/
+  validate/
+    go/
+    rust/
+  errors/
+    go/
+    rust/
+  utils/
+    go/
+    pagination/rust/
+    resilience/rust/
+  concurrency/
+    go/
+    fsm/rust/
+    worker/rust/
   authz/
     go/
   authn/
     ts/
   notifications/
-    go/
-  backend/
     go/
   databases/
     postgres/
@@ -187,9 +221,16 @@ No pertenece si:
 
 - senders reutilizables `noop`, `smtp`, `ses`
 
-### `backend`
+### Módulos técnicos backend
 
-- http server, auth transport, api keys, pagination, validation, retry y observability
+- `http/`: server, transporte y adapters HTTP reutilizables
+- `observability/`: métricas, tracing y sinks reutilizables
+- `config/`: configuración reusable de servicios
+- `security/`: helpers reutilizables de seguridad backend
+- `validate/`: validación reusable
+- `errors/`: errores técnicos compartidos
+- `utils/`: utilidades backend genéricas
+- `concurrency/`: primitivas reutilizables de concurrencia
 
 ### `databases/postgres`
 

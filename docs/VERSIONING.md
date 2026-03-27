@@ -4,13 +4,23 @@
 
 La unidad de versionado es cada implementación concreta:
 
+- `config/go`
+- `concurrency/go`
+- `errors/go`
+- `http/go`
+- `http/gin/go`
+- `observability/go`
+- `security/go`
+- `utils/go`
+- `validate/go`
 - `authz/go`
 - `browser/ts`
 - `http/ts`
 - `authn/go`
+- `authn/rust`
 - `notifications/go`
-- `backend/go`
 - `databases/postgres/go`
+- `databases/postgres/rust`
 - `databases/dynamodb/go`
 - `providers/aws/lambda/go`
 - `providers/aws/s3/go`
@@ -25,6 +35,17 @@ La unidad de versionado es cada implementación concreta:
 - `activity/rust`
 - `saas/go`
 - `authn/ts`
+- `http/python`
+- `http/client/rust`
+- `http/server/rust`
+- `utils/pagination/rust`
+- `utils/resilience/rust`
+- `concurrency/fsm/rust`
+- `concurrency/worker/rust`
+- `errors/rust`
+- `validate/rust`
+- `observability/rust`
+- `ai/go`
 - `ai/python`
 
 ## Regla
@@ -32,7 +53,7 @@ La unidad de versionado es cada implementación concreta:
 Cada implementación tiene su propio archivo `VERSION` en la raíz del runtime:
 
 ```text
-backend/
+http/
   go/
     VERSION
     go.mod
@@ -59,13 +80,23 @@ authn/
 
 Los tags se cortan por subdirectorio:
 
-- `backend/go/v0.1.0`
+- `config/go/v0.1.0`
+- `concurrency/go/v0.1.0`
+- `errors/go/v0.1.0`
+- `http/go/v0.1.0`
+- `http/gin/go/v0.1.0`
+- `observability/go/v0.1.0`
+- `security/go/v0.1.0`
+- `utils/go/v0.1.0`
+- `validate/go/v0.1.0`
 - `authz/go/v0.1.0`
 - `browser/ts/v0.1.0`
 - `http/ts/v0.1.0`
 - `authn/go/v0.1.0`
+- `authn/rust/v0.1.0`
 - `notifications/go/v0.1.0`
 - `databases/postgres/go/v0.1.0`
+- `databases/postgres/rust/v0.1.0`
 - `databases/dynamodb/go/v0.1.0`
 - `providers/aws/lambda/go/v0.1.0`
 - `providers/aws/s3/go/v0.1.0`
@@ -80,6 +111,17 @@ Los tags se cortan por subdirectorio:
 - `artifact/rust/v0.1.0`
 - `saas/go/v0.1.0`
 - `authn/ts/v0.1.0`
+- `http/python/v0.1.0`
+- `http/client/rust/v0.1.0`
+- `http/server/rust/v0.1.0`
+- `utils/pagination/rust/v0.1.0`
+- `utils/resilience/rust/v0.1.0`
+- `concurrency/fsm/rust/v0.1.0`
+- `concurrency/worker/rust/v0.1.0`
+- `errors/rust/v0.1.0`
+- `validate/rust/v0.1.0`
+- `observability/rust/v0.1.0`
+- `ai/go/v0.1.0`
 - `ai/python/v0.1.0`
 
 Para Go esto sigue la convención correcta de módulos versionados en subdirectorios del monorepo.

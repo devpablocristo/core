@@ -7,11 +7,11 @@ Aplican sin excepción las reglas de `AGENTS.md`.
 ## Resumen crítico
 
 - Este repo es un monorepo de capacidades reutilizables, no de productos
-- Los módulos raíz son: `saas`, `authn`, `authz`, `notifications`, `backend`, `databases`, `providers`, `eventing`, `governance`, `artifact`, `webhook`, `activity`, `ai`
+- Los módulos raíz son: `saas`, `browser`, `http`, `observability`, `config`, `security`, `validate`, `errors`, `utils`, `concurrency`, `authn`, `authz`, `notifications`, `databases`, `providers`, `eventing`, `governance`, `artifact`, `webhook`, `activity`, `ai`
 - Dentro de este repo NO se usan sufijos `-core`
 - No crear `common/`, `shared/`, `utils/` en la raíz
 - Lenguaje distinto no implica repo distinto
-- Cada capacidad se separa por lenguaje desde el inicio: `saas/go`, `backend/go`, `ai/python`, etc.
+- Cada capacidad se separa por lenguaje desde el inicio: `saas/go`, `http/go`, `authn/ts`, `ai/python`, etc.
 - Prohibido crear código o manifests en la raíz de una capacidad; la raíz solo organiza
 - Prohibido crear Go fuera de `go/`, Python fuera de `python/`, Rust fuera de `rust/` o TypeScript fuera de `ts/`
 - Prohibido usar una sola versión global del repo; cada implementación tiene su propio `VERSION`

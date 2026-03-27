@@ -9,10 +9,16 @@ Este repo no contiene apps. Contiene módulos por capacidad.
 - `saas/`: tenancy, identity, users, billing, entitlements
 - `browser/`: storage y utilidades reutilizables del runtime browser
 - `http/`: transporte HTTP frontend reusable, `fetch` JSON y `event-stream`
+- `observability/`: tracing, metrics e integración reusable de observabilidad
+- `config/`: configuración reusable para servicios backend
+- `security/`: helpers reutilizables de seguridad backend
+- `validate/`: validación reusable
+- `errors/`: errores compartidos y contratos de error
+- `utils/`: utilidades técnicas reutilizables
+- `concurrency/`: primitivas reutilizables de concurrencia y coordinación
 - `authz/`: autorización reusable por roles y scopes
 - `authn/`: autenticación reusable, tanto backend (`go`) como sesión/browser (`ts`)
 - `notifications/`: senders y transporte reusable para notificaciones
-- `backend/`: infraestructura reusable para servicios backend
 - `databases/`: adapters concretos de bases de datos
 - `providers/`: adapters concretos de proveedores externos
 - `eventing/`: envelopes y contratos de eventos asíncronos
@@ -30,7 +36,7 @@ Este repo no contiene apps. Contiene módulos por capacidad.
 - Cada capacidad se organiza con subdirectorios por lenguaje desde el día 1
 - Si una capacidad suma más implementaciones, conviven bajo la misma raíz de capacidad
 - No se admite dominio específico de producto dentro de este repo
-- No existe una sola versión global del repo; cada implementación (`backend/go`, `ai/python`, etc.) se versiona por separado
+- No existe una sola versión global del repo; cada implementación (`http/go`, `ai/python`, etc.) se versiona por separado
 
 ## Estructura
 
@@ -42,14 +48,37 @@ core/
     ts/
   http/
     ts/
+  observability/
+    go/
+    rust/
+  config/
+    go/
+  security/
+    go/
+  validate/
+    go/
+    rust/
+  errors/
+    go/
+    rust/
+  utils/
+    go/
+    pagination/
+      rust/
+    resilience/
+      rust/
+  concurrency/
+    go/
+    fsm/
+      rust/
+    worker/
+      rust/
   authz/
     go/
   authn/
     go/
     ts/
   notifications/
-    go/
-  backend/
     go/
   databases/
     postgres/
@@ -99,13 +128,21 @@ Este repo ya tiene:
 - reglas para Claude, GPT/Codex y Cursor;
 - estructura raíz del monorepo;
 - documentación de fronteras y migración;
-- bootstrap real en `backend/`, `databases/`, `providers/`, `eventing/`, `governance/`, `artifact/`, `webhook/`, `activity/`, `saas/`, `authz/`, `authn/`, `notifications/` y `ai/`;
+- bootstrap real en `http/`, `observability/`, `config/`, `security/`, `validate/`, `errors/`, `utils/`, `concurrency/`, `databases/`, `providers/`, `eventing/`, `governance/`, `artifact/`, `webhook/`, `activity/`, `saas/`, `authz/`, `authn/`, `notifications/` y `ai/`;
 - separación explícita por lenguaje en cada capacidad;
 - scripts de validación por módulo y workflow CI del monorepo.
 
 ### Bootstrap por módulo
 
-- `backend/go/`: `httpjson`, `apikey`, `httpserver`, `observability`, `pagination`, `resilience`, `validation`
+- `http/go/`: helpers backend HTTP reutilizables
+- `http/gin/go/`: middleware y utilidades específicas de Gin
+- `observability/go/`: observabilidad reusable para servicios backend
+- `config/go/`: configuración reusable para servicios
+- `security/go/`: helpers de seguridad backend
+- `validate/go/`: validación reusable para backends
+- `errors/go/`: contratos y helpers de error compartidos
+- `utils/go/`: utilidades técnicas compartidas
+- `concurrency/go/`: primitivas de concurrencia reutilizables
 - `browser/ts/`: namespace storage para browser, lectura/escritura string/JSON y cleanup por prefijo
 - `http/ts/`: `fetch` reusable, parseo uniforme de errores HTTP y JSON `event-stream`
 - `authz/go/`: scopes, roles, checks reusable y adapter liviano de autorización

@@ -19,7 +19,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: "1.25.1"
+          go-version: "1.26.1"
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -30,7 +30,7 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
 
       - name: Make scripts executable
-        run: chmod +x scripts/validate-runtime-layout.sh scripts/validate-module-versions.sh scripts/list-module-versions.sh scripts/bump-module-version.sh scripts/test-go-modules.sh scripts/test-rust-modules.sh scripts/test-ai.sh scripts/test-all.sh
+        run: chmod +x scripts/validate-runtime-layout.sh scripts/validate-module-versions.sh scripts/list-module-versions.sh scripts/bump-module-version.sh scripts/test-go-modules.sh scripts/test-rust-modules.sh scripts/test-ts-modules.sh scripts/test-http-python.sh scripts/test-ai.sh scripts/test-all.sh
 
       - name: Run all module tests
         run: ./scripts/test-all.sh

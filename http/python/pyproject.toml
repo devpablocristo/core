@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "httpserver"
 version = "0.1.0"
-description = "FastAPI/Starlette helpers agnostic to product domain (alineado con core/backend/go/httpserver)"
+description = "FastAPI/Starlette helpers agnostic to product domain (alineado con los módulos técnicos HTTP de core)"
 requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.115,<1",
