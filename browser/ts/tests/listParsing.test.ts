@@ -18,4 +18,28 @@ describe("parseListItemsFromResponse", () => {
   it("treats missing items as empty", () => {
     expect(parseListItemsFromResponse({})).toEqual([]);
   });
+
+  it("unwraps nested bff envelopes", () => {
+    expect(
+      parseListItemsFromResponse({
+        data: {
+          data: {
+            items: [{ id: "nested" }],
+          },
+        },
+      }),
+    ).toEqual([{ id: "nested" }]);
+  });
+
+  it("returns empty when nested envelopes have null items", () => {
+    expect(
+      parseListItemsFromResponse({
+        data: {
+          data: {
+            items: null,
+          },
+        },
+      }),
+    ).toEqual([]);
+  });
 });

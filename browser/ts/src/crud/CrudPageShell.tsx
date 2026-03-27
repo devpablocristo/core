@@ -35,6 +35,7 @@ export function CrudPageShell({
     <>
       <div className="page-header crud-page-shell__header">
         <div className="crud-page-shell__header-main">
+          <h1 className="crud-page-shell__title">{title}</h1>
           {subtitle != null && subtitle !== false ? (
             <p className="text-secondary">{subtitle}</p>
           ) : null}
