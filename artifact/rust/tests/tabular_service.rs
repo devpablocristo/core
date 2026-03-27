@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
 
-use core_artifact_rust::{
+use artifact::{
     CalamineXlsxCodec, CsvError, Sheet, TabularLimits, TabularService, TabularServiceError,
     TabularValidationError,
 };
@@ -135,7 +135,7 @@ fn parse_xlsx_rejects_cell_over_limit() {
 
     assert!(matches!(
         error,
-        TabularServiceError::Codec(core_artifact_rust::TabularCodecError::Validation(
+        TabularServiceError::Codec(artifact::TabularCodecError::Validation(
             TabularValidationError::CellTooLarge {
                 row: 2,
                 column: 1,

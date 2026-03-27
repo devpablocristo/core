@@ -1,12 +1,12 @@
 [package]
-name = "core-errors"
+name = "errors"
 version = "0.1.0"
 edition = "2021"
 license = "MIT"
 description = "Domain and HTTP error types with exhaustive matching — replaces domainerr + httperr"
 
 [lib]
-name = "core_errors"
+name = "errors"
 path = "src/lib.rs"
 
 [dependencies]

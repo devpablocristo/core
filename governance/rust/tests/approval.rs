@@ -1,7 +1,7 @@
 use chrono::{Duration, Utc};
 
-use core_governance_rust::domain::approval::{new_approval, requirement_for};
-use core_governance_rust::{
+use governance::domain::approval::{new_approval, requirement_for};
+use governance::{
     approve, reject, ApprovalConfig, ApprovalRequirement, ApprovalStatus, Decision, Request,
     RiskLevel,
 };

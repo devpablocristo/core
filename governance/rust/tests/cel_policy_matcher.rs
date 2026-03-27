@@ -3,7 +3,7 @@ use std::collections::BTreeMap;
 use chrono::{TimeZone, Utc};
 use serde_json::json;
 
-use core_governance_rust::{
+use governance::{
     CelPolicyMatcher, Policy, PolicyMatcher, Request, RequesterType, Subject, Target,
 };
 
@@ -36,10 +36,10 @@ fn matches_nested_fields_and_numeric_comparison() {
                 id: "policy-1".into(),
                 name: "delete high amount".into(),
                 expression: "request.action == \"delete\" && request.target.system == \"prod\" && request.params.amount > 1000".into(),
-                effect: core_governance_rust::Decision::Allow,
+                effect: governance::Decision::Allow,
                 risk_override: None,
                 priority: 1,
-                mode: core_governance_rust::PolicyMode::Enforce,
+                mode: governance::PolicyMode::Enforce,
                 enabled: true,
                 action_filter: String::new(),
                 system_filter: String::new(),
@@ -61,10 +61,10 @@ fn rejects_invalid_expression() {
                 id: "policy-2".into(),
                 name: "invalid".into(),
                 expression: "request.action = \"delete\"".into(),
-                effect: core_governance_rust::Decision::Allow,
+                effect: governance::Decision::Allow,
                 risk_override: None,
                 priority: 1,
-                mode: core_governance_rust::PolicyMode::Enforce,
+                mode: governance::PolicyMode::Enforce,
                 enabled: true,
                 action_filter: String::new(),
                 system_filter: String::new(),
@@ -76,7 +76,7 @@ fn rejects_invalid_expression() {
     assert!(
         matches!(
             error,
-            core_governance_rust::PolicyEvaluationError::UnsupportedExpression(_)
+            governance::PolicyEvaluationError::UnsupportedExpression(_)
         ),
         "unexpected error: {error}"
     );
@@ -99,10 +99,10 @@ fn applies_static_filters_before_expression() {
                 id: "policy-3".into(),
                 name: "delete only".into(),
                 expression: "true".into(),
-                effect: core_governance_rust::Decision::Allow,
+                effect: governance::Decision::Allow,
                 risk_override: None,
                 priority: 1,
-                mode: core_governance_rust::PolicyMode::Enforce,
+                mode: governance::PolicyMode::Enforce,
                 enabled: true,
                 action_filter: "delete".into(),
                 system_filter: "prod".into(),

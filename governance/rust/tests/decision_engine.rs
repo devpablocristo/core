@@ -1,7 +1,7 @@
 use chrono::{TimeZone, Utc};
 use serde_json::json;
 
-use core_governance_rust::{
+use governance::{
     ApprovalConfig, CelPolicyMatcher, Decision, DecisionEngine, DecisionInput,
     DeterministicPolicyMatcher, Policy, PolicyMode, Request, RequesterType, RiskConfig,
     RiskHistory, Subject, Target,

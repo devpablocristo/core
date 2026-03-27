@@ -1,4 +1,5 @@
-// Package fsm ofrece una máquina de estados finita declarativa (reglas From+Event→To).
+// Package fsm ofrece máquinas de estados finitas: una genérica tipada (reglas From+Event→To)
+// y un builder string-based con terminales, grupos libres y aristas explícitas.
 package fsm
 
 import "errors"

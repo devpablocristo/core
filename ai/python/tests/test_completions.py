@@ -6,7 +6,7 @@ from types import SimpleNamespace
 
 from pydantic import BaseModel
 
-from core_ai.completions import (
+from runtime.completions import (
     LLMBudgetExceededError,
     LLMCompletion,
     LLMError,

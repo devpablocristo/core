@@ -5,8 +5,8 @@ import unittest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from core_ai.auth import APIKeyVerifier, AuthMiddleware, AuthSettings, BearerVerifier
-from core_ai.contexts import AuthContext
+from runtime.auth import APIKeyVerifier, AuthMiddleware, AuthSettings, BearerVerifier
+from runtime.contexts import AuthContext
 
 
 class StaticBearer(BearerVerifier):

@@ -5,7 +5,7 @@ import unittest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from core_httpserver.fastapi_bootstrap import (
+from httpserver.fastapi_bootstrap import (
     apply_permissive_cors,
     install_request_context_middleware,
     register_common_exception_handlers,
@@ -16,7 +16,7 @@ import structlog
 class FastAPIBootstrapTests(unittest.TestCase):
     def test_bootstrap_helpers(self) -> None:
         structlog.configure(wrapper_class=structlog.make_filtering_bound_logger(40))
-        log = structlog.get_logger("core_httpserver_test")
+        log = structlog.get_logger("httpserver_test")
 
         app = FastAPI()
         apply_permissive_cors(app)

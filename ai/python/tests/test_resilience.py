@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from core_ai.resilience import CircuitBreaker, CircuitBreakerOpenError, CircuitBreakerState
+from runtime.resilience import CircuitBreaker, CircuitBreakerOpenError, CircuitBreakerState
 
 
 class ResilienceTests(unittest.IsolatedAsyncioTestCase):

@@ -1,6 +1,6 @@
 use chrono::{TimeZone, Utc};
 
-use core_artifact_rust::{AttachmentsService, Clock};
+use artifact::{AttachmentsService, Clock};
 
 #[derive(Debug, Clone, Copy)]
 struct FixedClock;

@@ -5,8 +5,8 @@ import unittest
 from fastapi import FastAPI, Request
 from fastapi.testclient import TestClient
 
-from core_ai.contexts import AuthContext
-from core_ai.rate_limit import RateLimitMiddleware, RateLimitSettings
+from runtime.contexts import AuthContext
+from runtime.rate_limit import RateLimitMiddleware, RateLimitSettings
 
 
 class RateLimitTests(unittest.TestCase):

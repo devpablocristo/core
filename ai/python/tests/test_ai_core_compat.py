@@ -6,16 +6,16 @@ import unittest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-import core_ai
-from core_ai.api.sse import EventSourceResponse
-from core_ai.auth import AuthMiddleware as LegacyAuthMiddleware
-from core_ai.clients.http_backend import HTTPBackendClient
-from core_ai.logging import bind_request_context, clear_request_context, get_request_id, update_request_context
-from core_ai.observability.otel import configure_opentelemetry
-from core_ai.orchestrator import OrchestratorLimits, orchestrate
-from core_ai.provider_factory import create_provider
-from core_ai.rate_limit import RateLimitMiddleware as LegacyRateLimitMiddleware
-from core_ai.types import ChatChunk, EchoProvider, Message, ToolCall, ToolDeclaration
+import runtime
+from runtime.api.sse import EventSourceResponse
+from runtime.auth import AuthMiddleware as LegacyAuthMiddleware
+from runtime.clients.http_backend import HTTPBackendClient
+from runtime.logging import bind_request_context, clear_request_context, get_request_id, update_request_context
+from runtime.observability.otel import configure_opentelemetry
+from runtime.orchestrator import OrchestratorLimits, orchestrate
+from runtime.provider_factory import create_provider
+from runtime.rate_limit import RateLimitMiddleware as LegacyRateLimitMiddleware
+from runtime.types import ChatChunk, EchoProvider, Message, ToolCall, ToolDeclaration
 
 
 class StaticProvider:
@@ -33,11 +33,11 @@ class StaticProvider:
 
 class AICompatTests(unittest.IsolatedAsyncioTestCase):
     def test_package_exports(self) -> None:
-        self.assertTrue(hasattr(core_ai, "AuthContext"))
-        self.assertTrue(hasattr(core_ai, "EchoProvider"))
-        self.assertTrue(hasattr(core_ai, "HTTPBackendClient"))
-        self.assertTrue(hasattr(core_ai, "EventSourceResponse"))
-        self.assertTrue(hasattr(core_ai, "configure_opentelemetry"))
+        self.assertTrue(hasattr(runtime, "AuthContext"))
+        self.assertTrue(hasattr(runtime, "EchoProvider"))
+        self.assertTrue(hasattr(runtime, "HTTPBackendClient"))
+        self.assertTrue(hasattr(runtime, "EventSourceResponse"))
+        self.assertTrue(hasattr(runtime, "configure_opentelemetry"))
 
     def test_compat_runtime_exports_import(self) -> None:
         self.assertTrue(HTTPBackendClient)

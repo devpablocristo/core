@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import unittest
 
-from core_ai.provider_factory import ProviderFactory, ProviderFactoryError
-from core_ai.types import EchoProvider
+from runtime.provider_factory import ProviderFactory, ProviderFactoryError
+from runtime.types import EchoProvider
 
 
 class ProviderFactoryTests(unittest.TestCase):

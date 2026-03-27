@@ -1,6 +1,6 @@
 use chrono::{TimeZone, Utc};
 
-use core_governance_rust::{
+use governance::{
     evaluate_risk, tier_for_action, Decision, Request, RiskConfig, RiskHistory, RiskLevel, Target,
 };
 

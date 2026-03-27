@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from core_ai.api.sse import EventSourceResponse
+from runtime.api.sse import EventSourceResponse
 
 
 class SSETests(unittest.TestCase):

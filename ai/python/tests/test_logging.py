@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from core_ai.logging import bind_request_context, clear_request_context, context_fields, update_request_context
+from runtime.logging import bind_request_context, clear_request_context, context_fields, update_request_context
 
 
 class LoggingTests(unittest.TestCase):

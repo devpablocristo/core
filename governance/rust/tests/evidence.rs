@@ -1,6 +1,6 @@
 use chrono::{TimeZone, Utc};
 
-use core_governance_rust::{
+use governance::{
     domain::approval::new_approval, ApprovalRequirement, ApprovalStatus, Decision, Evaluation,
     EvidenceService, HmacSha256Signer, Request, RiskAssessment, RiskLevel, TimelineEvent,
 };

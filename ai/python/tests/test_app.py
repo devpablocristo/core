@@ -4,8 +4,8 @@ import unittest
 
 from fastapi.testclient import TestClient
 
-from core_ai.api.app import create_app
-from core_ai.config.settings import APISettings
+from runtime.api.app import create_app
+from runtime.config.settings import APISettings
 
 
 class AppTests(unittest.TestCase):

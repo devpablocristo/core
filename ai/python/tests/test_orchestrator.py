@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import unittest
 
-from core_ai.orchestrator import OrchestratorLimits, orchestrate
-from core_ai.types import ChatChunk, Message, ToolCall, ToolDeclaration
+from runtime.orchestrator import OrchestratorLimits, orchestrate
+from runtime.types import ChatChunk, Message, ToolCall, ToolDeclaration
 
 
 class StaticProvider:

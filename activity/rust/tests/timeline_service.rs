@@ -4,7 +4,7 @@ use chrono::{TimeZone, Utc};
 use serde_json::json;
 use tempfile::tempdir;
 
-use core_activity_rust::{
+use activity::{
     Clock, FileSystemTimelineRepository, IdGenerator, InMemoryTimelineRepository,
     TimelineRecordInput, TimelineService,
 };

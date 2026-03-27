@@ -5,7 +5,7 @@ from types import SimpleNamespace
 
 from fastapi import FastAPI
 
-from core_ai.observability.otel import configure_opentelemetry
+from runtime.observability.otel import configure_opentelemetry
 
 
 class OTelTests(unittest.TestCase):

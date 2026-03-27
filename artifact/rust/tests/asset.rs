@@ -2,7 +2,7 @@ use std::collections::BTreeMap;
 
 use chrono::{TimeZone, Utc};
 
-use core_artifact_rust::{build_filename, slug, Asset, Format};
+use artifact::{build_filename, slug, Asset, Format};
 
 #[test]
 fn new_normalizes_asset() {

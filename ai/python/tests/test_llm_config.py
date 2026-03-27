@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from core_ai.config.llm import (
+from runtime.config.llm import (
     default_model_for_provider,
     normalize_provider,
     provider_requires_api_key,
