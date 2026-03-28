@@ -3,12 +3,13 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "core-ai"
-version = "0.1.0"
+name = "devpablocristo-core-ai"
+version = "0.2.0"
 description = "Reusable AI runtime primitives: provider protocol, messages, orchestration and provider registry"
+readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "httpserver>=0.1.0,<1",
+    "devpablocristo-httpserver>=0.2.0,<1",
     "fastapi>=0.115,<1",
     "starlette>=0.41,<1",
     "structlog>=24.0",
@@ -45,8 +46,5 @@ python_version = "3.12"
 strict = true
 
 [tool.pytest.ini_options]
-pythonpath = [
-    "src",
-    "../../http/python/src",
-]
+pythonpath = ["src"]
 testpaths = ["tests"]
