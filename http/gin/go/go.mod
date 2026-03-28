@@ -3,10 +3,10 @@ module github.com/devpablocristo/core/http/gin/go
 go 1.26.1
 
 require (
-	github.com/devpablocristo/core/authn/go v0.0.0
-	github.com/devpablocristo/core/errors/go v0.0.0
-	github.com/devpablocristo/core/http/go v0.0.0
-	github.com/devpablocristo/core/security/go v0.0.0
+	github.com/devpablocristo/core/authn/go v0.2.1
+	github.com/devpablocristo/core/errors/go v0.1.0
+	github.com/devpablocristo/core/http/go v0.1.0
+	github.com/devpablocristo/core/security/go v0.1.0
 	github.com/gin-contrib/cors v1.7.6
 	github.com/gin-gonic/gin v1.12.0
 	github.com/go-playground/validator/v10 v10.30.1

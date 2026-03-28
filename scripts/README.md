@@ -14,11 +14,13 @@ Acá viven scripts transversales del monorepo `core`.
 - `validate-runtime-layout.sh`: valida que todo runtime viva bajo `go/`, `python/` o `rust/`
 - `validate-module-versions.sh`: valida `VERSION`, semver y consistencia con manifests por módulo
 - `list-module-versions.sh`: lista módulos versionados y el tag esperado de release
+- `check-remote-tags.sh`: compara los tags remotos publicados contra los tags esperados por `VERSION`
 - `bump-module-version.sh`: sube la versión de un módulo concreto
 - `test-go-modules.sh`: corre `go test ./...` en cada módulo Go independiente
 - `test-rust-modules.sh`: corre `cargo test` en cada módulo Rust independiente
 - `test-ai.sh`: crea un `.venv` local para `ai/python`, instala dependencias de test y corre `compileall` + `unittest`
 - `test-all.sh`: ejecuta validación de layout, versionado y toda la suite del repo
+- `prepare-ts-package-release.py`: arma un paquete TS publicable sin romper los `file:` locales del workspace
 
 ## Convención
 
