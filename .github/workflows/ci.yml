@@ -1,10 +1,12 @@
 name: core-ci
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: core-ci-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
