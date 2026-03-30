@@ -2,12 +2,17 @@
 
 from __future__ import annotations
 
+from fastapi import Request
+
 from runtime.auth import AuthSettings
 from runtime.config.settings import APISettings
 from runtime.rate_limit import RateLimitSettings
 
 
-def get_settings() -> APISettings:
+def get_settings(request: Request) -> APISettings:
+    settings = getattr(request.app.state, "settings", None)
+    if isinstance(settings, APISettings):
+        return settings
     return APISettings()
 
 

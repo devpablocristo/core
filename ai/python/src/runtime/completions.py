@@ -86,7 +86,7 @@ _REQUEST_BUDGET: contextvars.ContextVar[_RequestBudgetState | None] = contextvar
 
 
 class JSONCompletionClient:
-    def __init__(self, settings: CompletionSettings, *, logger_name: str = "core-ai.llm") -> None:
+    def __init__(self, settings: CompletionSettings, *, logger_name: str = "runtime.llm") -> None:
         self.settings = settings
         self.logger = get_logger(logger_name)
         self.provider = normalize_provider(getattr(settings, "llm_provider", "stub"))
@@ -162,43 +162,43 @@ class StubLLMClient(JSONCompletionClient):
         _ = system_prompt
         if "COPILOT_EXPLAIN_V2" in user_prompt:
             payload = {
-                "human_readable": "Explicación (stub) del insight y su propuesta.",
-                "audit_focused": "Explicación técnica (stub).",
-                "what_to_watch_next": "Qué observar (stub).",
+                "human_readable": "Stub explanation for the requested analysis.",
+                "audit_focused": "Stub technical explanation for audit and review.",
+                "what_to_watch_next": "Stub follow-up items to monitor next.",
             }
         else:
             payload = {
                 "classification": {"severity": "high", "actionability": "act", "confidence": 0.85},
                 "decision_summary": {
                     "recommended_outcome": "propose_actions",
-                    "primary_reason": "Stub: insight supera baseline con evidencia suficiente.",
+                    "primary_reason": "Stub: sufficient signal was detected to recommend an action plan.",
                 },
                 "proposed_plan": [
                     {
                         "step": 1,
-                        "action": "Stub: solicitar desglose causal del costo.",
+                        "action": "Stub: gather more detail about the main contributing factor.",
                         "tool": "request_cost_breakdown",
                         "tool_args": {"feature": "cost_total", "time_window": "all"},
-                        "rationale": "Stub: atacar causa.",
+                        "rationale": "Stub: validate the main driver before executing changes.",
                         "reversible": True,
                     }
                 ],
-                "risks_and_uncertainties": ["Stub: output generado sin LLM real."],
+                "risks_and_uncertainties": ["Stub: output generated without a real LLM response."],
                 "explanation": {
-                    "human_readable": "Stub: qué pasó y qué se sugiere.",
-                    "audit_focused": "Stub: reglas aplicadas.",
-                    "what_to_watch_next": "Stub: métricas a observar.",
+                    "human_readable": "Stub: summary of what happened and what is suggested.",
+                    "audit_focused": "Stub: reasoning trace for review purposes.",
+                    "what_to_watch_next": "Stub: metrics or events to watch next.",
                 },
             }
         return LLMCompletion(provider="stub", model=self.model, content=json.dumps(payload), raw=None)
 
 
 class OpenAIChatCompletionsClient(JSONCompletionClient):
-    def __init__(self, settings: CompletionSettings, *, logger_name: str = "core-ai.llm") -> None:
+    def __init__(self, settings: CompletionSettings, *, logger_name: str = "runtime.llm") -> None:
         super().__init__(settings, logger_name=logger_name)
         api_key = str(getattr(settings, "llm_api_key", "") or "").strip()
         if not api_key:
-            raise ValueError("LLM_API_KEY es requerido cuando LLM_PROVIDER != stub")
+            raise ValueError("LLM_API_KEY is required when LLM_PROVIDER != stub")
         self.api_key = api_key
         self.base_url = str(getattr(settings, "llm_base_url", "") or "https://api.openai.com/v1").rstrip("/")
 
@@ -207,7 +207,7 @@ class OpenAIChatCompletionsClient(JSONCompletionClient):
         for attempt in retrying:
             with attempt:
                 return self._complete_json_once(system_prompt=system_prompt, user_prompt=user_prompt)
-        raise LLMError("No se pudo obtener respuesta del LLM (retries agotados)")
+        raise LLMError("LLM response could not be obtained after retries")
 
     def _complete_json_once(self, *, system_prompt: str, user_prompt: str) -> LLMCompletion:
         self._enforce_limits(system_prompt=system_prompt, user_prompt=user_prompt)
@@ -240,17 +240,17 @@ class OpenAIChatCompletionsClient(JSONCompletionClient):
         try:
             content = data["choices"][0]["message"]["content"]
         except HANDLED_LLM_CONTENT_ERRORS as exc:
-            raise LLMError("Respuesta LLM inválida: missing choices[0].message.content") from exc
+            raise LLMError("Invalid LLM response: missing choices[0].message.content") from exc
 
         return LLMCompletion(provider="openai", model=self.model, content=content, raw=data)
 
 
 class GoogleAIStudioGenerateContentClient(JSONCompletionClient):
-    def __init__(self, settings: CompletionSettings, *, logger_name: str = "core-ai.llm") -> None:
+    def __init__(self, settings: CompletionSettings, *, logger_name: str = "runtime.llm") -> None:
         super().__init__(settings, logger_name=logger_name)
         api_key = str(getattr(settings, "llm_api_key", "") or "").strip()
         if not api_key:
-            raise ValueError("LLM_API_KEY es requerido cuando LLM_PROVIDER != stub")
+            raise ValueError("LLM_API_KEY is required when LLM_PROVIDER != stub")
         self.api_key = api_key
         self.base_url = str(getattr(settings, "llm_base_url", "") or "https://generativelanguage.googleapis.com/v1beta").rstrip("/")
 
@@ -259,7 +259,7 @@ class GoogleAIStudioGenerateContentClient(JSONCompletionClient):
         for attempt in retrying:
             with attempt:
                 return self._complete_json_once(system_prompt=system_prompt, user_prompt=user_prompt)
-        raise LLMError("No se pudo obtener respuesta del LLM (retries agotados)")
+        raise LLMError("LLM response could not be obtained after retries")
 
     def _complete_json_once(self, *, system_prompt: str, user_prompt: str) -> LLMCompletion:
         self._enforce_limits(system_prompt=system_prompt, user_prompt=user_prompt)
@@ -292,20 +292,20 @@ class GoogleAIStudioGenerateContentClient(JSONCompletionClient):
         try:
             candidates = data.get("candidates") or []
             if not candidates:
-                raise LLMError("Respuesta LLM inválida: missing candidates[0]")
+                raise LLMError("Invalid LLM response: missing candidates[0]")
             parts = candidates[0]["content"].get("parts") or []
             texts = [part.get("text", "") for part in parts if isinstance(part, dict)]
             content = "".join(texts).strip()
             if not content:
-                raise LLMError("Respuesta LLM inválida: empty content")
+                raise LLMError("Invalid LLM response: empty content")
         except KeyError as exc:
-            raise LLMError("Respuesta LLM inválida: missing candidates[0].content.parts[*].text") from exc
+            raise LLMError("Invalid LLM response: missing candidates[0].content.parts[*].text") from exc
 
         return LLMCompletion(provider="google_ai_studio", model=self.model, content=content, raw=data)
 
 
 class OllamaChatClient(JSONCompletionClient):
-    def __init__(self, settings: CompletionSettings, *, logger_name: str = "core-ai.llm") -> None:
+    def __init__(self, settings: CompletionSettings, *, logger_name: str = "runtime.llm") -> None:
         super().__init__(settings, logger_name=logger_name)
         self.base_url = str(getattr(settings, "llm_base_url", "") or "http://localhost:11434").rstrip("/")
 
@@ -314,7 +314,7 @@ class OllamaChatClient(JSONCompletionClient):
         for attempt in retrying:
             with attempt:
                 return self._complete_json_once(system_prompt=system_prompt, user_prompt=user_prompt)
-        raise LLMError("No se pudo obtener respuesta del LLM (retries agotados)")
+        raise LLMError("LLM response could not be obtained after retries")
 
     def _complete_json_once(self, *, system_prompt: str, user_prompt: str) -> LLMCompletion:
         self._enforce_limits(system_prompt=system_prompt, user_prompt=user_prompt)
@@ -349,14 +349,14 @@ class OllamaChatClient(JSONCompletionClient):
             if not content:
                 content = str(data.get("response") or "").strip()
             if not content:
-                raise LLMError("Respuesta LLM inválida: empty content")
+                raise LLMError("Invalid LLM response: empty content")
         except HANDLED_LLM_CONTENT_ERRORS as exc:
-            raise LLMError("Respuesta LLM inválida: missing message.content/response") from exc
+            raise LLMError("Invalid LLM response: missing message.content/response") from exc
 
         return LLMCompletion(provider="ollama", model=self.model, content=content, raw=data)
 
 
-def build_llm_client(settings: CompletionSettings, *, logger_name: str = "core-ai.llm") -> JSONCompletionClient:
+def build_llm_client(settings: CompletionSettings, *, logger_name: str = "runtime.llm") -> JSONCompletionClient:
     provider = normalize_provider(getattr(settings, "llm_provider", "stub"))
     if provider == "stub":
         return StubLLMClient(settings, logger_name=logger_name)
@@ -366,7 +366,7 @@ def build_llm_client(settings: CompletionSettings, *, logger_name: str = "core-a
         return GoogleAIStudioGenerateContentClient(settings, logger_name=logger_name)
     if provider == "ollama":
         return OllamaChatClient(settings, logger_name=logger_name)
-    raise ValueError(f"LLM_PROVIDER no soportado: {getattr(settings, 'llm_provider', '')}")
+    raise ValueError(f"Unsupported LLM_PROVIDER: {getattr(settings, 'llm_provider', '')}")
 
 
 def validate_json_completion(content: str, schema: type[SchemaT]) -> SchemaT:

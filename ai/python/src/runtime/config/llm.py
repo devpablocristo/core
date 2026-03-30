@@ -42,7 +42,7 @@ def validate_provider_api_key(
     api_key: str | None,
     *,
     enabled: bool = True,
-    error_message: str = "LLM_API_KEY es requerido para el provider configurado",
+    error_message: str = "LLM_API_KEY is required for the configured provider",
 ) -> None:
     if not enabled:
         return
