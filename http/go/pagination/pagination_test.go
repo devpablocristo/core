@@ -32,6 +32,14 @@ func TestParseParams(t *testing.T) {
 	}
 }
 
+func TestParseParamsRejectsInvalidLimit(t *testing.T) {
+	t.Parallel()
+
+	if _, err := ParseParams("-1", "", DefaultConfig()); err == nil {
+		t.Fatal("expected error for invalid limit")
+	}
+}
+
 func TestBuildResultClonesItems(t *testing.T) {
 	t.Parallel()
 

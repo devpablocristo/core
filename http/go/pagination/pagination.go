@@ -1,10 +1,10 @@
 package pagination
 
 import (
+	"errors"
 	"fmt"
+	"strconv"
 	"strings"
-
-	"github.com/devpablocristo/core/utils/go/intparse"
 )
 
 const (
@@ -69,7 +69,7 @@ func NormalizeLimit(limit int, config Config) int {
 // ParseParams normaliza `limit` y `cursor` desde strings HTTP.
 func ParseParams(rawLimit, rawCursor string, config Config) (Params, error) {
 	config = NormalizeConfig(config)
-	limit, err := intparse.ParsePositiveInt(strings.TrimSpace(rawLimit), config.DefaultLimit)
+	limit, err := parsePositiveInt(strings.TrimSpace(rawLimit), config.DefaultLimit)
 	if err != nil {
 		return Params{}, fmt.Errorf("parse pagination limit: %w", err)
 	}
@@ -87,4 +87,15 @@ func BuildResult[T any](items []T, hasMore bool, nextCursor string) Result[T] {
 		HasMore:    hasMore,
 		NextCursor: strings.TrimSpace(nextCursor),
 	}
+}
+
+func parsePositiveInt(raw string, defaultValue int) (int, error) {
+	if raw == "" {
+		return defaultValue, nil
+	}
+	value, err := strconv.Atoi(raw)
+	if err != nil || value <= 0 {
+		return 0, errors.New("invalid positive integer")
+	}
+	return value, nil
 }

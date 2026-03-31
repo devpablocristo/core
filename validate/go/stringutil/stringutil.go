@@ -1,4 +1,3 @@
-// Package stringutil provides common string manipulation utilities.
 package stringutil
 
 import (
@@ -16,7 +15,7 @@ func NormalizeString(input string) string {
 	clean := make([]rune, 0, len(input))
 	for _, r := range input {
 		if unicode.Is(unicode.Mn, r) {
-			continue // Skip combining marks (accents)
+			continue
 		}
 		if r >= 'a' && r <= 'z' {
 			clean = append(clean, r)
