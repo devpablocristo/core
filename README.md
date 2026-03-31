@@ -121,6 +121,12 @@ core/
 - [Reglas para agentes](AGENTS.md)
 - [Scripts](scripts/README.md)
 
+## Tooling y CI
+
+- El tooling TypeScript del repo queda fijado en `20.17.0` vía `.nvmrc`.
+- Los módulos TS versionados usan `package-lock.json` y los workflows ejecutan `npm ci` para pruebas/publicación reproducibles.
+- Hay `Dependabot` semanal para `github-actions`, `npm` y `pip` en las superficies publicadas del repo.
+
 ## Estado actual
 
 Este repo ya tiene:

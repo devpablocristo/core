@@ -18,5 +18,5 @@ fi
 for module in "${modules[@]}"; do
   rel="${module#${ROOT_DIR}/}"
   echo "==> testing ${rel}"
-  (cd "${module}" && npm install && npm run typecheck && npm test)
+  (cd "${module}" && npm ci --no-audit --no-fund && npm run typecheck && npm test)
 done
