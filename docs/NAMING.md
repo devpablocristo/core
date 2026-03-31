@@ -39,7 +39,6 @@ Dentro del directorio de lenguaje, el paquete se nombra por su función sin repe
 
 | Path | Paquete | Import |
 |------|---------|--------|
-| `ai/python/src/core_ai/` | `devpablocristo-core-ai` | `from core_ai import ...` |
 | `ai/python/src/runtime/` | `runtime` | `from runtime import ...` |
 | `http/python/src/httpserver/` | `devpablocristo-httpserver` | `from httpserver import ...` |
 | `ai/go/` | `package ai` | `import "github.com/.../ai/go"` |

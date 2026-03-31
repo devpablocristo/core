@@ -28,16 +28,15 @@ Implementación actual: `ai/python/`
 
 La implementación ya sigue una estructura Python/FastAPI estándar:
 
-- `src/core_ai/domain/`
-- `src/core_ai/providers/`
-- `src/core_ai/services/`
-- `src/core_ai/registry/`
-- `src/core_ai/config/`
-- `src/core_ai/api/`
-- `src/ai_core/` para compatibilidad con el paquete histórico
+- `src/runtime/domain/`
+- `src/runtime/providers/`
+- `src/runtime/services/`
+- `src/runtime/registry/`
+- `src/runtime/config/`
+- `src/runtime/api/`
 - middleware reusable de auth, rate limit y request context
 - `create_app()` para wiring FastAPI estándar
-- wrappers de compatibilidad en `types.py`, `orchestrator.py` y `provider_factory.py`
+- namespace único `runtime` para imports compartidos
 - `tests/`
 
 ## Estado

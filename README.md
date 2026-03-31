@@ -163,7 +163,7 @@ Este repo ya tiene:
 - `saas/go/`: `kernel/usecases/domain`, `identity`, `org`, `users`, `billing`, `admin`, `entitlement`, `tenant`, `usagemetering`, `middleware`, `handler/dto`, `repository/models` y contrato SaaS de notificaciones
 - `authn/go/`: parsing de credenciales, `jwks` y `oidc` reusable para autenticación backend
 - `authn/ts/`: storage namespaced de auth, eventos de logout, fetch auth, axios auth con refresh serializado y adapters frontend
-- `ai/python/`: `core_ai` con `domain`, `providers`, `services`, `registry`, `config`, `api`, middleware FastAPI, auth/rate-limit/logging/resilience y `ai_core` como paquete de compatibilidad histórica
+- `ai/python/`: paquete `runtime` como base compartida de AI con clients, contracts, completions, config, auth, rate-limit, observabilidad y wiring FastAPI reusable
 
 Estado clave:
 

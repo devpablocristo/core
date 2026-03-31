@@ -323,15 +323,15 @@ Componentes candidatos:
 
 Estado actual en `core`:
 
-- `core_ai.domain`
-- `core_ai.providers`
-- `core_ai.services`
-- `core_ai.registry`
-- `core_ai.config`
-- `core_ai.api`
+- `runtime.domain`
+- `runtime.providers`
+- `runtime.services`
+- `runtime.registry`
+- `runtime.config`
+- `runtime.api`
 - middleware FastAPI de auth, rate-limit y request context
 - app factory reusable
-- paquete `ai_core` y wrappers de compatibilidad en los imports históricos
+- paquete `runtime` como namespace único compartido
 - tests estándar con `unittest`
 
 Conclusión actual:

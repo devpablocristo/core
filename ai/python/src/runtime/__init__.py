@@ -4,6 +4,7 @@ from .api.app import create_app
 from .api.events import to_sse_event
 from .api.sse import EventSourceResponse
 from .clients.http_backend import HTTPBackendClient
+from .clients.review import ReviewClient, ReviewRequester
 from .completions import (
     CompletionSettings,
     GoogleAIStudioGenerateContentClient,
@@ -91,6 +92,8 @@ __all__ = [
     "estimate_tokens",
     "GoogleAIStudioGenerateContentClient",
     "HTTPBackendClient",
+    "ReviewClient",
+    "ReviewRequester",
     "JSONCompletionClient",
     "LLMBudgetExceededError",
     "LLMCompletion",
