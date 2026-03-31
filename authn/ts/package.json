@@ -18,7 +18,7 @@
   "dependencies": {
     "@devpablocristo/core-browser": "file:../../browser/ts",
     "@devpablocristo/core-http": "file:../../http/ts",
-    "axios": "^1.8.1"
+    "axios": "^1.14.0"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
