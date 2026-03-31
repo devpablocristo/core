@@ -123,7 +123,7 @@ core/
 
 ## Tooling y CI
 
-- El tooling TypeScript del repo queda fijado en `20.17.0` vía `.nvmrc`.
+- El tooling TypeScript del repo queda fijado en `20.19.0` vía `.nvmrc`.
 - Los módulos TS versionados usan `package-lock.json` y los workflows ejecutan `npm ci` para pruebas/publicación reproducibles.
 - Hay `Dependabot` semanal para `github-actions`, `npm` y `pip` en las superficies publicadas del repo.
 
