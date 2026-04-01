@@ -68,9 +68,22 @@ from httpserver.fastapi_bootstrap import (
 from .logging import configure_logging, bind_request_context, clear_request_context, get_logger, get_request_id, update_request_context
 from .providers.gemini import GeminiProvider
 
+# Chat se exporta pero no se importa eagerly para evitar cargar
+# el __init__ completo cuando solo se necesita runtime.chat.
 # Memory se exporta pero no se importa eagerly para evitar cargar
 # el __init__ completo cuando solo se necesita runtime.memory.
 def __getattr__(name: str):
+    _chat_names = (
+        "ChatRequest", "ChatResponse", "ChatAction", "ChatBlock",
+        "ChatTextBlock", "ChatActionsBlock", "ChatInsightCardBlock",
+        "ChatKpiGroupBlock", "ChatKpiItem", "ChatTableBlock", "InsightCardHighlight",
+        "StreamChatResult", "stream_orchestrated_chat",
+        "build_text_block", "build_actions_block", "build_insight_card_block",
+        "build_kpi_group_block", "build_table_block",
+    )
+    if name in _chat_names:
+        from . import chat as _chat
+        return getattr(_chat, name)
     if name in ("Conversation", "Turn", "MemoryStore", "build_context_window"):
         from .memory import Conversation, Turn, MemoryStore, build_context_window
         _mem = {"Conversation": Conversation, "Turn": Turn, "MemoryStore": MemoryStore, "build_context_window": build_context_window}
@@ -156,4 +169,23 @@ __all__ = [
     "Turn",
     "MemoryStore",
     "build_context_window",
+    # chat
+    "ChatRequest",
+    "ChatResponse",
+    "ChatAction",
+    "ChatBlock",
+    "ChatTextBlock",
+    "ChatActionsBlock",
+    "ChatInsightCardBlock",
+    "ChatKpiGroupBlock",
+    "ChatKpiItem",
+    "ChatTableBlock",
+    "InsightCardHighlight",
+    "StreamChatResult",
+    "stream_orchestrated_chat",
+    "build_text_block",
+    "build_actions_block",
+    "build_insight_card_block",
+    "build_kpi_group_block",
+    "build_table_block",
 ]

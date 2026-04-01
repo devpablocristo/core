@@ -1,12 +1,14 @@
 {
   "name": "@devpablocristo/core-browser",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
     "./storage": "./src/storage.ts",
-    "./crud": "./src/crud/index.ts"
+    "./crud": "./src/crud/index.ts",
+    "./search": "./src/search/index.ts",
+    "./trigram": "./src/trigram.ts"
   },
   "peerDependencies": {
     "react": "^18.0.0 || ^19.0.0",
