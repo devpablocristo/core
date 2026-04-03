@@ -11,6 +11,14 @@ import (
 	"github.com/devpablocristo/core/http/go/httperr"
 )
 
+// Sentinel errors reutilizables para handlers Gin de producto.
+var (
+	ErrNotFound  = domainerr.NotFound("not found")
+	ErrConflict  = domainerr.Conflict("conflict")
+	ErrForbidden = domainerr.Forbidden("forbidden")
+	ErrBadInput  = domainerr.Validation("bad input")
+)
+
 // --- Tipos de respuesta HTTP (inline, no sub-paquete dto/) ---
 
 // ErrorResponse es el envelope de error HTTP estándar para domain/app errors.
