@@ -3,7 +3,7 @@ module github.com/devpablocristo/core/governance/go
 go 1.26.1
 
 require (
-	github.com/devpablocristo/core/http/go v0.0.0
+	github.com/devpablocristo/core/http/go v0.1.0
 	github.com/google/cel-go v0.26.1
 )
 

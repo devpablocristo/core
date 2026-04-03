@@ -7,8 +7,8 @@ require (
 	github.com/devpablocristo/core/authz/go v0.1.0
 	github.com/devpablocristo/core/errors/go v0.1.0
 	github.com/devpablocristo/core/http/go v0.1.0
-	github.com/devpablocristo/core/observability/go v0.0.0
-	github.com/devpablocristo/core/security/go v0.0.0
+	github.com/devpablocristo/core/observability/go v0.1.0
+	github.com/devpablocristo/core/security/go v0.1.0
 	github.com/google/uuid v1.6.0
 	github.com/stripe/stripe-go/v81 v81.4.0
 	gorm.io/gorm v1.31.1
