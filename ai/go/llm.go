@@ -295,8 +295,9 @@ func echoReply(input string) string {
 // --- Factory ---
 
 // NewProvider crea el provider adecuado según configuración.
-// Providers: "anthropic"/"claude", "gemini"/"google_ai_studio", "echo" (default).
+// Providers: "anthropic"/"claude", "gemini"/"google_ai_studio", "ollama", "echo" (default).
 // Para Vertex AI usar NewVertexAI directamente (requiere tokenSource, no API key).
+// Para Ollama, apiKey se usa como baseURL (default: http://localhost:11434).
 func NewProvider(provider, apiKey, model string) Provider {
 	switch strings.ToLower(strings.TrimSpace(provider)) {
 	case "anthropic", "claude":
@@ -319,6 +320,13 @@ func NewProvider(provider, apiKey, model string) Provider {
 			opts = append(opts, WithGeminiModel(model))
 		}
 		return NewGemini(apiKey, opts...)
+	case "ollama":
+		baseURL := strings.TrimSpace(apiKey) // apiKey se reutiliza como baseURL para Ollama
+		opts := []OllamaOption{}
+		if model != "" {
+			opts = append(opts, WithOllamaModel(model))
+		}
+		return NewOllama(baseURL, opts...)
 	default:
 		return NewEcho()
 	}
