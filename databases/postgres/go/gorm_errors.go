@@ -4,7 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 
+	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/lib/pq"
 	"gorm.io/gorm"
 )
 
@@ -20,6 +23,29 @@ func HandleNotFound(err error, entity string, id any) error {
 // IsNotFound retorna true si el error es gorm.ErrRecordNotFound.
 func IsNotFound(err error) bool {
 	return errors.Is(err, gorm.ErrRecordNotFound)
+}
+
+// IsUniqueViolation detecta violaciones de constraint UNIQUE de PostgreSQL y
+// errores equivalentes normalizados por GORM.
+func IsUniqueViolation(err error) bool {
+	if err == nil {
+		return false
+	}
+	if errors.Is(err, gorm.ErrDuplicatedKey) {
+		return true
+	}
+	var pgErr *pgconn.PgError
+	if errors.As(err, &pgErr) {
+		return pgErr.Code == "23505"
+	}
+	var pqErr *pq.Error
+	if errors.As(err, &pqErr) {
+		return string(pqErr.Code) == "23505"
+	}
+	msg := strings.ToLower(err.Error())
+	return strings.Contains(msg, "23505") ||
+		strings.Contains(msg, "unique") ||
+		strings.Contains(msg, "duplicate")
 }
 
 type txContextKey struct{}
