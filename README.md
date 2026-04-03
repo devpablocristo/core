@@ -19,6 +19,7 @@ Este repo no contiene apps. Contiene módulos por capacidad.
 - `authz/`: autorización reusable por roles y scopes
 - `authn/`: autenticación reusable, tanto backend (`go`) como sesión/browser (`ts`)
 - `notifications/`: senders y transporte reusable para notificaciones
+- `scheduling/`: primitivas reutilizables de ventanas, slots y bloqueos temporales
 - `databases/`: adapters concretos de bases de datos
 - `providers/`: adapters concretos de proveedores externos
 - `eventing/`: envelopes y contratos de eventos asíncronos
@@ -80,6 +81,8 @@ core/
     ts/
   notifications/
     go/
+  scheduling/
+    go/
   databases/
     postgres/
       go/
@@ -134,7 +137,7 @@ Este repo ya tiene:
 - reglas para Claude, GPT/Codex y Cursor;
 - estructura raíz del monorepo;
 - documentación de fronteras y migración;
-- bootstrap real en `http/`, `observability/`, `config/`, `security/`, `validate/`, `errors/`, `utils/`, `concurrency/`, `databases/`, `providers/`, `eventing/`, `governance/`, `artifact/`, `webhook/`, `activity/`, `saas/`, `authz/`, `authn/`, `notifications/` y `ai/`;
+- bootstrap real en `http/`, `observability/`, `config/`, `security/`, `validate/`, `errors/`, `utils/`, `concurrency/`, `databases/`, `providers/`, `eventing/`, `governance/`, `artifact/`, `webhook/`, `activity/`, `saas/`, `authz/`, `authn/`, `notifications/`, `scheduling/` y `ai/`;
 - separación explícita por lenguaje en cada capacidad;
 - scripts de validación por módulo y workflow CI del monorepo.
 

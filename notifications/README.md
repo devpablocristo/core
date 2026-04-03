@@ -1,6 +1,6 @@
 # notifications
 
-Capacidad reusable para envío de notificaciones por email y adapters de transporte.
+Capacidad reusable para notificaciones por canal y para la bandeja in-app de avisos no-chat.
 
 Implementación actual: `notifications/go/`
 
@@ -10,12 +10,16 @@ Implementación actual: `notifications/go/`
 - adaptadores `noop`, `smtp` y `ses`
 - config reusable por env
 - bootstrap reusable de senders
+- inbox/bandeja in-app por tenant y destinatario (`go/inbox`)
+- metadata reusable para handoffs o contexto de UI
 
 ## No pertenece
 
 - preferencias de notificación de una app
 - plantillas/copy de producto
 - colas, workers o handlers específicos de un producto
+- approvals de un producto o de governance
+- UIs de producto
 
 ## Fuente inicial esperada
 

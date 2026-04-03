@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { SearchInput } from "../search";
 
 /**
  * Layout canónico de consola: cabecera (título + acciones), error, formulario,
@@ -11,7 +12,16 @@ export type CrudPageShellProps = {
   subtitle?: ReactNode;
   /** Bajo el título, columna izquierda (p. ej. filtros tipo píldora). */
   headerLeadSlot?: ReactNode;
-  /** Columna derecha de cabecera (p. ej. búsqueda + fila de botones); el tema aplica `.crud-page-shell__header-actions`. */
+  /** Buscador canónico del header. */
+  search?: {
+    value: string;
+    onChange: (value: string) => void;
+    placeholder?: string;
+    ariaLabel?: string;
+    inputClassName?: string;
+    clearLabel?: string;
+  };
+  /** Fila de acciones bajo el buscador compartido. */
   headerActions?: ReactNode;
   error?: ReactNode;
   /** Tarjeta de formulario alta/edición */
@@ -25,6 +35,7 @@ export function CrudPageShell({
   title,
   subtitle,
   headerLeadSlot,
+  search,
   headerActions,
   error,
   form,
@@ -41,8 +52,22 @@ export function CrudPageShell({
           ) : null}
           {headerLeadSlot != null ? headerLeadSlot : null}
         </div>
-        {headerActions != null ? (
-          <div className="crud-page-shell__header-actions">{headerActions}</div>
+        {search != null || headerActions != null ? (
+          <div className="crud-page-shell__header-actions">
+            {search != null ? (
+              <div className="crud-list-header-search">
+                <SearchInput
+                  value={search.value}
+                  onChange={search.onChange}
+                  placeholder={search.placeholder ?? "Buscar..."}
+                  ariaLabel={search.ariaLabel}
+                  inputClassName={search.inputClassName}
+                  clearLabel={search.clearLabel}
+                />
+              </div>
+            ) : null}
+            {headerActions != null ? <div className="actions-row">{headerActions}</div> : null}
+          </div>
         ) : null}
       </div>
       {error}

@@ -1,3 +1,4 @@
 export * from "./mergeRecords";
 export * from "./storage";
-export * from "./trigram";
+export * from "./search";
+export * from "./confirm";
