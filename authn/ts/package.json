@@ -1,10 +1,11 @@
 {
   "name": "@devpablocristo/core-authn",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
+    "./errors": "./src/errors.ts",
     "./browser/events": "./src/browser/events.ts",
     "./browser/storage": "./src/browser/storage.ts",
     "./http/fetch": "./src/http/fetch.ts",
