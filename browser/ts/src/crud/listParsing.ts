@@ -1,6 +1,14 @@
 type ListEnvelope<T> = {
   items?: T[] | null | unknown;
   data?: unknown;
+  has_more?: boolean;
+  next_cursor?: string;
+};
+
+export type PaginatedList<T> = {
+  items: T[];
+  hasMore: boolean;
+  nextCursor: string;
 };
 
 /**
@@ -36,4 +44,19 @@ export function parseListItemsFromResponse<T>(input: unknown): T[] {
   }
 
   return [];
+}
+
+/**
+ * Como `parseListItemsFromResponse` pero conserva `has_more` y `next_cursor` del backend.
+ */
+export function parsePaginatedResponse<T>(input: unknown): PaginatedList<T> {
+  const items = parseListItemsFromResponse<T>(input);
+  let hasMore = false;
+  let nextCursor = "";
+  if (input != null && typeof input === "object" && !Array.isArray(input)) {
+    const envelope = input as ListEnvelope<T>;
+    hasMore = Boolean(envelope.has_more);
+    nextCursor = String(envelope.next_cursor ?? "");
+  }
+  return { items, hasMore, nextCursor };
 }
