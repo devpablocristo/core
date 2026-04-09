@@ -84,9 +84,48 @@ def __getattr__(name: str):
     if name in _chat_names:
         from . import chat as _chat
         return getattr(_chat, name)
-    if name in ("Conversation", "Turn", "MemoryStore", "build_context_window"):
-        from .memory import Conversation, Turn, MemoryStore, build_context_window
-        _mem = {"Conversation": Conversation, "Turn": Turn, "MemoryStore": MemoryStore, "build_context_window": build_context_window}
+    if name in (
+        "Conversation",
+        "Turn",
+        "MemoryStore",
+        "build_context_window",
+        "ensure_operational_memory",
+        "capture_operational_turn",
+        "consolidate_operational_memory",
+        "build_operational_memory_view",
+        "normalize_memory_text",
+        "append_unique_list",
+        "upsert_memory_fact",
+        "remove_resolved_open_loops",
+    ):
+        from .memory import (
+            Conversation,
+            Turn,
+            MemoryStore,
+            append_unique_list,
+            build_context_window,
+            build_operational_memory_view,
+            capture_operational_turn,
+            consolidate_operational_memory,
+            ensure_operational_memory,
+            normalize_memory_text,
+            remove_resolved_open_loops,
+            upsert_memory_fact,
+        )
+        _mem = {
+            "Conversation": Conversation,
+            "Turn": Turn,
+            "MemoryStore": MemoryStore,
+            "build_context_window": build_context_window,
+            "ensure_operational_memory": ensure_operational_memory,
+            "capture_operational_turn": capture_operational_turn,
+            "consolidate_operational_memory": consolidate_operational_memory,
+            "build_operational_memory_view": build_operational_memory_view,
+            "normalize_memory_text": normalize_memory_text,
+            "append_unique_list": append_unique_list,
+            "upsert_memory_fact": upsert_memory_fact,
+            "remove_resolved_open_loops": remove_resolved_open_loops,
+        }
         return _mem[name]
     raise AttributeError(f"module 'runtime' has no attribute {name!r}")
 
@@ -169,6 +208,14 @@ __all__ = [
     "Turn",
     "MemoryStore",
     "build_context_window",
+    "ensure_operational_memory",
+    "capture_operational_turn",
+    "consolidate_operational_memory",
+    "build_operational_memory_view",
+    "normalize_memory_text",
+    "append_unique_list",
+    "upsert_memory_fact",
+    "remove_resolved_open_loops",
     # chat
     "ChatRequest",
     "ChatResponse",
