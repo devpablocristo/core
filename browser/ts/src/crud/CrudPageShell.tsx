@@ -10,11 +10,6 @@ import { SearchInput } from "../search";
 export type CrudPageShellProps = {
   title: ReactNode;
   subtitle?: ReactNode;
-  /**
-   * Columna izquierda, **encima** del título (p. ej. toggle tabla/galería en productos).
-   * Preferible a hacks de orden CSS: el DOM refleja la jerarquía visual.
-   */
-  headerBeforeTitleSlot?: ReactNode;
   /** Bajo el subtítulo, columna izquierda (p. ej. filtros tipo píldora). */
   headerLeadSlot?: ReactNode;
   /** Buscador canónico del header. */
@@ -39,7 +34,6 @@ export type CrudPageShellProps = {
 export function CrudPageShell({
   title,
   subtitle,
-  headerBeforeTitleSlot,
   headerLeadSlot,
   search,
   headerActions,
@@ -52,7 +46,6 @@ export function CrudPageShell({
     <>
       <div className="page-header crud-page-shell__header">
         <div className="crud-page-shell__header-main">
-          {headerBeforeTitleSlot != null ? headerBeforeTitleSlot : null}
           <h1 className="crud-page-shell__title">{title}</h1>
           {subtitle != null && subtitle !== false ? (
             <p className="text-secondary">{subtitle}</p>

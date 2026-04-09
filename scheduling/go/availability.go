@@ -36,9 +36,15 @@ type Slot struct {
 	GranularityMinutes int
 }
 
-// ParseClock parses a HH:MM clock string.
+// ParseClock parses a clock string in HH:MM or HH:MM:SS form.
+// Both shapes appear in the wild: domain code stores "HH:MM" while Postgres
+// `time` columns are read by GORM as "HH:MM:SS".
 func ParseClock(raw string) (time.Time, error) {
-	return time.Parse("15:04", strings.TrimSpace(raw))
+	raw = strings.TrimSpace(raw)
+	if t, err := time.Parse("15:04:05", raw); err == nil {
+		return t, nil
+	}
+	return time.Parse("15:04", raw)
 }
 
 // IntersectWindows intersects base windows with overlay windows.
