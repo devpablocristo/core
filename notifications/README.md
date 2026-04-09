@@ -11,6 +11,7 @@ Implementación actual: `notifications/go/`
 - config reusable por env
 - bootstrap reusable de senders
 - inbox/bandeja in-app por tenant y destinatario (`go/inbox`)
+- lifecycle reusable de insight/event candidates persistidos (`go/candidates`)
 - metadata reusable para handoffs o contexto de UI
 
 ## No pertenece
