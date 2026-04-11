@@ -189,6 +189,36 @@ func (c *Client) QueryJSON(ctx context.Context, input *dynamodb.QueryInput, out 
 	return nil
 }
 
+// QueryJSONAll ejecuta la misma query que QueryJSON pero sigue LastEvaluatedKey hasta agotar resultados.
+func (c *Client) QueryJSONAll(ctx context.Context, input *dynamodb.QueryInput, out any) error {
+	if c == nil || c.api == nil {
+		return fmt.Errorf("dynamodb client is nil")
+	}
+	if input == nil {
+		return fmt.Errorf("dynamodb query input is required")
+	}
+	qi := *input
+	if qi.TableName == nil || strings.TrimSpace(awssdk.ToString(qi.TableName)) == "" {
+		qi.TableName = awssdk.String(c.table)
+	}
+	var allItems []map[string]types.AttributeValue
+	for {
+		outPage, err := c.api.Query(ctx, &qi)
+		if err != nil {
+			return fmt.Errorf("query dynamodb items: %w", err)
+		}
+		allItems = append(allItems, outPage.Items...)
+		if len(outPage.LastEvaluatedKey) == 0 {
+			break
+		}
+		qi.ExclusiveStartKey = outPage.LastEvaluatedKey
+	}
+	if err := attributevalue.UnmarshalListOfMaps(allItems, out); err != nil {
+		return fmt.Errorf("unmarshal dynamodb items: %w", err)
+	}
+	return nil
+}
+
 // Health verifica acceso básico al servicio DynamoDB.
 func (c *Client) Health(ctx context.Context) error {
 	if c == nil || c.api == nil {

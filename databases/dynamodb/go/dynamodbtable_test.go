@@ -124,6 +124,63 @@ func TestMarshalShape(t *testing.T) {
 	}
 }
 
+type fakePagingAPI struct {
+	fakeItemAPI
+	pages []dynamodb.QueryOutput
+	idx   int
+}
+
+func (f *fakePagingAPI) Query(_ context.Context, _ *dynamodb.QueryInput, _ ...func(*dynamodb.Options)) (*dynamodb.QueryOutput, error) {
+	if f.idx >= len(f.pages) {
+		return &dynamodb.QueryOutput{}, nil
+	}
+	out := f.pages[f.idx]
+	f.idx++
+	return &out, nil
+}
+
+func TestQueryJSONAll_Paginates(t *testing.T) {
+	t.Parallel()
+
+	pk := "asset-1"
+	item1, err := attributevalue.MarshalMap(struct {
+		AssetID string `dynamodbav:"assetId"`
+		SK      string `dynamodbav:"sk"`
+	}{AssetID: pk, SK: "ART#001#a"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	item2, err := attributevalue.MarshalMap(struct {
+		AssetID string `dynamodbav:"assetId"`
+		SK      string `dynamodbav:"sk"`
+	}{AssetID: pk, SK: "ART#002#b"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	lek := map[string]types.AttributeValue{
+		"assetId": &types.AttributeValueMemberS{Value: pk},
+		"sk":      &types.AttributeValueMemberS{Value: "ART#001#a"},
+	}
+	api := &fakePagingAPI{
+		pages: []dynamodb.QueryOutput{
+			{Items: []map[string]types.AttributeValue{item1}, LastEvaluatedKey: lek},
+			{Items: []map[string]types.AttributeValue{item2}},
+		},
+	}
+	client := NewWithAPI(api, "artifacts")
+
+	var out []struct {
+		AssetID string `dynamodbav:"assetId"`
+		SK      string `dynamodbav:"sk"`
+	}
+	if err := client.QueryJSONAll(context.Background(), &dynamodb.QueryInput{}, &out); err != nil {
+		t.Fatal(err)
+	}
+	if len(out) != 2 || out[0].SK != "ART#001#a" || out[1].SK != "ART#002#b" {
+		t.Fatalf("%+v", out)
+	}
+}
+
 func TestDeleteQueryAndHealth(t *testing.T) {
 	t.Parallel()
 
