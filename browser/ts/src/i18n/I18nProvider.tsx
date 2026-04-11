@@ -1,6 +1,8 @@
 /* eslint-disable react-refresh/only-export-components -- provider + hook en mismo archivo */
 import { createContext, useContext, useEffect, useMemo, useState, type PropsWithChildren } from 'react';
 import { createBrowserStorageNamespace } from '../storage';
+import { formatMessage } from './formatMessage';
+import { localeTagForLanguage } from './localeTag';
 import { toSentenceCase } from './sentenceCase';
 import type { FlatMessages, LanguageCode, TranslationVariables, TranslationsByLanguage } from './types';
 
@@ -11,6 +13,8 @@ export type I18nConfig = {
   storageKey?: string;
   /** Idioma default (default: 'es') */
   defaultLanguage?: LanguageCode;
+  /** Claves absolutas en localStorage (sin namespace) a leer una vez y migrar al storage con namespace */
+  legacyLanguageKeys?: string[];
   /** Idiomas soportados con label keys */
   supportedLanguages?: Array<{ code: LanguageCode; labelKey: string }>;
   /** Mensajes agrupados por idioma */
@@ -28,11 +32,6 @@ export type I18nContextValue = {
   localizeUiText: (text: string) => string;
   options: Array<{ code: LanguageCode; labelKey: string }>;
 };
-
-function interpolate(template: string, variables?: TranslationVariables): string {
-  if (!variables) return template;
-  return template.replace(/\{(\w+)\}/g, (_match, key: string) => String(variables[key] ?? ''));
-}
 
 /**
  * Merge de múltiples fuentes de traducciones.
@@ -60,12 +59,23 @@ export function createI18nProvider(config: I18nConfig) {
   const localizeText = config.localizeText ?? identity;
 
   function getMessage(language: LanguageCode, key: string, variables?: TranslationVariables): string {
-    const template = config.messages[language]?.[key] ?? config.messages[defaultLanguage]?.[key] ?? key;
-    return interpolate(template, variables);
+    return formatMessage(config.messages, language, defaultLanguage, key, variables);
   }
 
   function readStoredLanguage(): LanguageCode {
     if (typeof window === 'undefined') return defaultLanguage;
+    for (const legacyKey of config.legacyLanguageKeys ?? []) {
+      try {
+        const raw = window.localStorage.getItem(legacyKey);
+        if (raw === 'en' || raw === 'es') {
+          window.localStorage.removeItem(legacyKey);
+          storage.setString(storageKey, raw);
+          return raw;
+        }
+      } catch {
+        /* private mode */
+      }
+    }
     const stored = storage.getString(storageKey);
     return stored === 'en' || stored === 'es' ? stored : defaultLanguage;
   }
@@ -73,7 +83,7 @@ export function createI18nProvider(config: I18nConfig) {
   const defaultContext: I18nContextValue = {
     language: defaultLanguage,
     setLanguage: () => undefined,
-    t: (key, variables) => getMessage(defaultLanguage, key, variables),
+    t: (key, variables) => formatMessage(config.messages, defaultLanguage, defaultLanguage, key, variables),
     localizeText,
     sentenceCase: toSentenceCase,
     localizeUiText: (text) => toSentenceCase(localizeText(text)),
@@ -88,7 +98,7 @@ export function createI18nProvider(config: I18nConfig) {
     useEffect(() => {
       storage.setString(storageKey, language);
       if (typeof document !== 'undefined') {
-        document.documentElement.lang = language;
+        document.documentElement.lang = localeTagForLanguage(language);
       }
     }, [language]);
 
