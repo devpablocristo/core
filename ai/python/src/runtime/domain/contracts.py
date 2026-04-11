@@ -91,3 +91,43 @@ class AIRequestContext:
     output_kind: str | None = None
     policy_profile: str | None = None
     policy_version: str | None = None
+
+
+@dataclass(frozen=True)
+class NotificationChatHandoff:
+    notification_id: str | None = None
+    title: str | None = None
+    body: str | None = None
+    scope: str | None = None
+    routed_agent: str | None = None
+    content_language: str | None = None
+    suggested_user_message: str | None = None
+    source_notification_kind: str | None = None
+    entity_type: str | None = None
+    entity_id: str | None = None
+
+
+def normalize_notification_chat_handoff(
+    payload: dict[str, object] | None,
+) -> NotificationChatHandoff:
+    payload = payload or {}
+
+    def _clean(key: str) -> str | None:
+        value = payload.get(key)
+        if value is None:
+            return None
+        text = str(value).strip()
+        return text or None
+
+    return NotificationChatHandoff(
+        notification_id=_clean("notification_id"),
+        title=_clean("title"),
+        body=_clean("body"),
+        scope=_clean("scope"),
+        routed_agent=_clean("routed_agent"),
+        content_language=normalize_language_code(_clean("content_language")),
+        suggested_user_message=_clean("suggested_user_message"),
+        source_notification_kind=_clean("source_notification_kind") or _clean("kind"),
+        entity_type=_clean("entity_type"),
+        entity_id=_clean("entity_id"),
+    )

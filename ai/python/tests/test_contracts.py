@@ -1,11 +1,13 @@
 from runtime import (
     AIRequestContext,
+    NotificationChatHandoff,
     OUTPUT_KIND_COPILOT_EXPLANATION,
     OUTPUT_KIND_INSIGHT_SUMMARY,
     ROUTING_SOURCE_COPILOT_AGENT,
     ROUTING_SOURCE_ORCHESTRATOR,
     SERVICE_KIND_INSIGHT,
     is_known_routing_source,
+    normalize_notification_chat_handoff,
     normalize_routing_source,
 )
 
@@ -40,3 +42,27 @@ def test_ai_request_context_keeps_shared_surface_metadata() -> None:
     assert service_context.request_id == "req-456"
     assert service_context.service_kind == SERVICE_KIND_INSIGHT
     assert service_context.output_kind == OUTPUT_KIND_INSIGHT_SUMMARY
+
+
+def test_normalize_notification_chat_handoff_keeps_canonical_fields() -> None:
+    handoff = normalize_notification_chat_handoff(
+        {
+            "notification_id": "notif-1",
+            "title": "Costo alto",
+            "body": "Se detecto un desvio",
+            "scope": "cost_overrun",
+            "routed_agent": "copilot",
+            "content_language": "ES",
+            "suggested_user_message": "Explicame este insight",
+            "kind": "insight",
+            "entity_type": "insight",
+            "entity_id": "ins-9",
+        }
+    )
+
+    assert isinstance(handoff, NotificationChatHandoff)
+    assert handoff.notification_id == "notif-1"
+    assert handoff.routed_agent == "copilot"
+    assert handoff.content_language == "es"
+    assert handoff.source_notification_kind == "insight"
+    assert handoff.entity_id == "ins-9"

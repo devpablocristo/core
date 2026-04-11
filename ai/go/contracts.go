@@ -104,3 +104,30 @@ type RequestContext struct {
 	PolicyProfile     string `json:"policy_profile,omitempty"`
 	PolicyVersion     string `json:"policy_version,omitempty"`
 }
+
+type NotificationChatHandoff struct {
+	NotificationID         string `json:"notification_id,omitempty"`
+	Title                  string `json:"title,omitempty"`
+	Body                   string `json:"body,omitempty"`
+	Scope                  string `json:"scope,omitempty"`
+	RoutedAgent            string `json:"routed_agent,omitempty"`
+	ContentLanguage        string `json:"content_language,omitempty"`
+	SuggestedUserMessage   string `json:"suggested_user_message,omitempty"`
+	SourceNotificationKind string `json:"source_notification_kind,omitempty"`
+	EntityType             string `json:"entity_type,omitempty"`
+	EntityID               string `json:"entity_id,omitempty"`
+}
+
+func NormalizeNotificationChatHandoff(h NotificationChatHandoff) NotificationChatHandoff {
+	h.NotificationID = strings.TrimSpace(h.NotificationID)
+	h.Title = strings.TrimSpace(h.Title)
+	h.Body = strings.TrimSpace(h.Body)
+	h.Scope = strings.TrimSpace(h.Scope)
+	h.RoutedAgent = strings.TrimSpace(h.RoutedAgent)
+	h.ContentLanguage = NormalizeLanguageCode(h.ContentLanguage)
+	h.SuggestedUserMessage = strings.TrimSpace(h.SuggestedUserMessage)
+	h.SourceNotificationKind = strings.TrimSpace(h.SourceNotificationKind)
+	h.EntityType = strings.TrimSpace(h.EntityType)
+	h.EntityID = strings.TrimSpace(h.EntityID)
+	return h
+}

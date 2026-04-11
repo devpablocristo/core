@@ -43,3 +43,31 @@ func TestRequestContextCarriesSharedSurfaceMetadata(t *testing.T) {
 		t.Fatalf("unexpected service output kind %q", serviceCtx.OutputKind)
 	}
 }
+
+func TestNormalizeNotificationChatHandoff(t *testing.T) {
+	h := NormalizeNotificationChatHandoff(NotificationChatHandoff{
+		NotificationID:         " notif-1 ",
+		Title:                  " Costo alto ",
+		Body:                   " Se detecto un desvio ",
+		Scope:                  " cost_overrun ",
+		RoutedAgent:            " copilot ",
+		ContentLanguage:        "ES",
+		SuggestedUserMessage:   " Explicame este insight ",
+		SourceNotificationKind: " insight ",
+		EntityType:             " insight ",
+		EntityID:               " ins-9 ",
+	})
+
+	if h.NotificationID != "notif-1" {
+		t.Fatalf("unexpected notification id %q", h.NotificationID)
+	}
+	if h.RoutedAgent != "copilot" {
+		t.Fatalf("unexpected routed agent %q", h.RoutedAgent)
+	}
+	if h.ContentLanguage != LanguageCodeES {
+		t.Fatalf("unexpected content language %q", h.ContentLanguage)
+	}
+	if h.SourceNotificationKind != "insight" {
+		t.Fatalf("unexpected source notification kind %q", h.SourceNotificationKind)
+	}
+}

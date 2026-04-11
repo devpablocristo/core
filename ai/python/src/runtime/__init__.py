@@ -36,6 +36,7 @@ from .domain.contracts import (
     OUTPUT_KIND_INSIGHT_SUMMARY,
     OUTPUT_KIND_INTELLIGENCE_REPORT,
     OUTPUT_KIND_LLM_ARTIFACT,
+    NotificationChatHandoff,
     ROUTING_SOURCE_COPILOT_AGENT,
     ROUTING_SOURCE_ORCHESTRATOR,
     ROUTING_SOURCE_READ_FALLBACK,
@@ -46,6 +47,7 @@ from .domain.contracts import (
     SERVICE_KIND_SYNTHESIS,
     is_known_routing_source,
     normalize_language_code,
+    normalize_notification_chat_handoff,
     normalize_routing_source,
 )
 from .domain.agent import AgentRegistry, AgentRegistryError, SubAgent, SubAgentDescriptor
@@ -173,6 +175,7 @@ __all__ = [
     "AgentRegistry",
     "AgentRegistryError",
     "AIRequestContext",
+    "NotificationChatHandoff",
     "ALL_LANGUAGE_CODES",
     "ALL_OUTPUT_KINDS",
     "ALL_ROUTING_SOURCES",
@@ -183,6 +186,7 @@ __all__ = [
     "GENERAL_AGENT",
     "is_known_routing_source",
     "normalize_language_code",
+    "normalize_notification_chat_handoff",
     "normalize_routing_source",
     "LANGUAGE_CODE_EN",
     "LANGUAGE_CODE_ES",
