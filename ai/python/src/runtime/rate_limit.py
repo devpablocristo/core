@@ -13,7 +13,7 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 from starlette.types import ASGIApp
 
-from httpserver.errors import error_payload
+from runtime.http_errors import error_payload
 
 _MAX_TRACKED_KEYS = 100_000
 

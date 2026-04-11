@@ -12,7 +12,7 @@ from starlette.responses import JSONResponse, Response
 from starlette.types import ASGIApp
 
 from runtime.contexts import AuthContext
-from httpserver.errors import error_payload
+from runtime.http_errors import error_payload
 from runtime.logging import update_request_context as default_update_request_context
 
 

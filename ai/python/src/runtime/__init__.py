@@ -1,6 +1,9 @@
 """Reusable AI runtime primitives."""
 
-from .api.app import create_app
+from __future__ import annotations
+
+from typing import Any
+
 from .api.events import to_sse_event
 from .api.sse import EventSourceResponse
 from .clients.http_backend import HTTPBackendClient
@@ -55,18 +58,10 @@ from .services.agent_router import GENERAL_AGENT, route as route_to_agent
 from .services.multi_agent_orchestrator import run_routed_agent
 from .observability.otel import configure_opentelemetry
 from .provider_factory import ProviderFactory, ProviderFactoryError, create_provider
-from .rate_limit import RateLimitMiddleware, RateLimitSettings
 from .resilience import CircuitBreaker, CircuitBreakerOpenError, CircuitBreakerState
 from .text import estimate_tokens
 from .types import ChatChunk, EchoProvider, Message, ToolCall, ToolDeclaration, Usage
-from .auth import AuthMiddleware, AuthSettings
 from .contexts import AuthContext
-from httpserver.errors import AppError, error_payload
-from httpserver.fastapi_bootstrap import (
-    apply_permissive_cors,
-    install_request_context_middleware,
-    register_common_exception_handlers,
-)
 from .logging import configure_logging, bind_request_context, clear_request_context, get_logger, get_request_id, update_request_context
 from .providers.gemini import GeminiProvider
 
@@ -74,7 +69,41 @@ from .providers.gemini import GeminiProvider
 # el __init__ completo cuando solo se necesita runtime.chat.
 # Memory se exporta pero no se importa eagerly para evitar cargar
 # el __init__ completo cuando solo se necesita runtime.memory.
-def __getattr__(name: str):
+def __getattr__(name: str) -> Any:
+    """Importación diferida de componentes que arrastran httpserver/FastAPI."""
+    if name == "create_app":
+        from .api.app import create_app
+
+        return create_app
+    if name in ("RateLimitMiddleware", "RateLimitSettings"):
+        from .rate_limit import RateLimitMiddleware, RateLimitSettings
+
+        return RateLimitMiddleware if name == "RateLimitMiddleware" else RateLimitSettings
+    if name in ("AuthMiddleware", "AuthSettings"):
+        from .auth import AuthMiddleware, AuthSettings
+
+        return AuthMiddleware if name == "AuthMiddleware" else AuthSettings
+    if name == "AppError":
+        from httpserver.errors import AppError
+
+        return AppError
+    if name == "error_payload":
+        from httpserver.errors import error_payload
+
+        return error_payload
+    if name == "apply_permissive_cors":
+        from httpserver.fastapi_bootstrap import apply_permissive_cors
+
+        return apply_permissive_cors
+    if name == "install_request_context_middleware":
+        from httpserver.fastapi_bootstrap import install_request_context_middleware
+
+        return install_request_context_middleware
+    if name == "register_common_exception_handlers":
+        from httpserver.fastapi_bootstrap import register_common_exception_handlers
+
+        return register_common_exception_handlers
+
     _chat_names = (
         "ChatRequest", "ChatResponse", "ChatAction", "ChatBlock",
         "ChatTextBlock", "ChatActionsBlock", "ChatInsightCardBlock",
