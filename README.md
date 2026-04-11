@@ -25,6 +25,7 @@ Este repo no contiene apps. Contiene módulos por capacidad.
 - `eventing/`: envelopes y contratos de eventos asíncronos
 - `governance/`: policies, risk, approvals, evidence y state machines
 - `artifact/`: PDF, Excel, CSV, QR, exports y report generation
+- `ingestion/`: contrato HTTP agnóstico al dominio para normalización/extracción multimodal (DTOs, cliente `POST /v1/extract`, helpers de ensamblado)
 - `webhook/`: outbound delivery, firma HMAC, retries y replay
 - `activity/`: audit trail append-only, timeline y exports
 - `ai/`: runtime y helpers AI reutilizables
@@ -104,6 +105,8 @@ core/
   artifact/
     go/
     rust/
+  ingestion/
+    go/
   webhook/
     go/
   activity/
