@@ -304,6 +304,56 @@ class GoogleAIStudioGenerateContentClient(JSONCompletionClient):
         return LLMCompletion(provider="google_ai_studio", model=self.model, content=content, raw=data)
 
 
+class VertexGenerateContentClient(JSONCompletionClient):
+    def __init__(self, settings: CompletionSettings, *, logger_name: str = "runtime.llm") -> None:
+        super().__init__(settings, logger_name=logger_name)
+        project = str(getattr(settings, "llm_project", "") or "").strip()
+        if not project:
+            raise ValueError("LLM_PROJECT is required for LLM_PROVIDER=vertex")
+        location = str(getattr(settings, "llm_location", "") or "us-central1").strip() or "us-central1"
+        self.project = project
+        self.location = location
+
+    def complete_json(self, *, system_prompt: str, user_prompt: str) -> LLMCompletion:
+        retrying = self._retrying()
+        for attempt in retrying:
+            with attempt:
+                return self._complete_json_once(system_prompt=system_prompt, user_prompt=user_prompt)
+        raise LLMError("LLM response could not be obtained after retries")
+
+    def _complete_json_once(self, *, system_prompt: str, user_prompt: str) -> LLMCompletion:
+        from google import genai
+        from google.genai import types
+
+        self._enforce_limits(system_prompt=system_prompt, user_prompt=user_prompt)
+        self._log_request(provider="vertex", system_prompt=system_prompt, user_prompt=user_prompt)
+
+        try:
+            client = genai.Client(vertexai=True, project=self.project, location=self.location)
+            config = types.GenerateContentConfig(
+                temperature=0,
+                max_output_tokens=int(getattr(self.settings, "llm_max_output_tokens", 700)),
+                response_mime_type="application/json",
+                system_instruction=system_prompt,
+            )
+            response = client.models.generate_content(
+                model=self.model,
+                contents=user_prompt,
+                config=config,
+            )
+        except HANDLED_LLM_TRANSPORT_ERRORS as exc:
+            raise LLMError(f"LLM error: {exc}") from exc
+        except Exception as exc:  # noqa: BLE001
+            raise LLMError(f"LLM error: {exc}") from exc
+
+        content = (getattr(response, "text", "") or "").strip()
+        if not content:
+            raise LLMError("Invalid LLM response: empty content")
+
+        raw = getattr(response, "model_dump", lambda: {})() if hasattr(response, "model_dump") else {}
+        return LLMCompletion(provider="vertex", model=self.model, content=content, raw=raw)
+
+
 class OllamaChatClient(JSONCompletionClient):
     def __init__(self, settings: CompletionSettings, *, logger_name: str = "runtime.llm") -> None:
         super().__init__(settings, logger_name=logger_name)
@@ -364,6 +414,8 @@ def build_llm_client(settings: CompletionSettings, *, logger_name: str = "runtim
         return OpenAIChatCompletionsClient(settings, logger_name=logger_name)
     if provider in {"google", "google_ai_studio", "gemini"}:
         return GoogleAIStudioGenerateContentClient(settings, logger_name=logger_name)
+    if provider in {"vertex", "vertex_ai"}:
+        return VertexGenerateContentClient(settings, logger_name=logger_name)
     if provider == "ollama":
         return OllamaChatClient(settings, logger_name=logger_name)
     raise ValueError(f"Unsupported LLM_PROVIDER: {getattr(settings, 'llm_provider', '')}")
