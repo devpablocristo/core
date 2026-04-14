@@ -22,13 +22,25 @@ class GeminiProvider:
 
     def __init__(
         self,
-        api_key: str,
+        api_key: str | None = None,
         model: str = "gemini-2.0-flash",
         circuit_breaker: CircuitBreaker | None = None,
         max_retries: int = 3,
         retry_base_delay_seconds: float = 0.2,
+        *,
+        vertex_project: str | None = None,
+        vertex_location: str | None = None,
     ) -> None:
-        self.client = genai.Client(api_key=api_key)
+        if vertex_project:
+            self.client = genai.Client(
+                vertexai=True,
+                project=vertex_project,
+                location=vertex_location or "us-central1",
+            )
+        else:
+            if not api_key:
+                raise ValueError("GeminiProvider requires api_key or vertex_project")
+            self.client = genai.Client(api_key=api_key)
         self.model = model
         self.circuit_breaker = circuit_breaker or CircuitBreaker()
         self._max_retries = max_retries
