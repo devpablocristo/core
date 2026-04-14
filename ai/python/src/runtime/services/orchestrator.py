@@ -59,7 +59,12 @@ async def orchestrate(
 
         for tool_call in pending_tool_calls:
             tool_calls_count += 1
-            handler = tool_handlers.get(tool_call.name)
+            # Gemini/Vertex a veces prefija el nombre de la tool con `default_api.`.
+            resolved_name = tool_call.name
+            handler = tool_handlers.get(resolved_name)
+            if handler is None and "." in resolved_name:
+                resolved_name = resolved_name.rsplit(".", 1)[-1]
+                handler = tool_handlers.get(resolved_name)
             yield ChatChunk(type="tool_call", tool_call=tool_call)
 
             if handler is None:
