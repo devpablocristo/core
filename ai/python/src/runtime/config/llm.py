@@ -7,11 +7,13 @@ DEFAULT_MODELS: dict[str, str] = {
     "google": "gemini-flash-latest",
     "google_ai_studio": "gemini-flash-latest",
     "gemini": "gemini-flash-latest",
+    "vertex": "gemini-2.0-flash",
+    "vertex_ai": "gemini-2.0-flash",
     "ollama": "llama3.1",
     "openai": "gpt-4o-mini",
 }
 
-PROVIDERS_WITHOUT_API_KEY = frozenset({"stub", "ollama"})
+PROVIDERS_WITHOUT_API_KEY = frozenset({"stub", "ollama", "vertex", "vertex_ai"})
 
 
 def normalize_provider(provider: str | None) -> str:
