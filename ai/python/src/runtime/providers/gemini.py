@@ -165,7 +165,25 @@ class GeminiProvider:
 
     def _to_gemini_messages(self, messages: list[Message]) -> list[types.Content]:
         converted: list[types.Content] = []
+        pending_tool_parts: list[types.Part] = []
+
+        def flush_tools() -> None:
+            if pending_tool_parts:
+                converted.append(types.Content(role="user", parts=list(pending_tool_parts)))
+                pending_tool_parts.clear()
+
         for message in messages:
+            if message.role == "tool":
+                pending_tool_parts.append(
+                    types.Part.from_function_response(
+                        name=message.tool_call_id or "unknown",
+                        response={"result": message.content},
+                    )
+                )
+                continue
+
+            flush_tools()
+
             if message.role == "assistant":
                 parts: list[types.Part] = []
                 if message.content:
@@ -180,18 +198,6 @@ class GeminiProvider:
                         )
                 if parts:
                     converted.append(types.Content(role="model", parts=parts))
-            elif message.role == "tool":
-                converted.append(
-                    types.Content(
-                        role="user",
-                        parts=[
-                            types.Part.from_function_response(
-                                name=message.tool_call_id or "unknown",
-                                response={"result": message.content},
-                            )
-                        ],
-                    )
-                )
             else:
                 converted.append(
                     types.Content(
@@ -199,6 +205,8 @@ class GeminiProvider:
                         parts=[types.Part.from_text(text=message.content or "")],
                     )
                 )
+
+        flush_tools()
         return converted
 
     def _to_gemini_tool(self, tool: ToolDeclaration) -> types.FunctionDeclaration:

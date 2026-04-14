@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "devpablocristo-core-ai"
-version = "0.8.0"
+version = "0.8.1"
 description = "Reusable AI runtime primitives: provider protocol, messages, orchestration, provider registry and operational memory"
 readme = "README.md"
 requires-python = ">=3.12"
