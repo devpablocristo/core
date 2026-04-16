@@ -19,7 +19,7 @@
   "dependencies": {
     "@devpablocristo/core-browser": "^0.4.0",
     "@devpablocristo/core-http": "^0.2.0",
-    "axios": "^1.8.1"
+    "axios": "^1.15.0"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
