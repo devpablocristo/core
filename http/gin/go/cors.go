@@ -31,8 +31,12 @@ func NewCORS(cfg CORSConfig) gin.HandlerFunc {
 	origins := []string{
 		"http://localhost:5173",
 		"http://localhost:5180",
+		"http://localhost:5190",
+		"http://localhost:5191",
 		"http://127.0.0.1:5173",
 		"http://127.0.0.1:5180",
+		"http://127.0.0.1:5190",
+		"http://127.0.0.1:5191",
 	}
 
 	seen := make(map[string]struct{}, len(origins))
