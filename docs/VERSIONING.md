@@ -19,6 +19,8 @@ La unidad de versionado es cada implementación concreta:
 - `authn/go`
 - `authn/rust`
 - `notifications/go`
+- `calendar/ics/go`
+- `calendar/sync/google/go`
 - `databases/postgres/go`
 - `databases/postgres/rust`
 - `databases/dynamodb/go`
@@ -95,6 +97,8 @@ Los tags se cortan por subdirectorio:
 - `authn/go/v0.1.0`
 - `authn/rust/v0.1.0`
 - `notifications/go/v0.1.0`
+- `calendar/ics/go/v0.1.0`
+- `calendar/sync/google/go/v0.1.0`
 - `databases/postgres/go/v0.1.0`
 - `databases/postgres/rust/v0.1.0`
 - `databases/dynamodb/go/v0.1.0`

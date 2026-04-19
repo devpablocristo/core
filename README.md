@@ -20,6 +20,7 @@ Este repo no contiene apps. Contiene módulos por capacidad.
 - `authn/`: autenticación reusable, tanto backend (`go`) como sesión/browser (`ts`)
 - `notifications/`: senders y transporte reusable para notificaciones
 - `scheduling/`: primitivas reutilizables de ventanas, slots y bloqueos temporales
+- `calendar/`: exportación ICS y sincronización reusable con calendarios externos
 - `databases/`: adapters concretos de bases de datos
 - `providers/`: adapters concretos de proveedores externos
 - `eventing/`: envelopes y contratos de eventos asíncronos
@@ -84,6 +85,12 @@ core/
     go/
   scheduling/
     go/
+  calendar/
+    ics/
+      go/
+    sync/
+      google/
+        go/
   databases/
     postgres/
       go/
@@ -159,6 +166,8 @@ Este repo ya tiene:
 - `http/ts/`: `fetch` reusable, parseo uniforme de errores HTTP y JSON `event-stream`
 - `authz/go/`: scopes, roles, checks reusable y adapter liviano de autorización
 - `notifications/go/`: `noop`, `smtp`, `ses`, config reusable y bootstrap de email senders
+- `calendar/ics/go/`: generación reusable de calendarios y eventos `.ics`
+- `calendar/sync/google/go/`: OAuth reusable para sincronización con Google Calendar
 - `databases/postgres/go/`: config/pool `pgx` y migrate runner
 - `databases/dynamodb/go/`: acceso reusable a DynamoDB
 - `providers/aws/lambda/go/`: `lambdahttp`
