@@ -17,6 +17,7 @@ func TestConfigFromEnv(t *testing.T) {
 	t.Setenv("AWS_REGION", "sa-east-1")
 	t.Setenv("REPORTS_S3_BUCKET", "reports")
 	t.Setenv("REPORTS_S3_ENDPOINT", "http://localhost:4566")
+	t.Setenv("REPORTS_S3_PRESIGN_ENDPOINT", "http://public.localhost:4566")
 	t.Setenv("REPORTS_S3_FORCE_PATH_STYLE", "true")
 
 	config := ConfigFromEnv("REPORTS_S3")
@@ -29,6 +30,9 @@ func TestConfigFromEnv(t *testing.T) {
 	}
 	if config.Endpoint != "http://localhost:4566" {
 		t.Fatalf("unexpected endpoint: %q", config.Endpoint)
+	}
+	if config.PresignEndpoint != "http://public.localhost:4566" {
+		t.Fatalf("unexpected presign endpoint: %q", config.PresignEndpoint)
 	}
 	if !config.ForcePathStyle {
 		t.Fatal("expected force path style")

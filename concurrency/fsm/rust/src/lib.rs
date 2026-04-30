@@ -3,8 +3,6 @@
 //! Usa el patrón typestate: cada estado es un tipo distinto.
 //! Las transiciones inválidas no compilan.
 
-use serde::{Deserialize, Serialize};
-
 /// Trait que define un estado válido en la FSM.
 pub trait State: std::fmt::Debug + Clone + Send + Sync + 'static {
     fn name(&self) -> &'static str;

@@ -17,11 +17,15 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@devpablocristo/core-browser": "^0.4.0",
-    "@devpablocristo/core-http": "^0.2.0",
     "axios": "^1.8.1"
   },
+  "peerDependencies": {
+    "@devpablocristo/core-browser": "^0.4.0",
+    "@devpablocristo/core-http": "^0.2.0"
+  },
   "devDependencies": {
+    "@devpablocristo/core-browser": "file:../../browser/ts",
+    "@devpablocristo/core-http": "file:../../http/ts",
     "@types/node": "^24.0.0",
     "axios-mock-adapter": "^2.1.0",
     "jsdom": "^29.0.1",

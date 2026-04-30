@@ -53,6 +53,19 @@ from .domain.contracts import (
     normalize_notification_chat_handoff,
     normalize_routing_source,
 )
+from .domain.capabilities import (
+    CAPABILITY_MANIFEST_SCHEMA_VERSION,
+    CapabilityAgentDescriptor,
+    CapabilityAuthz,
+    CapabilityExecutor,
+    CapabilityGovernance,
+    CapabilityManifest,
+    CapabilityMode,
+    CapabilityTool,
+    RiskClass,
+    TenantScope,
+    validate_capability_manifest,
+)
 from .domain.agent import AgentRegistry, AgentRegistryError, SubAgent, SubAgentDescriptor
 from .services.agent_router import GENERAL_AGENT, route as route_to_agent
 from .services.multi_agent_orchestrator import run_routed_agent
@@ -204,7 +217,17 @@ __all__ = [
     "AgentRegistry",
     "AgentRegistryError",
     "AIRequestContext",
+    "CAPABILITY_MANIFEST_SCHEMA_VERSION",
+    "CapabilityAgentDescriptor",
+    "CapabilityAuthz",
+    "CapabilityExecutor",
+    "CapabilityGovernance",
+    "CapabilityManifest",
+    "CapabilityMode",
+    "CapabilityTool",
     "NotificationChatHandoff",
+    "RiskClass",
+    "TenantScope",
     "ALL_LANGUAGE_CODES",
     "ALL_OUTPUT_KINDS",
     "ALL_ROUTING_SOURCES",
@@ -237,6 +260,7 @@ __all__ = [
     "SERVICE_KIND_INTELLIGENCE",
     "SERVICE_KIND_SYNTHESIS",
     "validate_json_completion",
+    "validate_capability_manifest",
     "Conversation",
     "Turn",
     "MemoryStore",

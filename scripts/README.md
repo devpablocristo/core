@@ -12,6 +12,7 @@ Acá viven scripts transversales del monorepo `core`.
 ## Scripts actuales
 
 - `validate-runtime-layout.sh`: valida que todo runtime viva bajo `go/`, `python/` o `rust/`
+- `validate-boundaries.sh`: valida que `core` no apunte a `modules` ni por paquete ni por path local
 - `validate-module-versions.sh`: valida `VERSION`, semver y consistencia con manifests por módulo
 - `list-module-versions.sh`: lista módulos versionados y el tag esperado de release
 - `check-remote-tags.sh`: compara los tags remotos publicados contra los tags esperados por `VERSION`
