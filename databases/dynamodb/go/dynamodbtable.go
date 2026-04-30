@@ -2,6 +2,9 @@ package dynamodbtable
 
 import (
 	"context"
+	"encoding/base64"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -23,9 +26,19 @@ type Config struct {
 type itemAPI interface {
 	PutItem(context.Context, *dynamodb.PutItemInput, ...func(*dynamodb.Options)) (*dynamodb.PutItemOutput, error)
 	GetItem(context.Context, *dynamodb.GetItemInput, ...func(*dynamodb.Options)) (*dynamodb.GetItemOutput, error)
+	BatchGetItem(context.Context, *dynamodb.BatchGetItemInput, ...func(*dynamodb.Options)) (*dynamodb.BatchGetItemOutput, error)
 	DeleteItem(context.Context, *dynamodb.DeleteItemInput, ...func(*dynamodb.Options)) (*dynamodb.DeleteItemOutput, error)
 	Query(context.Context, *dynamodb.QueryInput, ...func(*dynamodb.Options)) (*dynamodb.QueryOutput, error)
 	ListTables(context.Context, *dynamodb.ListTablesInput, ...func(*dynamodb.Options)) (*dynamodb.ListTablesOutput, error)
+}
+
+// ErrInvalidCursor indica que un cursor recibido del cliente no puede decodificarse.
+var ErrInvalidCursor = errors.New("invalid dynamodb cursor")
+
+// Page describe una página DynamoDB reusable con cursor opaco.
+type Page struct {
+	HasMore    bool
+	NextCursor string
 }
 
 // Client envuelve acceso reusable a una tabla fija.
@@ -145,6 +158,56 @@ func (c *Client) GetJSON(ctx context.Context, key any, out any) (bool, error) {
 	return true, nil
 }
 
+// BatchGetJSON resuelve varias keys primarias y deserializa los items encontrados.
+func (c *Client) BatchGetJSON(ctx context.Context, keys []any, out any) error {
+	if c == nil || c.api == nil {
+		return fmt.Errorf("dynamodb client is nil")
+	}
+	if strings.TrimSpace(c.table) == "" {
+		return fmt.Errorf("dynamodb table is required")
+	}
+	if len(keys) == 0 {
+		if err := attributevalue.UnmarshalListOfMaps(nil, out); err != nil {
+			return fmt.Errorf("unmarshal dynamodb batch items: %w", err)
+		}
+		return nil
+	}
+
+	marshaledKeys := make([]map[string]types.AttributeValue, 0, len(keys))
+	for _, key := range keys {
+		marshaledKey, err := attributevalue.MarshalMap(key)
+		if err != nil {
+			return fmt.Errorf("marshal dynamodb batch key: %w", err)
+		}
+		marshaledKeys = append(marshaledKeys, marshaledKey)
+	}
+
+	var allItems []map[string]types.AttributeValue
+	for start := 0; start < len(marshaledKeys); start += 100 {
+		end := start + 100
+		if end > len(marshaledKeys) {
+			end = len(marshaledKeys)
+		}
+		requestItems := map[string]types.KeysAndAttributes{
+			c.table: {Keys: marshaledKeys[start:end]},
+		}
+		for len(requestItems) > 0 {
+			output, err := c.api.BatchGetItem(ctx, &dynamodb.BatchGetItemInput{
+				RequestItems: requestItems,
+			})
+			if err != nil {
+				return fmt.Errorf("batch get dynamodb items: %w", err)
+			}
+			allItems = append(allItems, output.Responses[c.table]...)
+			requestItems = output.UnprocessedKeys
+		}
+	}
+	if err := attributevalue.UnmarshalListOfMaps(allItems, out); err != nil {
+		return fmt.Errorf("unmarshal dynamodb batch items: %w", err)
+	}
+	return nil
+}
+
 // DeleteJSON borra un item por key tipada.
 func (c *Client) DeleteJSON(ctx context.Context, key any) error {
 	if c == nil || c.api == nil {
@@ -187,6 +250,35 @@ func (c *Client) QueryJSON(ctx context.Context, input *dynamodb.QueryInput, out 
 		return fmt.Errorf("unmarshal dynamodb items: %w", err)
 	}
 	return nil
+}
+
+// QueryJSONPage ejecuta una query y devuelve el cursor para la siguiente página si existe.
+func (c *Client) QueryJSONPage(ctx context.Context, input *dynamodb.QueryInput, out any) (Page, error) {
+	if c == nil || c.api == nil {
+		return Page{}, fmt.Errorf("dynamodb client is nil")
+	}
+	if input == nil {
+		return Page{}, fmt.Errorf("dynamodb query input is required")
+	}
+	query := *input
+	if query.TableName == nil || strings.TrimSpace(awssdk.ToString(query.TableName)) == "" {
+		query.TableName = awssdk.String(c.table)
+	}
+	output, err := c.api.Query(ctx, &query)
+	if err != nil {
+		return Page{}, fmt.Errorf("query dynamodb items: %w", err)
+	}
+	if err := attributevalue.UnmarshalListOfMaps(output.Items, out); err != nil {
+		return Page{}, fmt.Errorf("unmarshal dynamodb items: %w", err)
+	}
+	nextCursor, err := EncodeCursor(output.LastEvaluatedKey)
+	if err != nil {
+		return Page{}, err
+	}
+	return Page{
+		HasMore:    nextCursor != "",
+		NextCursor: nextCursor,
+	}, nil
 }
 
 // QueryJSONAll ejecuta la misma query que QueryJSON pero sigue LastEvaluatedKey hasta agotar resultados.
@@ -245,4 +337,86 @@ func firstNonEmpty(values ...string) string {
 		}
 	}
 	return ""
+}
+
+type cursorValue struct {
+	Type  string `json:"type"`
+	Value string `json:"value"`
+}
+
+// EncodeCursor convierte una LastEvaluatedKey DynamoDB en un cursor opaco URL-safe.
+func EncodeCursor(key map[string]types.AttributeValue) (string, error) {
+	if len(key) == 0 {
+		return "", nil
+	}
+	payload := make(map[string]cursorValue, len(key))
+	for name, value := range key {
+		switch v := value.(type) {
+		case *types.AttributeValueMemberS:
+			payload[name] = cursorValue{Type: "S", Value: v.Value}
+		case *types.AttributeValueMemberN:
+			payload[name] = cursorValue{Type: "N", Value: v.Value}
+		case *types.AttributeValueMemberB:
+			payload[name] = cursorValue{Type: "B", Value: base64.StdEncoding.EncodeToString(v.Value)}
+		case *types.AttributeValueMemberBOOL:
+			if v.Value {
+				payload[name] = cursorValue{Type: "BOOL", Value: "true"}
+			} else {
+				payload[name] = cursorValue{Type: "BOOL", Value: "false"}
+			}
+		default:
+			return "", fmt.Errorf("%w: unsupported attribute %q", ErrInvalidCursor, name)
+		}
+	}
+	raw, err := json.Marshal(payload)
+	if err != nil {
+		return "", fmt.Errorf("marshal dynamodb cursor: %w", err)
+	}
+	return base64.RawURLEncoding.EncodeToString(raw), nil
+}
+
+// DecodeCursor restaura un cursor opaco en una ExclusiveStartKey DynamoDB.
+func DecodeCursor(cursor string) (map[string]types.AttributeValue, error) {
+	cursor = strings.TrimSpace(cursor)
+	if cursor == "" {
+		return nil, nil
+	}
+	raw, err := base64.RawURLEncoding.DecodeString(cursor)
+	if err != nil {
+		return nil, ErrInvalidCursor
+	}
+	var payload map[string]cursorValue
+	if err := json.Unmarshal(raw, &payload); err != nil {
+		return nil, ErrInvalidCursor
+	}
+	if len(payload) == 0 {
+		return nil, nil
+	}
+	key := make(map[string]types.AttributeValue, len(payload))
+	for name, value := range payload {
+		switch value.Type {
+		case "S":
+			key[name] = &types.AttributeValueMemberS{Value: value.Value}
+		case "N":
+			key[name] = &types.AttributeValueMemberN{Value: value.Value}
+		case "B":
+			decoded, err := base64.StdEncoding.DecodeString(value.Value)
+			if err != nil {
+				return nil, ErrInvalidCursor
+			}
+			key[name] = &types.AttributeValueMemberB{Value: decoded}
+		case "BOOL":
+			switch value.Value {
+			case "true":
+				key[name] = &types.AttributeValueMemberBOOL{Value: true}
+			case "false":
+				key[name] = &types.AttributeValueMemberBOOL{Value: false}
+			default:
+				return nil, ErrInvalidCursor
+			}
+		default:
+			return nil, ErrInvalidCursor
+		}
+	}
+	return key, nil
 }

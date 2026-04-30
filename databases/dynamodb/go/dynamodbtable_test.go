@@ -2,6 +2,8 @@ package dynamodbtable
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"testing"
 
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
@@ -79,10 +81,13 @@ func TestPutItemRejectsMissingTable(t *testing.T) {
 }
 
 type fakeItemAPI struct {
-	putInput *dynamodb.PutItemInput
-	getItem  map[string]types.AttributeValue
-	queryOut []map[string]types.AttributeValue
-	deleted  *dynamodb.DeleteItemInput
+	putInput      *dynamodb.PutItemInput
+	getItem       map[string]types.AttributeValue
+	batchGetInput *dynamodb.BatchGetItemInput
+	batchGetCalls int
+	batchGetOut   *dynamodb.BatchGetItemOutput
+	queryOut      []map[string]types.AttributeValue
+	deleted       *dynamodb.DeleteItemInput
 }
 
 func (api *fakeItemAPI) PutItem(_ context.Context, input *dynamodb.PutItemInput, _ ...func(*dynamodb.Options)) (*dynamodb.PutItemOutput, error) {
@@ -95,6 +100,15 @@ func (api *fakeItemAPI) GetItem(_ context.Context, input *dynamodb.GetItemInput,
 	return &dynamodb.GetItemOutput{
 		Item: api.getItem,
 	}, nil
+}
+
+func (api *fakeItemAPI) BatchGetItem(_ context.Context, input *dynamodb.BatchGetItemInput, _ ...func(*dynamodb.Options)) (*dynamodb.BatchGetItemOutput, error) {
+	api.batchGetInput = input
+	api.batchGetCalls++
+	if api.batchGetOut != nil {
+		return api.batchGetOut, nil
+	}
+	return &dynamodb.BatchGetItemOutput{}, nil
 }
 
 func (api *fakeItemAPI) DeleteItem(_ context.Context, input *dynamodb.DeleteItemInput, _ ...func(*dynamodb.Options)) (*dynamodb.DeleteItemOutput, error) {
@@ -178,6 +192,167 @@ func TestQueryJSONAll_Paginates(t *testing.T) {
 	}
 	if len(out) != 2 || out[0].SK != "ART#001#a" || out[1].SK != "ART#002#b" {
 		t.Fatalf("%+v", out)
+	}
+}
+
+func TestQueryJSONPage_ReturnsOpaqueCursor(t *testing.T) {
+	t.Parallel()
+
+	item, err := attributevalue.MarshalMap(struct {
+		UserID string `dynamodbav:"userId"`
+		SK     string `dynamodbav:"sk"`
+	}{UserID: "user-1", SK: "ASSET#001"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	lek := map[string]types.AttributeValue{
+		"userId": &types.AttributeValueMemberS{Value: "user-1"},
+		"sk":     &types.AttributeValueMemberS{Value: "ASSET#001"},
+	}
+	api := &fakePagingAPI{
+		pages: []dynamodb.QueryOutput{
+			{Items: []map[string]types.AttributeValue{item}, LastEvaluatedKey: lek},
+		},
+	}
+	client := NewWithAPI(api, "assets")
+
+	var out []struct {
+		UserID string `dynamodbav:"userId"`
+		SK     string `dynamodbav:"sk"`
+	}
+	page, err := client.QueryJSONPage(context.Background(), &dynamodb.QueryInput{}, &out)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !page.HasMore || page.NextCursor == "" {
+		t.Fatalf("expected next cursor, got %+v", page)
+	}
+	decoded, err := DecodeCursor(page.NextCursor)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := decoded["sk"].(*types.AttributeValueMemberS).Value; got != "ASSET#001" {
+		t.Fatalf("unexpected decoded sk: %q", got)
+	}
+}
+
+func TestCursorRoundTripSupportsScalarKeys(t *testing.T) {
+	t.Parallel()
+
+	key := map[string]types.AttributeValue{
+		"s": &types.AttributeValueMemberS{Value: "value"},
+		"n": &types.AttributeValueMemberN{Value: "42"},
+		"b": &types.AttributeValueMemberB{Value: []byte{1, 2, 3}},
+		"x": &types.AttributeValueMemberBOOL{Value: true},
+	}
+	cursor, err := EncodeCursor(key)
+	if err != nil {
+		t.Fatal(err)
+	}
+	decoded, err := DecodeCursor(cursor)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if decoded["s"].(*types.AttributeValueMemberS).Value != "value" {
+		t.Fatalf("unexpected string key: %#v", decoded["s"])
+	}
+	if decoded["n"].(*types.AttributeValueMemberN).Value != "42" {
+		t.Fatalf("unexpected number key: %#v", decoded["n"])
+	}
+	if string(decoded["b"].(*types.AttributeValueMemberB).Value) != string([]byte{1, 2, 3}) {
+		t.Fatalf("unexpected binary key: %#v", decoded["b"])
+	}
+	if !decoded["x"].(*types.AttributeValueMemberBOOL).Value {
+		t.Fatalf("unexpected bool key: %#v", decoded["x"])
+	}
+}
+
+func TestDecodeCursorRejectsInvalidCursor(t *testing.T) {
+	t.Parallel()
+
+	_, err := DecodeCursor("not a cursor")
+	if !errors.Is(err, ErrInvalidCursor) {
+		t.Fatalf("expected ErrInvalidCursor, got %v", err)
+	}
+}
+
+func TestBatchGetJSON(t *testing.T) {
+	t.Parallel()
+
+	item1, err := attributevalue.MarshalMap(struct {
+		UserID string `dynamodbav:"userId"`
+		SK     string `dynamodbav:"sk"`
+	}{UserID: "user-1", SK: "ASSET#001"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	item2, err := attributevalue.MarshalMap(struct {
+		UserID string `dynamodbav:"userId"`
+		SK     string `dynamodbav:"sk"`
+	}{UserID: "user-1", SK: "ASSET#002"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	api := &fakeItemAPI{
+		batchGetOut: &dynamodb.BatchGetItemOutput{
+			Responses: map[string][]map[string]types.AttributeValue{
+				"assets": {item1, item2},
+			},
+		},
+	}
+	client := NewWithAPI(api, "assets")
+
+	keys := []any{
+		struct {
+			UserID string `dynamodbav:"userId"`
+			SK     string `dynamodbav:"sk"`
+		}{UserID: "user-1", SK: "ASSET#001"},
+		struct {
+			UserID string `dynamodbav:"userId"`
+			SK     string `dynamodbav:"sk"`
+		}{UserID: "user-1", SK: "ASSET#002"},
+	}
+	var out []struct {
+		UserID string `dynamodbav:"userId"`
+		SK     string `dynamodbav:"sk"`
+	}
+	if err := client.BatchGetJSON(context.Background(), keys, &out); err != nil {
+		t.Fatal(err)
+	}
+	if api.batchGetInput == nil || len(api.batchGetInput.RequestItems["assets"].Keys) != 2 {
+		t.Fatalf("unexpected batch input: %#v", api.batchGetInput)
+	}
+	if len(out) != 2 || out[0].SK != "ASSET#001" || out[1].SK != "ASSET#002" {
+		t.Fatalf("unexpected batch output: %+v", out)
+	}
+}
+
+func TestBatchGetJSONSplitsLargeKeySets(t *testing.T) {
+	t.Parallel()
+
+	api := &fakeItemAPI{
+		batchGetOut: &dynamodb.BatchGetItemOutput{},
+	}
+	client := NewWithAPI(api, "assets")
+	keys := make([]any, 205)
+	for i := range keys {
+		keys[i] = struct {
+			UserID string `dynamodbav:"userId"`
+			SK     string `dynamodbav:"sk"`
+		}{UserID: "user-1", SK: fmt.Sprintf("ASSET#%03d", i)}
+	}
+	var out []struct {
+		UserID string `dynamodbav:"userId"`
+		SK     string `dynamodbav:"sk"`
+	}
+	if err := client.BatchGetJSON(context.Background(), keys, &out); err != nil {
+		t.Fatal(err)
+	}
+	if api.batchGetCalls != 3 {
+		t.Fatalf("expected 3 batch get calls, got %d", api.batchGetCalls)
+	}
+	if got := len(api.batchGetInput.RequestItems["assets"].Keys); got != 5 {
+		t.Fatalf("expected final chunk with 5 keys, got %d", got)
 	}
 }
 

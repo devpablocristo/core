@@ -21,10 +21,11 @@ const defaultPresignTTL = time.Hour
 
 // Config representa la configuración mínima de S3.
 type Config struct {
-	Region         string
-	Bucket         string
-	Endpoint       string
-	ForcePathStyle bool
+	Region          string
+	Bucket          string
+	Endpoint        string
+	PresignEndpoint string
+	ForcePathStyle  bool
 }
 
 // PutInput representa un put object mínimo y reusable.
@@ -57,17 +58,19 @@ func ConfigFromEnv(prefix string) Config {
 	prefix = normalizeEnvPrefix(prefix)
 	if prefix == "" {
 		return Config{
-			Region:         firstNonEmpty(os.Getenv("AWS_REGION"), "us-east-1"),
-			Bucket:         firstNonEmpty(os.Getenv("S3_BUCKET")),
-			Endpoint:       firstNonEmpty(os.Getenv("S3_ENDPOINT")),
-			ForcePathStyle: parseBool(os.Getenv("S3_FORCE_PATH_STYLE")),
+			Region:          firstNonEmpty(os.Getenv("AWS_REGION"), "us-east-1"),
+			Bucket:          firstNonEmpty(os.Getenv("S3_BUCKET")),
+			Endpoint:        firstNonEmpty(os.Getenv("S3_ENDPOINT")),
+			PresignEndpoint: firstNonEmpty(os.Getenv("S3_PRESIGN_ENDPOINT")),
+			ForcePathStyle:  parseBool(os.Getenv("S3_FORCE_PATH_STYLE")),
 		}
 	}
 	return Config{
-		Region:         firstNonEmpty(os.Getenv(prefix+"AWS_REGION"), os.Getenv("AWS_REGION"), "us-east-1"),
-		Bucket:         firstNonEmpty(os.Getenv(prefix+"BUCKET"), os.Getenv("S3_BUCKET")),
-		Endpoint:       firstNonEmpty(os.Getenv(prefix+"ENDPOINT"), os.Getenv("S3_ENDPOINT")),
-		ForcePathStyle: parseBool(firstNonEmpty(os.Getenv(prefix+"FORCE_PATH_STYLE"), os.Getenv("S3_FORCE_PATH_STYLE"))),
+		Region:          firstNonEmpty(os.Getenv(prefix+"AWS_REGION"), os.Getenv("AWS_REGION"), "us-east-1"),
+		Bucket:          firstNonEmpty(os.Getenv(prefix+"BUCKET"), os.Getenv("S3_BUCKET")),
+		Endpoint:        firstNonEmpty(os.Getenv(prefix+"ENDPOINT"), os.Getenv("S3_ENDPOINT")),
+		PresignEndpoint: firstNonEmpty(os.Getenv(prefix+"PRESIGN_ENDPOINT"), os.Getenv("S3_PRESIGN_ENDPOINT")),
+		ForcePathStyle:  parseBool(firstNonEmpty(os.Getenv(prefix+"FORCE_PATH_STYLE"), os.Getenv("S3_FORCE_PATH_STYLE"))),
 	}
 }
 
@@ -82,13 +85,21 @@ func New(ctx context.Context, config Config) (*Client, error) {
 
 // NewFromAWSConfig crea un cliente S3 reutilizando un aws.Config existente.
 func NewFromAWSConfig(awsCfg awssdk.Config, config Config) *Client {
-	api := s3.NewFromConfig(awsCfg, func(options *s3.Options) {
-		if strings.TrimSpace(config.Endpoint) != "" {
-			options.BaseEndpoint = awssdk.String(strings.TrimSpace(config.Endpoint))
+	api := newS3Client(awsCfg, strings.TrimSpace(config.Endpoint), config.ForcePathStyle)
+	presignAPI := api
+	if endpoint := strings.TrimSpace(config.PresignEndpoint); endpoint != "" && endpoint != strings.TrimSpace(config.Endpoint) {
+		presignAPI = newS3Client(awsCfg, endpoint, config.ForcePathStyle)
+	}
+	return NewWithAPI(api, s3.NewPresignClient(presignAPI), config.Bucket)
+}
+
+func newS3Client(awsCfg awssdk.Config, endpoint string, forcePathStyle bool) *s3.Client {
+	return s3.NewFromConfig(awsCfg, func(options *s3.Options) {
+		if endpoint != "" {
+			options.BaseEndpoint = awssdk.String(endpoint)
 		}
-		options.UsePathStyle = config.ForcePathStyle
+		options.UsePathStyle = forcePathStyle
 	})
-	return NewWithAPI(api, s3.NewPresignClient(api), config.Bucket)
 }
 
 // NewWithAPI crea un cliente desde implementaciones inyectadas.
