@@ -95,6 +95,29 @@ func (c *Client) SubmitRequest(ctx context.Context, idempotencyKey string, body 
 	return out, nil
 }
 
+// SimulateRequest envía POST /v1/requests/simulate. Evalúa el request contra
+// las policies activas y retorna la decisión sin persistir nada (sin row,
+// sin audit, sin approval). Pensado para hot-path de productos que necesitan
+// decisión síncrona (ej: Pymes procurement <thresholds que se autodecide).
+//
+// Si la respuesta indica que el caso requiere approval humano (status
+// pending_approval o would_require_approval=true), el caller debe escalar a
+// SubmitRequest para crear el request persistente que dispare el flujo.
+func (c *Client) SimulateRequest(ctx context.Context, body SimulateRequestBody) (SimulateResponse, error) {
+	var out SimulateResponse
+	st, raw, err := c.caller.DoJSON(ctx, http.MethodPost, "/v1/requests/simulate", body)
+	if err != nil {
+		return out, fmt.Errorf("governance simulate: %w", err)
+	}
+	if st != http.StatusOK {
+		return out, fmt.Errorf("governance simulate: status %d body %s", st, ParseErrorBody(raw))
+	}
+	if err := json.Unmarshal(raw, &out); err != nil {
+		return out, fmt.Errorf("decode simulate response: %w", err)
+	}
+	return out, nil
+}
+
 // GetRequest consulta GET /v1/requests/{id}. Devuelve status HTTP para distinguir 404.
 func (c *Client) GetRequest(ctx context.Context, id string) (RequestSummary, int, error) {
 	var out RequestSummary

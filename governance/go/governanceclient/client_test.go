@@ -62,6 +62,117 @@ func TestSubmitRequest(t *testing.T) {
 	}
 }
 
+func TestSimulateRequest(t *testing.T) {
+	t.Parallel()
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			t.Errorf("expected POST, got %s", r.Method)
+		}
+		if r.URL.Path != "/v1/requests/simulate" {
+			t.Errorf("expected /v1/requests/simulate, got %s", r.URL.Path)
+		}
+		if r.Header.Get("X-API-Key") != "test-key" {
+			t.Errorf("expected X-API-Key=test-key, got %s", r.Header.Get("X-API-Key"))
+		}
+
+		var body SimulateRequestBody
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+			t.Fatalf("decode body: %v", err)
+		}
+		if body.ActionType != "procurement.submit" {
+			t.Errorf("expected action_type=procurement.submit, got %s", body.ActionType)
+		}
+
+		w.WriteHeader(http.StatusOK)
+		matched := "auto-approve-low-spend"
+		json.NewEncoder(w).Encode(SimulateResponse{
+			Decision:             DecisionAllow,
+			RiskLevel:            "low",
+			DecisionReason:       "matched policy auto-approve-low-spend",
+			Status:               StatusAllowed,
+			PolicyMatched:        &matched,
+			RiskAssessment:       json.RawMessage(`{"factors":[]}`),
+			WouldRequireApproval: false,
+		})
+	}))
+	defer srv.Close()
+
+	c := NewClient(srv.URL, "test-key")
+	resp, err := c.SimulateRequest(context.Background(), SimulateRequestBody{
+		RequesterType: "service",
+		RequesterID:   "pymes-procurement",
+		ActionType:    "procurement.submit",
+		TargetSystem:  "pymes",
+		Params:        map[string]any{"amount": 500, "currency": "USD"},
+	})
+	if err != nil {
+		t.Fatalf("simulate: %v", err)
+	}
+	if resp.Decision != DecisionAllow {
+		t.Errorf("expected decision=%s, got %s", DecisionAllow, resp.Decision)
+	}
+	if resp.Status != StatusAllowed {
+		t.Errorf("expected status=%s, got %s", StatusAllowed, resp.Status)
+	}
+	if resp.WouldRequireApproval {
+		t.Error("expected would_require_approval=false")
+	}
+	if resp.PolicyMatched == nil || *resp.PolicyMatched != "auto-approve-low-spend" {
+		t.Errorf("expected policy_matched=auto-approve-low-spend, got %v", resp.PolicyMatched)
+	}
+}
+
+func TestSimulateRequestRequireApproval(t *testing.T) {
+	t.Parallel()
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(SimulateResponse{
+			Decision:             DecisionRequireApproval,
+			RiskLevel:            "high",
+			DecisionReason:       "amount exceeds threshold",
+			Status:               StatusPendingApproval,
+			WouldRequireApproval: true,
+		})
+	}))
+	defer srv.Close()
+
+	c := NewClient(srv.URL, "test-key")
+	resp, err := c.SimulateRequest(context.Background(), SimulateRequestBody{
+		RequesterType: "service",
+		RequesterID:   "pymes-procurement",
+		ActionType:    "procurement.submit",
+		Params:        map[string]any{"amount": 75000},
+	})
+	if err != nil {
+		t.Fatalf("simulate: %v", err)
+	}
+	if resp.Decision != DecisionRequireApproval {
+		t.Errorf("expected decision=%s, got %s", DecisionRequireApproval, resp.Decision)
+	}
+	if !resp.WouldRequireApproval {
+		t.Error("expected would_require_approval=true")
+	}
+}
+
+func TestSimulateRequestServerError(t *testing.T) {
+	t.Parallel()
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(`{"code":"INTERNAL","message":"upstream policy store down"}`))
+	}))
+	defer srv.Close()
+
+	c := NewClient(srv.URL, "test-key")
+	_, err := c.SimulateRequest(context.Background(), SimulateRequestBody{
+		RequesterType: "service",
+		RequesterID:   "x",
+		ActionType:    "procurement.submit",
+	})
+	if err == nil {
+		t.Fatal("expected error on 500, got nil")
+	}
+}
+
 func TestGetRequest(t *testing.T) {
 	t.Parallel()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
