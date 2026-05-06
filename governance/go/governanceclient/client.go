@@ -103,9 +103,14 @@ func (c *Client) SubmitRequest(ctx context.Context, idempotencyKey string, body 
 // Si la respuesta indica que el caso requiere approval humano (status
 // pending_approval o would_require_approval=true), el caller debe escalar a
 // SubmitRequest para crear el request persistente que dispare el flujo.
-func (c *Client) SimulateRequest(ctx context.Context, body SimulateRequestBody) (SimulateResponse, error) {
+//
+// Multi-tenant: callers que sirven a varios tenants (ej: Pymes per-customer)
+// deben poner el tenant target en body.Params["org_id"] = "<tenant-uuid>".
+// Nexus carga las policies del org_id pasado. Requiere que la API key del
+// caller tenga scope nexus:cross_org.
+func (c *Client) SimulateRequest(ctx context.Context, body SimulateRequestBody, opts ...RequestOption) (SimulateResponse, error) {
 	var out SimulateResponse
-	st, raw, err := c.caller.DoJSON(ctx, http.MethodPost, "/v1/requests/simulate", body)
+	st, raw, err := c.caller.DoJSON(ctx, http.MethodPost, "/v1/requests/simulate", body, collectOptions(opts...)...)
 	if err != nil {
 		return out, fmt.Errorf("governance simulate: %w", err)
 	}
@@ -152,20 +157,26 @@ func (c *Client) ReportResult(ctx context.Context, requestID string, success boo
 
 // --- Policies ---
 
-func (c *Client) ListPolicies(ctx context.Context) (int, []byte, error) {
-	return c.caller.DoJSON(ctx, http.MethodGet, "/v1/policies", nil)
+func (c *Client) ListPolicies(ctx context.Context, opts ...RequestOption) (int, []byte, error) {
+	return c.caller.DoJSON(ctx, http.MethodGet, "/v1/policies", nil, collectOptions(opts...)...)
 }
 
-func (c *Client) CreatePolicy(ctx context.Context, body any) (int, []byte, error) {
-	return c.caller.DoJSON(ctx, http.MethodPost, "/v1/policies", body)
+// GetPolicy fetches a policy by ID. Multi-tenant callers deben setear
+// WithOrgID(tenantID) — Nexus rechaza si el policy no pertenece al org.
+func (c *Client) GetPolicy(ctx context.Context, id string, opts ...RequestOption) (int, []byte, error) {
+	return c.caller.DoJSON(ctx, http.MethodGet, "/v1/policies/"+id, nil, collectOptions(opts...)...)
 }
 
-func (c *Client) UpdatePolicy(ctx context.Context, id string, body any) (int, []byte, error) {
-	return c.caller.DoJSON(ctx, http.MethodPatch, "/v1/policies/"+id, body)
+func (c *Client) CreatePolicy(ctx context.Context, body any, opts ...RequestOption) (int, []byte, error) {
+	return c.caller.DoJSON(ctx, http.MethodPost, "/v1/policies", body, collectOptions(opts...)...)
 }
 
-func (c *Client) DeletePolicy(ctx context.Context, id string) (int, error) {
-	st, _, err := c.caller.DoJSON(ctx, http.MethodDelete, "/v1/policies/"+id, nil)
+func (c *Client) UpdatePolicy(ctx context.Context, id string, body any, opts ...RequestOption) (int, []byte, error) {
+	return c.caller.DoJSON(ctx, http.MethodPatch, "/v1/policies/"+id, body, collectOptions(opts...)...)
+}
+
+func (c *Client) DeletePolicy(ctx context.Context, id string, opts ...RequestOption) (int, error) {
+	st, _, err := c.caller.DoJSON(ctx, http.MethodDelete, "/v1/policies/"+id, nil, collectOptions(opts...)...)
 	return st, err
 }
 
