@@ -1,6 +1,6 @@
-// Package reviewclient proporciona un cliente HTTP genérico para Nexus Review API.
-// Agnóstico al producto: cualquier servicio que consuma Review puede importar este paquete.
-package reviewclient
+// Package governanceclient proporciona un cliente HTTP genérico para Nexus Governance API.
+// Agnóstico al producto: cualquier servicio que consuma Governance puede importar este paquete.
+package governanceclient
 
 import (
 	"context"
@@ -12,7 +12,7 @@ import (
 	"github.com/devpablocristo/core/http/go/httpclient"
 )
 
-// Client cliente HTTP hacia Nexus Review.
+// Client cliente HTTP hacia Nexus Governance.
 type Client struct {
 	caller *httpclient.Caller
 }
@@ -31,7 +31,7 @@ func NewClient(baseURL, apiKey string) *Client {
 	}
 }
 
-// --- DTOs alineados con Review API ---
+// --- DTOs alineados con Governance API ---
 
 // SubmitRequestBody cuerpo de POST /v1/requests.
 type SubmitRequestBody struct {
@@ -84,10 +84,10 @@ func (c *Client) SubmitRequest(ctx context.Context, idempotencyKey string, body 
 	var out SubmitResponse
 	st, raw, err := c.caller.DoJSON(ctx, http.MethodPost, "/v1/requests", body, opts...)
 	if err != nil {
-		return out, fmt.Errorf("review submit: %w", err)
+		return out, fmt.Errorf("governance submit: %w", err)
 	}
 	if st != http.StatusCreated {
-		return out, fmt.Errorf("review submit: status %d body %s", st, string(raw))
+		return out, fmt.Errorf("governance submit: status %d body %s", st, string(raw))
 	}
 	if err := json.Unmarshal(raw, &out); err != nil {
 		return out, fmt.Errorf("decode submit response: %w", err)
@@ -100,13 +100,13 @@ func (c *Client) GetRequest(ctx context.Context, id string) (RequestSummary, int
 	var out RequestSummary
 	st, raw, err := c.caller.DoJSON(ctx, http.MethodGet, "/v1/requests/"+id, nil)
 	if err != nil {
-		return out, 0, fmt.Errorf("review get request: %w", err)
+		return out, 0, fmt.Errorf("governance get request: %w", err)
 	}
 	if st == http.StatusNotFound {
 		return out, st, nil
 	}
 	if st != http.StatusOK {
-		return out, st, fmt.Errorf("review get request: status %d body %s", st, string(raw))
+		return out, st, fmt.Errorf("governance get request: status %d body %s", st, string(raw))
 	}
 	if err := json.Unmarshal(raw, &out); err != nil {
 		return out, st, fmt.Errorf("decode get response: %w", err)
@@ -119,10 +119,10 @@ func (c *Client) ReportResult(ctx context.Context, requestID string, success boo
 	body := map[string]any{"success": success, "duration_ms": durationMS, "details": details}
 	st, raw, err := c.caller.DoJSON(ctx, http.MethodPost, "/v1/requests/"+requestID+"/result", body)
 	if err != nil {
-		return fmt.Errorf("review report result: %w", err)
+		return fmt.Errorf("governance report result: %w", err)
 	}
 	if st != http.StatusOK && st != http.StatusNoContent {
-		return fmt.Errorf("review report result: status %d body %s", st, string(raw))
+		return fmt.Errorf("governance report result: status %d body %s", st, string(raw))
 	}
 	return nil
 }
@@ -168,7 +168,7 @@ func (c *Client) Reject(ctx context.Context, id string, body any) (int, []byte, 
 
 // --- Helpers ---
 
-// ParseErrorBody intenta extraer mensaje de error de respuesta de Review.
+// ParseErrorBody intenta extraer mensaje de error de respuesta de Governance.
 func ParseErrorBody(raw []byte) string {
 	var eb struct {
 		Code    string `json:"code"`

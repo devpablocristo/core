@@ -1,4 +1,4 @@
-package reviewclient
+package governanceclient
 
 import (
 	"context"
