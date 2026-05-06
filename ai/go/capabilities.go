@@ -77,7 +77,7 @@ type CapabilityExecutor struct {
 
 // CapabilityGovernance declares the Nexus Governance metadata for a tool.
 type CapabilityGovernance struct {
-	RequiresReview bool   `json:"requires_review"`
+	RequiresApproval bool   `json:"requires_approval"`
 	ActionType     string `json:"action_type,omitempty"`
 	TargetSystem   string `json:"target_system,omitempty"`
 }
@@ -224,7 +224,7 @@ func validateCapabilityTool(t CapabilityTool) error {
 		if t.SideEffect {
 			return fmt.Errorf("tool %q mode=read requires side_effect=false", t.Name)
 		}
-		if t.Governance != nil && t.Governance.RequiresReview {
+		if t.Governance != nil && t.Governance.RequiresApproval {
 			return fmt.Errorf("tool %q read tools must not require review", t.Name)
 		}
 	case CapabilityModeWrite:
@@ -237,8 +237,8 @@ func validateCapabilityTool(t CapabilityTool) error {
 		if t.Governance == nil {
 			return fmt.Errorf("tool %q write tools require governance", t.Name)
 		}
-		if !t.Governance.RequiresReview {
-			return fmt.Errorf("tool %q write tools require governance.requires_review=true", t.Name)
+		if !t.Governance.RequiresApproval {
+			return fmt.Errorf("tool %q write tools require governance.requires_approval=true", t.Name)
 		}
 		if strings.TrimSpace(t.Governance.ActionType) == "" {
 			return fmt.Errorf("tool %q write tools require governance.action_type", t.Name)

@@ -85,7 +85,7 @@ class CapabilityGovernance(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    requires_review: bool
+    requires_approval: bool
     action_type: str | None = None
     target_system: str | None = None
 
@@ -147,7 +147,7 @@ class CapabilityTool(BaseModel):
         if self.mode == "read":
             if self.side_effect:
                 raise ValueError("mode=read requires side_effect=false")
-            if self.governance is not None and self.governance.requires_review:
+            if self.governance is not None and self.governance.requires_approval:
                 raise ValueError("read tools must not require review")
         if self.mode == "write":
             if not self.side_effect:
@@ -156,8 +156,8 @@ class CapabilityTool(BaseModel):
                 raise ValueError("write tools require evidence_fields")
             if self.governance is None:
                 raise ValueError("write tools require governance")
-            if not self.governance.requires_review:
-                raise ValueError("write tools require governance.requires_review=true")
+            if not self.governance.requires_approval:
+                raise ValueError("write tools require governance.requires_approval=true")
             if not self.governance.action_type:
                 raise ValueError("write tools require governance.action_type")
         return self

@@ -54,7 +54,7 @@
       "evidence_fields": ["sale_id", "total_amount"],
       "executor_ref": "pymes-api.sales.create",
       "governance": {
-        "requires_review": true,
+        "requires_approval": true,
         "action_type": "sale.create",
         "target_system": "pymes"
       }

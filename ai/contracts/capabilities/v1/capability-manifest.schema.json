@@ -86,9 +86,9 @@
     "governance": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["requires_review"],
+      "required": ["requires_approval"],
       "properties": {
-        "requires_review": {
+        "requires_approval": {
           "type": "boolean"
         },
         "action_type": {
@@ -208,9 +208,9 @@
                 "minItems": 1
               },
               "governance": {
-                "required": ["requires_review", "action_type"],
+                "required": ["requires_approval", "action_type"],
                 "properties": {
-                  "requires_review": {
+                  "requires_approval": {
                     "const": true
                   }
                 }
