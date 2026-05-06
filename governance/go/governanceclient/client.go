@@ -152,6 +152,25 @@ func (c *Client) ListActionTypes(ctx context.Context) (int, []byte, error) {
 	return c.caller.DoJSON(ctx, http.MethodGet, "/v1/action-types", nil)
 }
 
+// --- Learning ---
+
+// ListRequests trae GET /v1/requests con query params arbitrarios. Pensado para
+// que un caller (típicamente Companion governance-assist) lea histórico de
+// decisiones para detectar patrones.
+func (c *Client) ListRequests(ctx context.Context, query string) (int, []byte, error) {
+	path := "/v1/requests"
+	if query != "" {
+		path += "?" + query
+	}
+	return c.caller.DoJSON(ctx, http.MethodGet, path, nil)
+}
+
+// SubmitProposal POST /v1/learning/proposals — sube un candidate proposal
+// generado externamente (Nexus persiste con status=pending; humano decide).
+func (c *Client) SubmitProposal(ctx context.Context, body any) (int, []byte, error) {
+	return c.caller.DoJSON(ctx, http.MethodPost, "/v1/learning/proposals", body)
+}
+
 // --- Approvals ---
 
 func (c *Client) ListPendingApprovals(ctx context.Context) (int, []byte, error) {
