@@ -105,9 +105,8 @@ func (c *Client) SubmitRequest(ctx context.Context, idempotencyKey string, body 
 // SubmitRequest para crear el request persistente que dispare el flujo.
 //
 // Multi-tenant: callers que sirven a varios tenants (ej: Pymes per-customer)
-// deben poner el tenant target en body.Params["org_id"] = "<tenant-uuid>".
-// Nexus carga las policies del org_id pasado. Requiere que la API key del
-// caller tenga scope nexus:cross_org.
+// deben pasar WithTenantID("<tenant-uuid>"). Nexus carga las policies de ese
+// tenant. Requiere que la API key del caller tenga scope nexus:cross_org.
 func (c *Client) SimulateRequest(ctx context.Context, body SimulateRequestBody, opts ...RequestOption) (SimulateResponse, error) {
 	var out SimulateResponse
 	st, raw, err := c.caller.DoJSON(ctx, http.MethodPost, "/v1/requests/simulate", body, collectOptions(opts...)...)
@@ -162,7 +161,7 @@ func (c *Client) ListPolicies(ctx context.Context, opts ...RequestOption) (int, 
 }
 
 // GetPolicy fetches a policy by ID. Multi-tenant callers deben setear
-// WithOrgID(tenantID) — Nexus rechaza si el policy no pertenece al org.
+// WithTenantID(tenantID); Nexus rechaza si la policy no pertenece al tenant.
 func (c *Client) GetPolicy(ctx context.Context, id string, opts ...RequestOption) (int, []byte, error) {
 	return c.caller.DoJSON(ctx, http.MethodGet, "/v1/policies/"+id, nil, collectOptions(opts...)...)
 }

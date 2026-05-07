@@ -262,6 +262,27 @@ func TestListPolicies(t *testing.T) {
 	}
 }
 
+func TestWithTenantIDScopesRequest(t *testing.T) {
+	t.Parallel()
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if got := r.Header.Get("X-Org-ID"); got != "tenant-123" {
+			t.Errorf("expected Nexus tenant scope header tenant-123, got %q", got)
+		}
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"data":[]}`))
+	}))
+	defer srv.Close()
+
+	c := NewClient(srv.URL, "test-key")
+	st, _, err := c.ListPolicies(context.Background(), WithTenantID("tenant-123"))
+	if err != nil {
+		t.Fatalf("list policies: %v", err)
+	}
+	if st != http.StatusOK {
+		t.Fatalf("expected 200, got %d", st)
+	}
+}
+
 func TestParseErrorBody(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
