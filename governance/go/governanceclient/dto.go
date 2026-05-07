@@ -12,16 +12,42 @@ const (
 )
 
 // Status son los valores que Nexus retorna en el campo `status` del request.
-// Reflejan el estado del lifecycle: Allowed/Denied finalizan; PendingApproval
-// queda esperando humano. Constantes para evitar string-typing.
+// Set canónico — debe mantenerse alineado con
+// nexus/governance/internal/requests/usecases/domain.RequestStatus*.
+// KnownStatuses (más abajo) lista todos los valores publicados; los
+// consumers que mapean estos statuses a su propia FSM deben iterar esa
+// slice como contract test (ver companion/internal/tasks/task_fsm_test.go).
 const (
+	StatusPending         = "pending"
+	StatusEvaluated       = "evaluated"
 	StatusAllowed         = "allowed"
 	StatusDenied          = "denied"
 	StatusPendingApproval = "pending_approval"
+	StatusApproved        = "approved"
+	StatusRejected        = "rejected"
+	StatusExpired         = "expired"
 	StatusExecuted        = "executed"
 	StatusFailed          = "failed"
-	StatusExpired         = "expired"
+	StatusCancelled       = "cancelled"
 )
+
+// KnownStatuses lista todos los valores válidos del campo `status` de un
+// request en Nexus. Si Nexus agrega un nuevo status, esta slice debe
+// actualizarse junto con la constante; los contract tests de los
+// consumers fallan hasta que cada uno actualiza su FSM mapping.
+var KnownStatuses = []string{
+	StatusPending,
+	StatusEvaluated,
+	StatusAllowed,
+	StatusDenied,
+	StatusPendingApproval,
+	StatusApproved,
+	StatusRejected,
+	StatusExpired,
+	StatusExecuted,
+	StatusFailed,
+	StatusCancelled,
+}
 
 // PolicyMode determina si una policy actúa o solo observa. Wire format
 // alineado con Nexus (`enforced` / `shadow`).
