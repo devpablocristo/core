@@ -3,9 +3,10 @@ name: core-publish-ts-package
 on:
   push:
     tags:
-      - "browser/ts/v*"
-      - "http/ts/v*"
       - "authn/ts/v*"
+      - "browser/ts/v*"
+      - "concurrency/fsm/ts/v*"
+      - "http/ts/v*"
 
 permissions:
   contents: read
@@ -66,11 +67,21 @@ jobs:
           python3 ./scripts/prepare-ts-package-release.py "${module}" "${outdir}"
           echo "PACKAGE_DIR=${outdir}" >> "$GITHUB_ENV"
 
-      - name: Publish package
+      - name: Publish package (skip if version already on npm)
         run: |
           if [[ -z "${NODE_AUTH_TOKEN:-}" ]]; then
             echo "missing NPM_TOKEN secret" >&2
             exit 1
+          fi
+          module="${{ steps.tag.outputs.module }}"
+          version="${{ steps.tag.outputs.version }}"
+          pkg_name="$(node -e "console.log(require('./${module}/package.json').name)")"
+          # Idempotente: si la versión ya está publicada, salimos OK. Útil para
+          # tags retroactivos (la versión existe en npm pero faltaba el git tag).
+          existing="$(npm view "${pkg_name}@${version}" version 2>/dev/null || true)"
+          if [[ -n "${existing}" ]]; then
+            echo "::notice::${pkg_name}@${version} already on npm, skipping publish"
+            exit 0
           fi
           cd "${PACKAGE_DIR}"
           npm publish --access public
