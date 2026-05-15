@@ -3,6 +3,7 @@ name: core-publish-ts-package
 on:
   push:
     tags:
+      - "ai/contracts/ts/v*"
       - "authn/ts/v*"
       - "browser/ts/v*"
       - "concurrency/fsm/ts/v*"
