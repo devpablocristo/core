@@ -1,3 +1,22 @@
+> ⚠️ **DEPRECATED — moved to `github.com/devpablocristo/platform`** (2026-05-18).
+>
+> This repository is no longer maintained. The packages here remain published on
+> npm/Go proxy/PyPI for backwards compatibility, but **no new versions will be
+> released** and the repo is **archived (read-only)** as of the date above.
+>
+> The new monorepo unifying `core` and `modules` is:
+> **https://github.com/devpablocristo/platform**
+>
+> Migration guide:
+> https://github.com/devpablocristo/platform/blob/main/docs/migration/DEPRECATED_PACKAGES.md
+>
+> Consumers should migrate their imports from `github.com/devpablocristo/core/*`
+> and `@devpablocristo/core-*` to `github.com/devpablocristo/platform/*` and
+> `@devpablocristo/platform-*` respectively. The legacy packages will remain
+> resolvable but receive a deprecation warning on install.
+
+---
+
 # core
 
 Monorepo de capacidades reutilizables compartidas entre varios productos.
