@@ -5,10 +5,10 @@ import (
 	"time"
 )
 
-// Notification representa un aviso persistido en la bandeja in-app de un tenant.
+// Notification representa un aviso persistido en la bandeja in-app de una org.
 type Notification struct {
 	ID          string          `json:"id"`
-	TenantID    string          `json:"tenant_id"`
+	OrgID       string          `json:"org_id"`
 	RecipientID string          `json:"recipient_id"`
 	Title       string          `json:"title"`
 	Body        string          `json:"body"`

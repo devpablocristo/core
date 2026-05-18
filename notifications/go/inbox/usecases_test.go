@@ -11,12 +11,12 @@ import (
 
 type stubRepository struct {
 	appended           domain.Notification
-	listTenantID       string
+	listOrgID       string
 	listRecipientID    string
 	listLimit          int
-	unreadTenantID     string
+	unreadOrgID     string
 	unreadRecipientID  string
-	markTenantID       string
+	markOrgID       string
 	markRecipientID    string
 	markNotificationID string
 	markReadAt         time.Time
@@ -24,15 +24,15 @@ type stubRepository struct {
 	unreadOut          int64
 }
 
-func (s *stubRepository) ListForRecipient(_ context.Context, tenantID, recipientID string, limit int) ([]domain.Notification, error) {
-	s.listTenantID = tenantID
+func (s *stubRepository) ListForRecipient(_ context.Context, orgID, recipientID string, limit int) ([]domain.Notification, error) {
+	s.listOrgID = orgID
 	s.listRecipientID = recipientID
 	s.listLimit = limit
 	return s.listOut, nil
 }
 
-func (s *stubRepository) CountUnread(_ context.Context, tenantID, recipientID string) (int64, error) {
-	s.unreadTenantID = tenantID
+func (s *stubRepository) CountUnread(_ context.Context, orgID, recipientID string) (int64, error) {
+	s.unreadOrgID = orgID
 	s.unreadRecipientID = recipientID
 	return s.unreadOut, nil
 }
@@ -42,8 +42,8 @@ func (s *stubRepository) Append(_ context.Context, notification domain.Notificat
 	return notification, nil
 }
 
-func (s *stubRepository) MarkRead(_ context.Context, tenantID, recipientID, notificationID string, readAt time.Time) (time.Time, error) {
-	s.markTenantID = tenantID
+func (s *stubRepository) MarkRead(_ context.Context, orgID, recipientID, notificationID string, readAt time.Time) (time.Time, error) {
+	s.markOrgID = orgID
 	s.markRecipientID = recipientID
 	s.markNotificationID = notificationID
 	s.markReadAt = readAt
@@ -59,7 +59,7 @@ func TestCreateAppliesDefaults(t *testing.T) {
 	uc.now = func() time.Time { return fixedNow }
 
 	created, err := uc.Create(context.Background(), domain.Notification{
-		TenantID:    " tenant-1 ",
+		OrgID:    " tenant-1 ",
 		RecipientID: " user-1 ",
 		Title:       "  Aviso  ",
 		Body:        "  Cuerpo  ",
@@ -81,7 +81,7 @@ func TestCreateAppliesDefaults(t *testing.T) {
 	if !created.CreatedAt.Equal(fixedNow) {
 		t.Fatalf("expected created_at %s, got %s", fixedNow, created.CreatedAt)
 	}
-	if repo.appended.TenantID != "tenant-1" || repo.appended.RecipientID != "user-1" {
+	if repo.appended.OrgID != "tenant-1" || repo.appended.RecipientID != "user-1" {
 		t.Fatalf("unexpected normalized notification: %+v", repo.appended)
 	}
 }
@@ -94,7 +94,7 @@ func TestCreateKeepsMetadataPayload(t *testing.T) {
 	in := json.RawMessage(`{"scope":"sales"}`)
 
 	created, err := uc.Create(context.Background(), domain.Notification{
-		TenantID:    "tenant-1",
+		OrgID:    "tenant-1",
 		RecipientID: "user-1",
 		Title:       "Aviso",
 		Body:        "Cuerpo",
@@ -142,8 +142,8 @@ func TestCountUnreadDelegatesToRepository(t *testing.T) {
 	if count != 7 {
 		t.Fatalf("expected unread 7, got %d", count)
 	}
-	if repo.unreadTenantID != "tenant-1" || repo.unreadRecipientID != "user-1" {
-		t.Fatalf("unexpected unread args: tenant=%q recipient=%q", repo.unreadTenantID, repo.unreadRecipientID)
+	if repo.unreadOrgID != "tenant-1" || repo.unreadRecipientID != "user-1" {
+		t.Fatalf("unexpected unread args: tenant=%q recipient=%q", repo.unreadOrgID, repo.unreadRecipientID)
 	}
 }
 
